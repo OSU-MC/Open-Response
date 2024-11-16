@@ -12,9 +12,11 @@ function DisplayCoursePage(){
     const { courseId } = useParams()
     let navigate = useNavigate()
     const [ course, role, message, error, loading ] = useCourse()
-    if (role === "student") {
-        navigate(`/${courseId}/lectures`)
-    }
+    useEffect(() => {
+        if (role === "student") {
+            navigate(`/${courseId}/lectures`);
+        }
+    }, [role, navigate, courseId]);
 
     return <>
         { loading ? <TailSpin visibile={true}/> : (error ? <Notice message={message} error={error ? "error" : ""}/> : <div className="singleCourseContainer">

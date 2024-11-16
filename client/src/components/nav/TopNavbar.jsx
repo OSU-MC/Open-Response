@@ -57,8 +57,9 @@ function LoggedIn(props) {
 
 	return (
 		<>
-			{navItems.map((item) => (
+			{navItems.map((item, index) => (
 				<a
+					key={index}
 					href={item.path}
 					className={`page ${item.className} ${
 						pathname === item.path ? "curr" : ""

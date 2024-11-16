@@ -7,32 +7,32 @@ import "../styles/home.css"
 function Home() {
     return(
        <div id="home">
-           <div class="section">
-               <p class="homeHeader">Welcome to MyClassroom</p>
+           <div className="section">
+               <p className="homeHeader">Welcome to MyClassroom</p>
                <p>Open-Source Classroom Polling Software</p>
            </div>
 
-           <div class="infoContainer">
-               <div class="infoConnector"></div>
-               <div class="infoBox leftBox">
+           <div className="infoContainer">
+               <div className="infoConnector"></div>
+               <div className="infoBox leftBox">
                    <img src="classroom.png"></img>
-                   <p class="infoText">Create courses and manage lectures easily.</p>
+                   <p className="infoText">Create courses and manage lectures easily.</p>
                </div>
-               <div class="infoBox rightBox">
+               <div className="infoBox rightBox">
                    <img src="goal.png"></img>
-                   <p class="infoText">Track student progress and manage grades.</p>
+                   <p className="infoText">Track student progress and manage grades.</p>
                </div>
-               <div class="infoBox leftBox">
+               <div className="infoBox leftBox">
                    <img src="lms.png"></img>
-                   <p class="infoText">Seamless integration with educational platforms.</p>
+                   <p className="infoText">Seamless integration with educational platforms.</p>
                </div>
-               <div class="infoBox rightBox">
+               <div className="infoBox rightBox">
                    <img src="graph.png"></img>
-                   <p class="infoText">Boost student engagement with interactive polls.</p>
+                   <p className="infoText">Boost student engagement with interactive polls.</p>
                </div>
-               <div class="infoBox leftBox">
+               <div className="infoBox leftBox">
                    <img src="school.png"></img>
-                   <p class="infoText">Highly customizable and free to use.</p>
+                   <p className="infoText">Highly customizable and free to use.</p>
                </div>
            </div>
        </div>
