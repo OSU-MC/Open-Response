@@ -24,18 +24,29 @@ const handleRequest = async (method, route, reactOpts, body, params) => {
         return responseBody
     }
     catch (e) { // defines global response behaviors for errors so our application's API calls can be coded with reduced repitition
-        if (e.response.status === 401 && (reactOpts.overrideRedirect !== true)) {
-            reactOpts.dispatch(logout())
-            reactOpts.navigate(`/login?redirect=${location.pathname}`)
+        if (e.response) {
+            if (e.response.status === 401 && (reactOpts.overrideRedirect !== true)) {
+                reactOpts.dispatch(logout())
+                reactOpts.navigate(`/login?redirect=${location.pathname}`)
+            }
+            else if (e.response.status === 403) {
+                reactOpts.navigate(`/`)
+            }
+            return {
+                message: e.response.data.error,
+                data: e.response.data,
+                status: e.response.status,
+                error: true
+            }
         }
-        else if (e.response.status === 403) {
-            reactOpts.navigate(`/`)
-        }
-        return {
-            message: e.response.data.error,
-            data: e.response.data,
-            status: e.response.status,
-            error: true
+
+        else {
+            return {
+                message: 'An unexpected error occurred. Please try again later.',
+                data: {},
+                status: 500,
+                error: true
+            }
         }
     }
 }
