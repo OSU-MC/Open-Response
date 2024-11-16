@@ -2,6 +2,7 @@ const cors = require("cors");
 var express = require("express");
 const cookieParser = require("cookie-parser");
 const { logger, morganMiddleware } = require("../lib/logger");
+
 if (process.env.NODE_ENV == "development") {
 	require("dotenv").config({ override: false });
 }
@@ -19,6 +20,7 @@ app.use(
 		methods: ["GET", "PUT", "POST", "DELETE"],
 		optionsSuccessStatus: 200,
 		credentials: true,
+		allowedHeaders: ['Content-Type', 'Authorization'],
 	})
 );
 
