@@ -17,7 +17,8 @@
         "start:docker": "docker compose up -d --build",
         "stop:docker": "docker compose down",
         "seed": "npm exec -- sequelize-cli db:seed:all",
-        "unseed": "npm exec -- sequelize-cli db:seed:undo:all"
+        "unseed": "npm exec -- sequelize-cli db:seed:undo:all",
+        "redis:basics": "node redis/basics.js"
     },
     "dependencies": {
         "@trycourier/courier": "^6.3.0",
@@ -31,6 +32,7 @@
         "moment": "^2.30.1",
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
+        "redis": "^4.7.0",
         "supertest": "^7.0.0",
         "winston": "^3.15.0",
         "winston-daily-rotate-file": "^5.0.0"
