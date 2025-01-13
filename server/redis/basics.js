@@ -3,7 +3,9 @@ const redis = require('redis');
 const PORT = 6380;
 const client = redis.createClient({
     legacyMode: true,
-    PORT: PORT
+    socket: {
+        port: PORT,
+    }
 });
 
 client.connect().catch(console.error);
