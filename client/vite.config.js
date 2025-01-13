@@ -17,4 +17,11 @@ export default defineConfig({
     environment: 'jsdom',
     setupFiles: './src/setupTests.js',
   },
+  // added to specify client side port so that CORS will work
+  // ../server/.env CLIENT_URL should be specified as
+  // CLIENT_URL='http://localhost:3000'
+
+  preview: {
+    port:3000,
+  },
 });
