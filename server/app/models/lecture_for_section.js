@@ -52,7 +52,23 @@ module.exports = (sequelize, DataTypes) => {
         participationScore: {
           type: DataTypes.DOUBLE,
           allowNull: true
+        },
+        softDelete: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false
+      },
+      publishedAt: {
+        type: DataTypes.DATETIME,
+        allowNull: true,
+        validate: {
+            isPublishedIfNotNull(value) {
+                if (value !== null && !this.published) {
+                    throw new Error("The 'published' field must be true if 'publishedAt' is not null.");
+                }
+            }
         }
+    },
     },
     {
         indexes: [

@@ -13,16 +13,16 @@ module.exports = (sequelize, DataTypes) => {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			courseId: {
+			lectureId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 				references: {
-					model: "Courses",
+					model: "Lectures",
 					key: "id",
 				},
 				validate: {
 					notNull: {
-						msg: "Question must have a course",
+						msg: "Question must be associated with a lecture",
 					},
 				},
 			},
@@ -186,6 +186,11 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
+			softDelete: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false
+			},
 		},
 		{
 			timestamps: true,
@@ -193,7 +198,7 @@ module.exports = (sequelize, DataTypes) => {
 	);
 
 	Question.associate = (models) => {
-		Question.belongsTo(models.Course);
+		Question.belongsTo(models.Lecture);
 		Question.hasMany(models.QuestionInLecture);
 	};
 
