@@ -17,6 +17,10 @@ module.exports = {
       allowNull: false,
       defaultValue: false,
     });
+    await queryInterface.addColumn('Courses', 'publishedAt', {
+      type: Sequelize.DATE,
+      allowNull: true,
+    });
     await queryInterface.addColumn('Enrollments', 'softDelete', {
       type: Sequelize.BOOLEAN,
       allowNull: false,
@@ -92,6 +96,7 @@ module.exports = {
 
     // Remove softDelete and other new fields from relevant models
     await queryInterface.removeColumn('Courses', 'softDelete');
+    await queryInterface.removeColumn('Courses', 'publishedAt');
     await queryInterface.removeColumn('Enrollments', 'softDelete');
     await queryInterface.removeColumn('Enrollments', 'softUnenroll');
     await queryInterface.removeColumn('Grades', 'softDelete');
