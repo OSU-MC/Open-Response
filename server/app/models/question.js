@@ -15,15 +15,10 @@ module.exports = (sequelize, DataTypes) => {
 			},
 			lectureId: {
 				type: DataTypes.INTEGER,
-				allowNull: false,
+				allowNull: true,
 				references: {
 					model: "Lectures",
 					key: "id",
-				},
-				validate: {
-					notNull: {
-						msg: "Question must be associated with a lecture",
-					},
 				},
 			},
 			type: {

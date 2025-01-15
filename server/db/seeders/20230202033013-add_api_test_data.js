@@ -169,7 +169,7 @@ module.exports = {
 		"2": 1,
 		"3": 1
 	}`,
-				courseId: course1,
+				lectureId: lecture1course1,
 			},
 		]);
 
@@ -197,7 +197,7 @@ module.exports = {
           "2": 1,
           "3": 1
       }`,
-				courseId: course1,
+				lectureId: lecture1course1,
 			},
 		]);
 
@@ -262,7 +262,7 @@ module.exports = {
 			"2": 1,
 			"3": 1
 		}`,
-					courseId: course1,
+					lectureId: lecture1course1,
 				},
 			]);
 		}
