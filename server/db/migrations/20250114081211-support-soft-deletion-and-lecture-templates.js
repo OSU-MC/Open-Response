@@ -80,18 +80,6 @@ module.exports = {
       allowNull: false,
       defaultValue: false,
     });
-
-    // Update Questions: Remove courseId and add lectureId
-    await queryInterface.removeColumn('Questions', 'courseId');
-    await queryInterface.addColumn('Questions', 'lectureId', {
-      type: Sequelize.INTEGER,
-      allowNull: true,
-      references: {
-        model: 'Lectures',
-        key: 'id',
-      },
-    });
-
   },
 
   async down(queryInterface, Sequelize) {
@@ -117,21 +105,5 @@ module.exports = {
     await queryInterface.removeColumn('Responses', 'softDelete');
     await queryInterface.removeColumn('Sections', 'softDelete');
     await queryInterface.removeColumn('Users', 'softDelete');
-
-    // Revert Questions: Remove lectureId and add courseId
-    await queryInterface.removeColumn('Questions', 'lectureId');
-    await queryInterface.addColumn('Questions', 'courseId', {
-      type: Sequelize.INTEGER,
-      allowNull: false,
-      references: {
-        model: 'Courses',
-        key: 'id',
-      },
-      validate: {
-        notNull: {
-          msg: 'Question must have a course',
-        },
-      },
-    });
   }
 };

@@ -13,11 +13,11 @@ module.exports = (sequelize, DataTypes) => {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			lectureId: {
+			courseId: {
 				type: DataTypes.INTEGER,
-				allowNull: true,
+				allowNull: false,
 				references: {
-					model: "Lectures",
+					model: "Courses",
 					key: "id",
 				},
 			},
