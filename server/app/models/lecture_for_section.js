@@ -59,7 +59,7 @@ module.exports = (sequelize, DataTypes) => {
           defaultValue: false
       },
       publishedAt: {
-        type: DataTypes.DATETIME,
+        type: DataTypes.DATE,
         allowNull: true,
         validate: {
             isPublishedIfNotNull(value) {
