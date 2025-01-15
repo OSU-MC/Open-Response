@@ -20,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
 					model: "Courses",
 					key: "id",
 				},
+				validate: {
+					notNull: {
+						msg: "Question must have a course"
+					},
+				},
 			},
 			type: {
 				// multiple choice only for now
