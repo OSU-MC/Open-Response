@@ -49,6 +49,19 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        softDelete: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        // The "archived" field marks lectures that were live and then closed, preserving their state and questions. 
+        //      Archived lectures are excluded from the lecture template view, and are only used to preserve state of a 
+        //      previously held lecture.
+        archived: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
     },
     {
         hooks: {

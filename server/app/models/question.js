@@ -22,7 +22,7 @@ module.exports = (sequelize, DataTypes) => {
 				},
 				validate: {
 					notNull: {
-						msg: "Question must have a course",
+						msg: "Question must have a course"
 					},
 				},
 			},
@@ -185,6 +185,11 @@ module.exports = (sequelize, DataTypes) => {
 						}
 					},
 				},
+			},
+			softDelete: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false
 			},
 		},
 		{
