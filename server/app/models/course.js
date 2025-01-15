@@ -50,13 +50,6 @@ module.exports = (sequelize, DataTypes) => {
         publishedAt: {
             type: DataTypes.DATE,
             allowNull: true,
-            validate: {
-                isPublishedIfNotNull(value) {
-                    if (value !== null && !this.published) {
-                        throw new Error("The 'published' field must be true if 'publishedAt' is not null.");
-                    }
-                }
-            }
         },
     },
     {
