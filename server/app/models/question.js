@@ -198,7 +198,7 @@ module.exports = (sequelize, DataTypes) => {
 	);
 
 	Question.associate = (models) => {
-		Question.belongsTo(models.Lecture);
+		Question.belongsTo(models.Course);
 		Question.hasMany(models.QuestionInLecture);
 	};
 
