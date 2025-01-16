@@ -31,7 +31,7 @@ Our development process involves the following branch structure:
 - Ensure that your PR title and description are descriptive and concise.
 - Attach the PR to the related issue.
 - Reviews will be automatically requested from the appropriate team:
-  - **Server (@OSU-MC/backend-team)**: All changes within the `/server/` directory.
+  - **Core (@OSU-MC/backend-team)**: All changes within the `/core/` directory.
   - **Client (@OSU-MC/frontend-team)**: All changes within the `/client/` directory.
   - **General (@OSU-MC/myclassroom)**: Changes in the parent directory or affecting multiple areas.
 - PRs will be reviewed according to the order they are received. Once approved, they can be merged into `main` with the merge queue.

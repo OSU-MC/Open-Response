@@ -2,25 +2,25 @@
 
 # dependencies
 /node_modules
-/server/node_modules
+/core/node_modules
 /client/node_modules
 /.pnp
 .pnp.js
 
 # testing
 /coverage
-/server/coverage
+/core/coverage
 
 # production
 /client/build
-/server/dist
+/core/dist
 
 # misc
 .DS_Store
 *.log*
 .env*
-/server/.env
-/server/logs
+/core/.env
+/core/logs
 
 # IDE & Editor configs
 .idea
