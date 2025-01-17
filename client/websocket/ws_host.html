@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>WebSocket Host</title>
+</head>
+
+<body>
+	<h1>WebSocket Host</h1>
+	<button id="addClient">Add Client</button>
+	<h2>Connected Clients</h2>
+	<ul id="clients">
+	<li>No clients connected</li>
+	</ul>
+
+	<script>
+		const socket = new WebSocket('ws://localhost:8080');
+		const clientsList = document.getElementById('clients');
+		const addClientButton = document.getElementById('addClient');
+
+		const clientWindows = new Map();
+
+    socket.addEventListener('open', () => {
+		console.log('Host connected to WebSocket server');
+    });
+
+    socket.addEventListener('message', (event) => {
+		try {
+			const data = JSON.parse(event.data);
+
+        if (data.clients) {
+			clientsList.innerHTML = '';
+			data.clients.forEach(clientId => {
+				const li = document.createElement('li');
+				li.textContent = `Client ID: ${clientId}`;
+
+				clientsList.appendChild(li);
+			});
+        }
+		} catch (error) {
+			console.error('Error parsing message:', error);
+		}
+    });
+
+		socket.addEventListener('close', () => {
+			console.log('Disconnected from WebSocket server');
+			clientsList.innerHTML = '<li>Disconnected</li>';
+		});
+
+		socket.addEventListener('error', (error) => {
+			console.error('WebSocket error:', error);
+		});
+
+		addClientButton.addEventListener('click', () => {
+			const newClientWindow = window.open('ws_client.html', '_blank');
+			if (!newClientWindow) {
+				alert('Please allow pop-ups to add a new client.');
+				return;
+			}
+		});
+	</script>
+</body>
+</html>
