@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Test Page</title>
+</head>
+<body>
+    <h1>Notification Test Page</h1>
+
+    <script>
+        const publicVapidKey = "BDWLp6VBKr3geSNPBsyBYk3_2a85bhFD94057-AZSzCjykQ9__KiCTfrZqNcI2Ae5uBBIhPuIYkK4aN2S6ygIkI"
+        
+        // start service worker
+        async function registerServiceWorker() {
+            const register = await navigator.serviceWorker.register('./service_worker.js', {
+                scope: '/'
+            });
+            
+            // wait for user permission
+            const subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: publicVapidKey,
+            });
+
+            await fetch("/subscribe", {
+                method: "POST",
+                body: JSON.stringify(subscription),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+        }
+
+        registerServiceWorker();
+    </script>
+</body>
+</html>
