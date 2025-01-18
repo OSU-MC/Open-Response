@@ -7,10 +7,11 @@ Open a WSL console.
 Navigate to the Core directory and install all dependencies:
 
 ```
-cd MyClassroom/core && npm install
+cd core
+npm install
 ```
 
-### Step 3: Set Up VAPID Keys
+### Step 3: Get VAPID Keys
 VAPID (Voluntary Application Server Identity) keys allow for the sending and recieving of web notifications without the use of external services.
 The keys need to be initialized in order to use the notification microservices.
 
@@ -22,9 +23,13 @@ npm run notif:keygen
 
 Your VAPID keys should now be displayed in the console.
 
-Next, go to the `server.js` file under `MyClassroom/core/notif` in your IDE and replace the `publicVapidKey` and `privateVapidKey` constants with your own. You will also need to change the `publicVapidKey` constant in the `index.html` file under `MyClassroom/core/notif/client`.
+### Step 4: Set VAPID Keys
 
-### Step 4: Test Notification Service
+Now, go to the `server.js` file under `MyClassroom/core/notif` in your IDE and replace the `publicVapidKey` and `privateVapidKey` constants with your own. 
+
+You will also need to change the `publicVapidKey` constant in the `index.html` file under `MyClassroom/core/notif/client`.
+
+### Step 5: Test Notification Service
 To verify that the service has been set up correctly, run the following while still being under `MyClassroom/core` in your console:
 
 ```
