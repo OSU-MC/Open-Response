@@ -52,6 +52,20 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.DATE,
             allowNull: true,
         },
+        totalPoints: {
+            type: DataTypes.DOUBLE,
+            allowNull: false,
+            defaultValue: 1,
+            validate: {
+                notNull: {
+                    msg: 'QuestionInLecture must have a totalPoints'
+                },
+                min: {
+                    args: [0],
+                    msg: 'totalPoints cannot be less than 0'
+                }
+            }
+        }
     },
     {
         timestamps: true,
@@ -84,8 +98,9 @@ module.exports = (sequelize, DataTypes) => {
 
     QuestionInLecture.associate = (models) => {
         QuestionInLecture.belongsTo(models.Question)
-        QuestionInLecture.belongsTo(models.Lecture)
+        QuestionInLecture.belongsTo(models.LectureForSection)
         QuestionInLecture.hasMany(models.Response)
+        QuestionInLecture.hasOne(models.RequiredQuestionsInLecture)
     }
 
     return QuestionInLecture
