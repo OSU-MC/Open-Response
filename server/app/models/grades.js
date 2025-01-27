@@ -40,12 +40,9 @@ module.exports = (sequelize, DataTypes) => {
 				},
 			},
 			points: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.DOUBLE,
 				allowNull: true,
 				validate: {
-					notNull: {
-						msg: "a grade must have a score",
-					},
 					min: {
 						args: [0],
 						msg: "points cannot be less than 0",
@@ -56,9 +53,6 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.DOUBLE,
 				allowNull: true,
 				validate: {
-					notNull: {
-						msg: "a grade must have a total points",
-					},
 					min: {
 						args: [0],
 						msg: "total points cannot be less than 0",
