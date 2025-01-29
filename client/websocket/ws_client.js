@@ -6,6 +6,7 @@ socket.on('open', () => {
 	console.log('Connected to the WebSocket host');
 });
 
+// Recieve data about self and other clients from host
 socket.on('message', (message) => {
 	try {
 		const data = JSON.parse(message);

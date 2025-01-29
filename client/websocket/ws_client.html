@@ -21,6 +21,7 @@
 			console.log('Connected to WebSocket host');
 		});
 
+		// Display all clients upon recieving message with client data (essentially the same as the host message listener)
 		socket.addEventListener('message', (event) => {
 			try {
 				const data = JSON.parse(event.data);
@@ -30,7 +31,7 @@
 				}
 
 				if (data.clients) {
-					clientsList.innerHTML = '';
+					clientsList.innerHTML = '';				// Erase clientsList current data
 					data.clients.forEach(clientId => {
 						const li = document.createElement('li');
 						li.textContent = `Client ID: ${clientId}`;
@@ -42,11 +43,13 @@
 			}
 		});
 
+		// Display disconnected message
 		socket.addEventListener('close', () => {
 			console.log('Disconnected from WebSocket server');
 			clientsList.innerHTML = '<li>Disconnected</li>';
 		});
 
+		// Display error message
 		socket.addEventListener('error', (error) => {
 			console.error('WebSocket error:', error);
 		});
