@@ -27,6 +27,14 @@ const Tabs = ({ user, courseId }) => {
                     </Link>
                 )}
 
+                {/* Show "Roster" only if user is an instructor */}
+                {/* planned changed to only show when you are in a section arleady*/}
+                {user?.user?.isTeacher && (
+                    <Link to={`/${courseId}/roster`}>
+                        <span className={getActiveTab() === "roster" ? "active-tab" : "no-link-style"}>Roster</span>
+                    </Link>
+                )}
+
                 <Link to={`/${courseId}/settings`}>
                     <span className={getActiveTab() === "settings" ? "active-tab" : "no-link-style"}>Settings</span>
                 </Link>

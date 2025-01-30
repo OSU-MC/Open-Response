@@ -53,7 +53,8 @@ function Sections() {
             <div className="sections-header">
             <div>
                 {/* Display the Breadcrumbs component */}
-                <Breadcrumbs breadcrumbs={breadcrumbs_object} /></div>
+                <Breadcrumbs breadcrumbs={breadcrumbs_object} />
+            </div>
                 <h1 className="course-title">{courseName}</h1>
                 <Tabs user={user} courseId={courseId} />
             </div>
