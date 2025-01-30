@@ -1,0 +1,18 @@
+.breadcrumbs {
+    font-size: 14px;
+    color: #888;
+  }
+  
+  .no-link-style {
+    text-decoration: none;
+    color: #888;
+  }
+  
+  .no-link-style:hover {
+    color: #333;
+  }
+
+  a {
+    text-decoration: none !important;
+  
+}
