@@ -65,7 +65,7 @@ docker build -t myclassroom_server .
 
 Run MyClassroom Server (without DB):
 ```
-docker run -p 3001:3001: myclassroom_server
+docker run -p 3002:3002 myclassroom_server
 ```
 
 #### Setup Development Database
