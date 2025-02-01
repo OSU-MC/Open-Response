@@ -42,7 +42,16 @@ module.exports = (sequelize, DataTypes) => {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
             allowNull: false
-        }
+        },
+        softDelete: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
+        publishedAt: {
+            type: DataTypes.DATE,
+            allowNull: true,
+        },
     },
     {
         timestamps: true,

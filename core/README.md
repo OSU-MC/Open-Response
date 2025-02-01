@@ -197,4 +197,4 @@ The process should yield a bearer token in the HTTPS request Courier generates. 
 It's worth noting that the application is only configured for email use through Courier, but Courier supports a variety of modern notification methods.
 
 ## Database Schema
-![Schema](https://github.com/OSU-MC/MyClassroom/assets/25465133/d987e780-fd0e-4ea5-bd18-c72de5d8c32c)
+![Schema](https://github.com/user-attachments/assets/cc642b55-d099-46cd-a5c4-95efee36c15e)

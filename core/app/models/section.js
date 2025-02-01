@@ -41,6 +41,11 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
+        softDelete: {
+            type: DataTypes.BOOLEAN,
+            allowNull: false,
+            defaultValue: false
+        },
     },
     {
         indexes: [

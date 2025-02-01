@@ -66,6 +66,11 @@ module.exports = (sequelize, DataTypes) => {
 				type: DataTypes.JSON,
 				defaultValue: {},
 			},
+			softDelete: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false
+			},
 		},
 		{
 			timestamps: true,

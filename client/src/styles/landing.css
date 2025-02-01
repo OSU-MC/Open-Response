@@ -74,5 +74,9 @@
         .courses {
             margin: 0px 50px;
         }
+        .courses a {
+            text-decoration: none; /* Removes underline */
+            color: inherit; /* Ensures the text color stays the same as the parent */
+        }
     }
 }
