@@ -1,0 +1,63 @@
+/* Individual Section Card */
+.section-card {
+    position: relative;
+    display: inline-block;
+    margin: 15px;
+    width: 200px;
+    height: 150px;
+    min-width: 200px;
+    min-height: 150px;
+
+    /* Border */
+    border-radius: 25px;
+    background-color: var(--accent2);
+
+    .course-header {
+        margin-top: 10px;
+        position: absolute;
+        
+        h1 {
+            font-size: 20px;
+        }
+        
+        p {
+            width: 170px;
+        }
+    }
+
+    .registered {
+        position: absolute;
+        bottom: 15px;
+        margin: 0;
+        font-weight: bold;
+        font-size: 12px;
+    }
+
+    .viewButton {
+        position: absolute;
+        bottom: 15px;
+        right: 15px;
+        
+        width: 75px;
+        height: 40px;
+
+        /* Border */
+        border-radius: 15px;
+        background-color: var(--splash);
+
+        /* Contents */
+        font-weight: 700;
+        padding-top: 7px;
+        text-align: center;
+        color: black;
+        text-decoration: none;
+
+        &:hover {
+            background-color: white;
+        }
+    }
+}
+
+.card {
+    height: 100%;
+}
