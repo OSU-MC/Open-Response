@@ -52,7 +52,16 @@ module.exports = (sequelize, DataTypes) => {
         participationScore: {
           type: DataTypes.DOUBLE,
           allowNull: true
-        }
+        },
+        softDelete: {
+          type: DataTypes.BOOLEAN,
+          allowNull: false,
+          defaultValue: false
+      },
+      publishedAt: {
+        type: DataTypes.DATE,
+        allowNull: true,
+      },
     },
     {
         indexes: [

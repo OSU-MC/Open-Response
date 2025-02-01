@@ -91,6 +91,18 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
+			softDelete: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false
+			},
+			// this is a flag that is set to true when a student unenrolls from a course, but we want to keep the 
+			// record and associated grades
+			softUnenroll: {
+				type: DataTypes.BOOLEAN,
+				allowNull: false,
+				defaultValue: false
+			}
 		},
 		{
 			indexes: [

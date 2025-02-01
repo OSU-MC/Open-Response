@@ -20,6 +20,9 @@ export default defineConfig({
   // added to specify client side port so that CORS will work
   // ../server/.env CLIENT_URL should be specified as
   // CLIENT_URL='http://localhost:3000'
+  server: {
+    port: 3000,
+  },
 
   preview: {
     port:3000,
