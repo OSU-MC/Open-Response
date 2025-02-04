@@ -186,6 +186,23 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
+			totalPoints: {
+				type: DataTypes.DOUBLE,
+				allowNull: false,
+				defaultValue: 1,
+				validate: {
+					notNull: {
+						msg: 'Question must have a totalPoints'
+					},
+					min: {
+						args: [0],
+						msg: 'totalPoints cannot be less than 0'
+					}
+				}
+			},
+			order: {
+				type: DataTypes.INTEGER
+			},
 			softDelete: {
 				type: DataTypes.BOOLEAN,
 				allowNull: false,

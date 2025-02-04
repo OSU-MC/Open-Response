@@ -68,11 +68,11 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
-      lectureForSectionId: {
+      lectureId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'LectureForSections',
+          model: 'Lectures',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -101,20 +101,20 @@ module.exports = {
         autoIncrement: true,
         allowNull: false,
       },
-      lectureForSectionId: {
+      lectureId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'LectureForSections',
+          model: 'Lectures',
           key: 'id',
         },
         onDelete: 'CASCADE',
       },
-      questionInLectureId: {
+      questionId: {
         type: Sequelize.INTEGER,
         allowNull: false,
         references: {
-          model: 'QuestionInLectures',
+          model: 'Questions',
           key: 'id',
         },
         onDelete: 'CASCADE',
@@ -128,7 +128,7 @@ module.exports = {
         type: Sequelize.DATE,
         allowNull: false,
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
-      },
+      },      
     });
 
     // Modify Response Table
@@ -178,13 +178,13 @@ module.exports = {
     });
 
     // Modify QuestionInLecture Table
-    await queryInterface.addColumn('QuestionInLectures', 'totalPoints', {
+    await queryInterface.addColumn('Questions', 'totalPoints', {
       type: Sequelize.DOUBLE,
       allowNull: false,
       defaultValue: 1,
       validate: {
         notNull: {
-          msg: 'QuestionInLecture must have a totalPoints',
+          msg: 'Question must have a totalPoints',
         },
         min: {
           args: [0],
@@ -193,12 +193,20 @@ module.exports = {
       },
     });
 
+    // Move order from QuestionInLectures to Questions
+    await queryInterface.addColumn('Questions', 'order', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    });
+    await queryInterface.removeColumn('QuestionInLectures', 'order');
+
     // Add missing LectureForSections columns
     await queryInterface.addColumn('LectureForSections', 'closeAttendanceAt', {
       type: Sequelize.TIME,
-      allowNull: false,
+      allowNull: true,
     });
 
+    // Add missing LectureForSections columns
     await queryInterface.addColumn('LectureForSections', 'attendanceMethod', {
       type: Sequelize.ENUM("join", "joinBy", "requiredQuestions"),
       allowNull: false,
@@ -289,6 +297,18 @@ module.exports = {
       allowNull: true,
     });
     await queryInterface.changeColumn('Grades', 'totalPoints', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+    });
+
+    // Revert changes to `Questions` table
+    await queryInterface.removeColumn('Questions', 'order');
+    await queryInterface.addColumn('QuestionInLectures', 'order', {
+      type: Sequelize.INTEGER,
+      allowNull: false,
+    });
+    await queryInterface.removeColumn('Questions', 'totalPoints');
+    await queryInterface.addColumn('QuestionInLecture', 'totalPoints', {
       type: Sequelize.INTEGER,
       allowNull: true,
     });

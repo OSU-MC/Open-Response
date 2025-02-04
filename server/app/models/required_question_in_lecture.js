@@ -8,11 +8,11 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    lectureForSectionId: {
+    lectureId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
-    questionInLectureId: {
+    questionId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -29,13 +29,13 @@ module.exports = (sequelize, DataTypes) => {
     });
 
   RequiredQuestionsInLectures.associate = (models) => {
-    RequiredQuestionsInLectures.belongsTo(models.LectureForSection, {
-      foreignKey: 'lectureForSectionId',
+    RequiredQuestionsInLectures.belongsTo(models.Lecture, {
+      foreignKey: 'lectureId',
       onDelete: 'CASCADE',
     });
 
-    RequiredQuestionsInLectures.belongsTo(models.QuestionInLecture, {
-      foreignKey: 'questionInLectureId',
+    RequiredQuestionsInLectures.belongsTo(models.Question, {
+      foreignKey: 'questionId',
       onDelete: 'CASCADE',
     });
   };

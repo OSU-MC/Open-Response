@@ -8,7 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    lectureForSectionId: {
+    lectureId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -21,14 +21,14 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['lectureForSectionId'],
+        fields: ['lectureId'],
       },
     ],
   });
 
   LectureGradeWeights.associate = (models) => {
     LectureGradeWeights.belongsTo(models.LectureForSection, {
-      foreignKey: 'lectureForSectionId',
+      foreignKey: 'lectureId',
       onDelete: 'CASCADE',
     });
   };
