@@ -19,7 +19,12 @@ function Lectures(props){
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
-
+    const tabs_o = [
+        ["Sections", "sections"],
+        ["Lecture Templates", "lectures"], 
+        ["Roster", "roster"], 
+        ["Settings", "settings"]
+    ];
 
     return (
         <div className='lectures'>
@@ -28,8 +33,8 @@ function Lectures(props){
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
-            <Tabs user={user} courseId={courseId} />
-
+            <Tabs courseId={courseId} tabs={tabs_o} />
+                
 
 
             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
