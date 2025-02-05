@@ -1,35 +1,60 @@
 import React from 'react';
-import { Link, useParams } from 'react-router-dom';
-import { TailSpin } from  'react-loader-spinner'
+import { useParams } from 'react-router-dom';
+import { TailSpin } from 'react-loader-spinner';
 import useLecturesInSection from '../hooks/useLecturesInSection';
-import Notice from '../components/Notice'
-import { Button, Card } from "react-bootstrap"
+import useCourse from '../hooks/useCourse'; // Use the new hook
+import Notice from '../components/Notice';
 import LectureCard from '../components/LectureCard';
+import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
+import Tabs from "../components/nav/Tabs.jsx";
+import "../styles/Section.css";
 
 function Section() { 
-    //get the lectures for the current course & section
-    const { sectionId, courseId } = useParams()
-    const [ lecturesInSection, message, error, loading] = useLecturesInSection()
+    const { sectionId, courseId } = useParams();
+    const [lecturesInSection, message, error, loading] = useLecturesInSection();
+    const [course, role, courseMessage, courseError, courseLoading] = useCourse(); 
 
-    return ((loading) ? <TailSpin visible={true}/> : <div className="contentView">
-                <div className='lectures-top-bar'>
-                    <Link className='back-btn-lectures' to={`/${courseId}/sections`}>
-                        <Button className='back-btn'> 
-                            <div id="back-btn-image"/>
-                        </Button>
-                    </Link>
+    const courseName = course?.name || (courseLoading ? "Loading..." : "Unknown Course");
 
-                    <p id="lectures-subtitle">Lectures for Section</p>
-                </div>
-                <hr></hr>
-                {(message != "") ? <Notice error={error ? "error" : ""} message={message}/> : (lecturesInSection.length == 0) ? <Notice message={"You Do Not Have Any Lectures Yet"}/> : <></> }
-                    <div className="horizontal-flex-container">
-                        { lecturesInSection.map((lecture) => {
-                            return <LectureCard key={lecture.id} lecture={lecture} view={'teacher'} section={sectionId}/>
-                        })}
+    const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
+    const tabs_o = [
+        ["Sections", "sections"],
+        ["Lecture Templates", "lectures"], 
+        ["Roster", "roster"], 
+        ["Settings", "settings"]
+    ];
+
+    return (
+        loading || courseLoading ? (
+            <TailSpin visible={true} />
+        ) : (
+            <div className="section-page">
+                <div className="section-header">
+                    <div>
+                        <Breadcrumbs breadcrumbs={breadcrumbs_object} />
                     </div>
+                    <h1 className="course-title">{`${courseName} - ${sectionId}`}</h1>
+                    <Tabs courseId={courseId} tabs={tabs_o} />
                 </div>
-            )
+
+                <div className='lectures-top-bar'>
+                    <p id="lectures-subtitle">Lectures for Section {sectionId}</p>
+                </div>
+
+                {message ? (
+                    <Notice error={error ? "error" : ""} message={message} />
+                ) : lecturesInSection.length === 0 ? (
+                    <Notice message="You Do Not Have Any Lectures Yet" />
+                ) : null}
+
+                <div className="horizontal-flex-container">
+                    {lecturesInSection.map((lecture) => (
+                        <LectureCard key={lecture.id} lecture={lecture} view={role} section={sectionId} />
+                    ))}
+                </div>
+            </div>
+        )
+    );
 }
 
-export default Section
+export default Section;
