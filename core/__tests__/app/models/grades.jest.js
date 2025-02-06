@@ -1,6 +1,6 @@
 // Test the grades model
-// Path: server/__tests__/app/models/grades.jest.js
-// Compare this snippet from server/db/migrations/20240108211086-add-grades-relationship.js:
+// Path: core/__tests__/app/models/grades.jest.js
+// Compare this snippet from core/db/migrations/20240108211086-add-grades-relationship.js:
 "use strict";
 const db = require("../../../app/models");
 const { UniqueConstraintError } = require("sequelize");

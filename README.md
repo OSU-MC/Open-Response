@@ -35,7 +35,7 @@ Configure the local environment:
 npm run config
 ```
 
-- Modify `/server/.env` to update the MyClassroom Server configuration.
+- Modify `/core/.env` to update the MyClassroom Core configuration.
 - Modify `/client/.env` to update the MyClassroom Client configuration.
 
 ### Start MyClassroom Application
@@ -51,8 +51,8 @@ Press **Ctrl+C** to stop the server and shut down the Docker container.
 ### Client
 For more info about developing for the frontend client, visit [client/README.md](https://github.com/OSU-MC/MyClassroom/tree/main/client)
 
-### Server
-For more info about developing for the backend server and database, visit [server/README.md](https://github.com/OSU-MC/MyClassroom/tree/main/server)
+### Core
+For more info about developing for the backend core and database, visit [core/README.md](https://github.com/OSU-MC/MyClassroom/tree/main/core)
 
 ## Licensing
 GNU General Public License v3.0

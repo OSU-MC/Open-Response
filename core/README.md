@@ -1,20 +1,20 @@
-# MyClassroom Server
-Welcome to the MyClassroom node.js Backend Server! This README.md is dedicated to development guidance and information reguarding the server side of the application. For more information about contributing, or general user guides, please visit the [MyClassroom Wiki](https://github.com/OSU-MC/MyClassroom/wiki).
+# MyClassroom Core
+Welcome to the MyClassroom node.js Backend Core! This README.md is dedicated to development guidance and information reguarding the core side of the application. For more information about contributing, or general user guides, please visit the [MyClassroom Wiki](https://github.com/OSU-MC/MyClassroom/wiki).
 
-## Setup Application for Server Development
-This guide is specifically for local development of the MyClassroom Server. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
+## Setup Application for Core Development
+This guide is specifically for local development of the MyClassroom Core. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
 
-There are two development methods for the MyClassroom Server application.
+There are two development methods for the MyClassroom Core application.
 
 1. [Docker](#docker): Install Docker locally and automatically deploy the databases for a simple development environment.
 2. [MySQL](#mysql): Install MySQL locally and manually intilize databases for detailed application control.
 
 ### Docker
-The server NodeJS app and MySQL database can also be deployed in containers using Docker (As used in the primary installation method). The Dockerfile will build the server NodeJS app as a standalone whilst the compose.yml file will build and run the server and MySQL containers. If you plan to re-initialize the database from scratch remember to delete the docker volume for it as well.
+The core NodeJS app and MySQL database can also be deployed in containers using Docker (As used in the primary installation method). The Dockerfile will build the core NodeJS app as a standalone whilst the compose.yml file will build and run the core and MySQL containers. If you plan to re-initialize the database from scratch remember to delete the docker volume for it as well.
 
 Install and configure the Application according to the steps in the main [README.md](../README.md) but do not start the application. Then run the following from the root directory.
 
-#### Build MyClassroom Server and MySQL Docker Containers
+#### Build MyClassroom Core and MySQL Docker Containers
 Build Docker containers:
 ```
 docker compose build
@@ -41,15 +41,15 @@ docker container start myclasroom_db
 ```
 
 ### MySQL
-If you are working on the MyClassroom Server application without Docker, you will need to install MySQL.
+If you are working on the MyClassroom Core application without Docker, you will need to install MySQL.
 
 - Refer to the [MySQL Getting Started Guide](https://dev.mysql.com/doc/mysql-getting-started/en/) for installing and troubleshooting MySQL.
 
-#### Navigate to Server and Install Dependencies
+#### Navigate to Core and Install Dependencies
 
-Navigate to the Server Directory
+Navigate to the Core Directory
 ```
-cd MyClassroom/server
+cd MyClassroom/core
 ```
 
 Install the Application Dependencies
@@ -57,15 +57,15 @@ Install the Application Dependencies
 npm install
 ```
 
-#### Build MyClassroom Server
-Build MyClassroom Server (without DB):
+#### Build MyClassroom Core
+Build MyClassroom Core (without DB):
 ```
-docker build -t myclassroom_server .
+docker build -t myclassroom_core .
 ```
 
-Run MyClassroom Server (without DB):
+Run MyClassroom Core (without DB):
 ```
-docker run -p 3001:3001: myclassroom_server
+docker run -p 3001:3001: myclassroom_core
 ```
 
 #### Setup Development Database
@@ -135,8 +135,8 @@ Seed the Test Database using Sequelize
 npx sequelize-cli db:seed:all --env test
 ```
 
-#### Start Server
-Start the MyClassroom Server
+#### Start Core
+Start the MyClassroom Core
 ```
 npm run start
 ```
@@ -180,8 +180,8 @@ or
 DROP DATABASE myclassroom_test;
 ```
 
-## Update Server Configuration
-Modify `/server/.env` to update the MyClassroom Server configuration. The `DEV_DB_...` and `TEST_DB_...` environment variables should match those in the database/user creation commands listed in the [MySQL](#mysql) setup steps below. Additionally, `CLIENT_URL` should be set to the MyClassroom Client application URL. For basic testing, the default values can be used.
+## Update Core Configuration
+Modify `/core/.env` to update the MyClassroom Core configuration. The `DEV_DB_...` and `TEST_DB_...` environment variables should match those in the database/user creation commands listed in the [MySQL](#mysql) setup steps below. Additionally, `CLIENT_URL` should be set to the MyClassroom Client application URL. For basic testing, the default values can be used.
 
 ## Application Authentication & Session
 The application uses cookie-based authentication once a user session has been created (i.e. a user has logged in). A user's session will have a specific XSRF token value associated with it to protect against XSRF attacks. As such, the value of that token will be sent back as a cookie, and the application expects to recieve with each authenticated request a custom X-XSRF-TOKEN header with that value, along with the traditional authentication cookie \_myclassroom_session which the application generated as part of initial session creation.

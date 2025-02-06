@@ -8,14 +8,14 @@
       "url": "https://github.com/OSU-MC/MyClassroom/"
     },
     "workspaces": [
-        "server",
+        "core",
         "client"
     ],
     "scripts": {
-        "config": "npm run config -w=server && npm run config -w=client",
-        "start": "trap 'npm run stop:docker -w=server' EXIT; npm run start:docker -w=server && npm run deploy -w=client",
-        "stop": "npm run stop:docker -w=server",
-        "start:server": "npm run start:docker -w=server",
+        "config": "npm run config -w=core && npm run config -w=client",
+        "start": "trap 'npm run stop:docker -w=core' EXIT; npm run start:docker -w=core && npm run deploy -w=client",
+        "stop": "npm run stop:docker -w=core",
+        "start:core": "npm run start:docker -w=core",
         "start:client": "npm run deploy -w=client &"
     },
     "keywords": [],
