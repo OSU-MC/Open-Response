@@ -8,7 +8,7 @@ const PORT = 8888;
 const app = express();
 
 // Replace with your generated VAPID keys
-const publicVapidKey = "BDWLp6VBKr3geSNPBsyBYk3_2a85bhFD94057-AZSzCjykQ9__KiCTfrZqNcI2Ae5uBBIhPuIYkK4aN2S6ygIkI";
+const publicVapidKey = "";
 const privateVapidKey = "";
 
 // Create express app

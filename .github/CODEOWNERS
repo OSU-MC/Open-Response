@@ -1,3 +1,4 @@
-*  @OSU-MC/myclassroom
-/core/ @OSU-MC/backend-team
-/client/ @OSU-MC/frontend-team
+*  @OSU-MC/Open-Response
+/core/ @OSU-MC/Dev-Ops
+/client/ @OSU-MC/Course-Management
+/client/ @OSU-MC/Lecture-Management
