@@ -149,7 +149,15 @@
 
         .loginSection {
             padding: 0 15%;
-            
+
+            .userTypeSelector {
+                display: flex;
+                justify-content: flex-start;
+                align-items: center;
+                margin-bottom: 15px;
+                margin-left: 0 !important;
+                align-self: flex-start;
+            }
             .switch {
                 left: 50%;
                 transform: translateX(-50%);
@@ -250,25 +258,67 @@
                 position: relative;
                 left: 50%;
                 transform: translateX(-50%);
-                border: 1px solid var(--splash);
+                border: 1px solid var(--splash3);
                 border-radius: 9px;
                 width: 256px;
                 height: 48px;
                 transition: 0.4s;
-                background-color: var(--splash);
+                background-color: var(--splash3);
+                color: white;
+                font-weight: bold;
+                font-size: 16px;
                 
                 &:hover {
-                    border: 1px solid black;
+                    border: 1px solid var(--splash3);
                     background-color: var(--primary);
+                    color: var(--splash3);
                 }
             }
             
             .orSSOText {
-                margin: 20px 0;
+                margin: 10px 0;
+                color: gray;
                 display: flex;
                 justify-content: center;
-                color: var(--accent);
+                text-align: center;
+                font-size: 14px;
+                font-weight: bold;
+                position: relative;
+                align-items: center;
             }
+            .orSSOText::before,
+            .orSSOText::after {
+                content: "";
+                flex: 1;
+                height: 1px;
+                background-color: gray;
+                margin: 0 10px;
+            }
+
+            .orSSOTextSignup {
+                margin: 10px auto;
+                color: gray;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                text-align: center;
+                font-size: 14px;
+                font-weight: bold;
+                position: relative;
+                width: 256px;
+            }
+            .orSSOTextSignup::before,
+            .orSSOTextSignup::after {
+                content: "";
+                flex: 1;
+                height: 1px;
+                background-color: gray;
+                max-width: 100px;
+                margin: 0 10px;
+            }
+
+
+
         }
     }
 }
