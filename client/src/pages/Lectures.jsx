@@ -12,7 +12,11 @@ function Lectures(props){
     const { courseId } = useParams()
     const [lectures, message, error, loading] = useLectures()
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
+    
+    
 
+    const liveLecture = lectures[courseId]?.[0]
+    const lectureId = liveLecture?.id;
     return (
         <div className='lectures'>
             <div className='lectures-top-bar'>
@@ -29,8 +33,18 @@ function Lectures(props){
                 <Link className="create-lecture-btn" to={`/${courseId}/createlecture`}>
                     <Button variant="primary" className="btn-add">Create Lecture</Button>
                 </Link>}
+            <hr></hr>
+            {/* && lectures[courseId]  */}
+            {/*Join Live Lecture Button - ONLY if enrollment != teacher and a live lecture exists*/}
+            {role !== "teacher" && lectureId &&
+                <Link className="join-live-btn" to={`/${courseId}/live/${lectureId}`}>
+                    <Button variant="success" className="btn-add">Join Live Lecture</Button>
+                </Link>
+            }
             </div>
             <hr></hr>
+
+
 
             {/*No Lectures*/}
             { message ? <Notice error={error ? "error" : ""} message={message}/> : (!lectures) ? <Notice message={"You Do Not Have Any Lectures Yet"}/> : <></>}

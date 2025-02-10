@@ -6,25 +6,44 @@ import { useEffect, useState } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 function useLectureQuestions() {
+    console.log("useLectureQuestions hook running...");
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const lectures = useSelector(getLectureDetails)
     const { courseId, lectureId } = useParams()
+    console.log("Params:", { courseId, lectureId });
     const [ error, setError ] = useState(false)
     const [ message, setMessage ] = useState("")
     const [ loading, setLoading ] = useState(true)
-
+    
     useEffect( () => {
         async function getLecture(){
             setLoading(true)
-            const response = await apiUtil("get", `courses/${courseId}/lectures/${lectureId}`, { dispatch: dispatch, navigate: navigate} );
-            setMessage(response.message)
-            setError(response.error)
-            if (response.status === 200) {
-                dispatch(addLectureQuestions(lectureId, response.data.questions))
-            }
-            setLoading(false)
+            console.log(`Fetching lecture ${lectureId} from ${courseId}...`);
+            try {
+                    const response = await apiUtil("get", `courses/${courseId}/lectures/${lectureId}`, { dispatch: dispatch, navigate: navigate} );
+                    
+                    console.log("API Response:", response);
+                    
+                    setMessage(response.message)
+                    setError(response.error)
+        
+                    if (response.status === 200) {
+                        console.log("Questions received:", response.data.questions);
+                        dispatch(addLectureQuestions(lectureId, response.data.questions))
+                    } else {
+                        console.log("Failed to fetch lecture questions");
+                    }
+                    setLoading(false)
+                } catch (err) {
+                    console.error("API call failed:", err);
+                }
         }
+        console.log("Checking conditions:", { 
+            lectureId, 
+            lectures, 
+            lecturesAtId: lectures[lectureId] 
+        });
         if (lectureId && lectures[lectureId] == null) {
             getLecture()
         }

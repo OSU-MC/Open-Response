@@ -28,6 +28,7 @@ import SingleQuestion from "./pages/SingleQuestion";
 import Navigation from "./components/nav/Navigation";
 import useAuth from "./hooks/useAuth";
 import { TailSpin } from "react-loader-spinner";
+import LiveLecture from "./pages/LiveLecture";
 
 function App() {
 	const [loggedIn, message, error, loading] = useAuth();
@@ -81,6 +82,7 @@ function App() {
 									<Route path=':questionId' element={<SingleQuestion />} />
 									<Route path='add' element={<CreateQuestion />} />
 								</Route>
+								<Route path='live/:lectureId' element={<LiveLecture />} />
 								<Route path='lectures' element={<Outlet />}>
 									<Route path='' element={<Lectures />} />
 									<Route path=':lectureId' element={<Outlet />}>

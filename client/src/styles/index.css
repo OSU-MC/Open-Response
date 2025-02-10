@@ -102,7 +102,28 @@ body {
 }
 
 .create-lecture-btn {
-    margin: auto 0 auto auto;
+    position: absolute;
+    top: 100px;
+    right: 100px;
+    background-color: #d9e7d4;
+    color: #000;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+}
+
+.join-live-btn {
+    position: absolute;
+    top: 100px;
+    right: 100px;
+    background-color: #d9e7d4;
+    color: #000;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+}   
+
+/* Live Lectures */
+.LiveLecture {
+    width: 100%;
 }
 
 /* Back button */
