@@ -12,7 +12,7 @@ describe("Section model", () => {
     })
 
     describe("Section.create", () => {
-        it ("should create a valid section record with default values", async () => {
+        it("should create a valid section record with default values", async () => {
             const section = await db.Section.create({
                 number: 1,
                 courseId: course.id
@@ -20,10 +20,11 @@ describe("Section model", () => {
             expect(section.number).toEqual(1)
             expect(section.joinCode).toBeTruthy()
             expect(section.courseId).toEqual(course.id)
+            expect(section.softDelete).toBeFalsy() // Ensure soft delete defaults to false
             await section.destroy()
         })
 
-        it ("should reject a section with repeated section number in the same course", async () => {
+        it("should reject a section with repeated section number in the same course", async () => {
             const section = await db.Section.create({
                 number: 15,
                 courseId: course.id
@@ -34,44 +35,50 @@ describe("Section model", () => {
             })).rejects.toThrow("Validation error")
             await section.destroy()
         })
-    
-        it ("should reject a null section number", async () => {
+
+        it("should reject a null section number", async () => {
             await expect(db.Section.create({
                 courseId: course.id
             })).rejects.toThrow("notNull Violation: Section.number cannot be null")
         })
 
-        it ("should reject a section without a courseId", async () => {
+        it("should reject a section without a courseId", async () => {
             await expect(db.Section.create({
                 number: 9
             })).rejects.toThrow("notNull Violation: A section must belong to a course")
         })
-    
     })
 
     describe("Section.update", () => {
 
         let section
 
-        beforeEach(async() => {
+        beforeEach(async () => {
             section = await db.Section.create({
                 number: 20,
                 courseId: course.id
             })
         })
 
-        it ("should update the section number", async () => {
-            await section.update({number: 25})
+        it("should update the section number", async () => {
+            await section.update({ number: 25 })
             await expect(section.save()).resolves.toBeTruthy()
-            await section.reload() // reloads the instance from the database after the update into the section variables
+            await section.reload()
             expect(section.number).toEqual(25)
         })
 
-        it ("should update the section join code", async () => {
-            await section.update({joinCode: "5TY7UI"})
+        it("should update the section join code", async () => {
+            await section.update({ joinCode: "5TY7UI" })
             await expect(section.save()).resolves.toBeTruthy()
-            await section.reload() // reloads the instance from the database after the update into the section variables
+            await section.reload()
             expect(section.joinCode).toEqual("5TY7UI")
+        })
+
+        it("should soft delete a section", async () => {
+            await section.update({ softDelete: true })
+            await expect(section.save()).resolves.toBeTruthy()
+            await section.reload()
+            expect(section.softDelete).toBeTruthy()
         })
 
         afterEach(async () => {

@@ -1,5 +1,4 @@
-
-const { UniqueConstraintError } = require('sequelize')
+const { UniqueConstraintError, ValidationError } = require('sequelize')
 const db = require('../../../app/models')
 
 describe('Lecture model', () => {
@@ -26,6 +25,8 @@ describe('Lecture model', () => {
             expect(lecture.order).toEqual(1)
             expect(lecture.description).toEqual('intro q')
             expect(lecture.courseId).toEqual(course.id)
+            expect(lecture.softDelete).toBeFalsy() // Default to false
+            expect(lecture.archived).toBeFalsy() // Default to false
             await lecture.destroy()
         })
 
@@ -56,7 +57,7 @@ describe('Lecture model', () => {
 
         it('should reject a lecture title > 50 characters', async () => {
             await expect(db.Lecture.create({
-                title: 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa',   // 51 chars
+                title: 'a'.repeat(51), // 51 chars
                 order: 2,
                 description: 'intro q',
                 courseId: course.id
@@ -79,7 +80,7 @@ describe('Lecture model', () => {
             await new_lecture.destroy()
         })
 
-        it ('should auto-increment order within a course when not provided', async() => {
+        it('should auto-increment order within a course when not provided', async () => {
             let lecture_1 = await db.Lecture.create({
                 title: 'Lecture 1',
                 order: 0,
@@ -98,7 +99,7 @@ describe('Lecture model', () => {
     })
 
     describe('Lecture.update', () => {
-        beforeEach(async() => {
+        beforeEach(async () => {
             lecture = await db.Lecture.create({
                 title: 'question set 1',
                 order: 5,
@@ -108,24 +109,38 @@ describe('Lecture model', () => {
         })
 
         it('should update lecture title', async () => {
-            await lecture.update({title: 'set 2'})
+            await lecture.update({ title: 'set 2' })
             await expect(lecture.save()).resolves.toBeTruthy()
             await lecture.reload()
             expect(lecture.title).toEqual('set 2')
         })
 
         it('should update lecture order', async () => {
-            await lecture.update({order: 6})
+            await lecture.update({ order: 6 })
             await expect(lecture.save()).resolves.toBeTruthy()
             await lecture.reload()
             expect(lecture.order).toEqual(6)
         })
 
         it('should update lecture description', async () => {
-            await lecture.update({description: 'new description'})
+            await lecture.update({ description: 'new description' })
             await expect(lecture.save()).resolves.toBeTruthy()
             await lecture.reload()
             expect(lecture.description).toEqual('new description')
+        })
+
+        it('should soft delete a lecture', async () => {
+            await lecture.update({ softDelete: true })
+            await expect(lecture.save()).resolves.toBeTruthy()
+            await lecture.reload()
+            expect(lecture.softDelete).toBeTruthy()
+        })
+
+        it('should archive a lecture', async () => {
+            await lecture.update({ archived: true })
+            await expect(lecture.save()).resolves.toBeTruthy()
+            await lecture.reload()
+            expect(lecture.archived).toBeTruthy()
         })
 
         afterEach(async () => {

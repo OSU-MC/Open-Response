@@ -1,13 +1,14 @@
 'use strict'
 
 const db = require('../../../app/models/index')
-const { UniqueConstraintError } = require('sequelize')
+const { UniqueConstraintError, ValidationError } = require('sequelize')
 
 describe('QuestionInLecture model', () => {
     let lecture
     let course
     let question1
     let question2
+    let lectureForSection
 
     beforeAll(async () => {
         course = await db.Course.create({
@@ -18,6 +19,10 @@ describe('QuestionInLecture model', () => {
             title: 'Introduce Testing Thingy Things',
             description: 'The things be testing thingy',
             courseId: course.id
+        })
+        lectureForSection = await db.LectureForSection.create({
+            lectureId: lecture.id,
+            sectionId: 1 // Assuming a section already exists
         })
         question1 = await db.Question.create({
             type: 'multiple choice',
@@ -36,7 +41,7 @@ describe('QuestionInLecture model', () => {
                 2: false,
                 3: false
             },
-            courseId: course.id
+            lectureId: lecture.id
         })
         question2 = await db.Question.create({
             type: 'multiple answer',
@@ -55,32 +60,33 @@ describe('QuestionInLecture model', () => {
                 2: true,
                 3: false
             },
-            courseId: course.id
+            lectureId: lecture.id
         })
     })
 
     describe('QuestionInLecture.create', () => {
-        it ("should create a valid QuestionInLecture", async () => {
+        it("should create a valid QuestionInLecture", async () => {
             const qil = await db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question1.id
             })
 
-            expect(qil.lectureId).toEqual(lecture.id)
+            expect(qil.lectureForSectionId).toEqual(lectureForSection.id)
             expect(qil.questionId).toEqual(question1.id)
             expect(qil.order).toEqual(0) // inferred by the beforeCreate hook
-            expect(qil.published).toEqual(false) //default value
+            expect(qil.publishedAt).toBeNull() // Default: not published
+            expect(qil.softDelete).toBeFalsy() // Default: not deleted
             await qil.destroy()
         })
 
-        it ("should infer an incremented order for subsequent QuestionInLectures", async () => {
+        it("should infer an incremented order for subsequent QuestionInLectures", async () => {
             const qil1 = await db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question1.id
             })
 
             const qil2 = await db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question2.id
             })
 
@@ -90,25 +96,25 @@ describe('QuestionInLecture model', () => {
             await qil2.destroy()
         })
 
-        it ("should invalidate a missing lectureId", async () => {
+        it("should invalidate a missing lectureForSectionId", async () => {
             await expect(db.QuestionInLecture.create({
                 questionId: question1.id
-            })).rejects.toThrow("notNull Violation: QuestionInLecture must have a lecture")
+            })).rejects.toThrow("notNull Violation: QuestionInLecture must have a lectureForSection")
         })
 
-        it ("should invalidate a missing questionId", async () => {
+        it("should invalidate a missing questionId", async () => {
             await expect(db.QuestionInLecture.create({
-                lectureId: lecture.id
+                lectureForSectionId: lectureForSection.id
             })).rejects.toThrow("notNull Violation: QuestionInLecture must have a question")
         })
 
-        it ("should invalidate a repeat order for the lecture", async () => {
+        it("should invalidate a repeat order for the lectureForSection", async () => {
             const qil = await db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question1.id
             })
             await expect(db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question2.id,
                 order: qil.order
             })).rejects.toThrow(UniqueConstraintError)
@@ -117,26 +123,33 @@ describe('QuestionInLecture model', () => {
     })
 
     describe("QuestionInLecture.update", () => {
-
         let qil
 
         beforeEach(async () => {
             qil = await db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question1.id
             })
         })
 
-        it("should properly update the publication status of the Question in the Lecture", async () => {
-            qil.published = true
+        it("should update publishedAt to a timestamp", async () => {
+            const publishedAt = new Date()
+            await qil.update({ publishedAt })
             await expect(qil.save()).resolves.toBeTruthy()
             await qil.reload()
-            expect(qil.published).toEqual(true)
+            expect(qil.publishedAt).toEqual(publishedAt)
         })
 
-        it ("should invalidate an order that already exists in the Lecture", async () => {
+        it("should soft delete a QuestionInLecture", async () => {
+            await qil.update({ softDelete: true })
+            await expect(qil.save()).resolves.toBeTruthy()
+            await qil.reload()
+            expect(qil.softDelete).toBeTruthy()
+        })
+
+        it("should invalidate an order that already exists in the lectureForSection", async () => {
             const qil0 = await db.QuestionInLecture.create({
-                lectureId: lecture.id,
+                lectureForSectionId: lectureForSection.id,
                 questionId: question2.id
             })
             qil0.order = 0
@@ -149,8 +162,11 @@ describe('QuestionInLecture model', () => {
         })
     })
 
-    
     afterAll(async () => {
+        await lectureForSection.destroy()
+        await question1.destroy()
+        await question2.destroy()
+        await lecture.destroy()
         await course.destroy()
     })
 })
