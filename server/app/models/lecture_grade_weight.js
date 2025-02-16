@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-  const LectureGradeWeights = sequelize.define('LectureGradeWeights', {
+  const LectureGradeWeight = sequelize.define('LectureGradeWeight', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -26,12 +26,12 @@ module.exports = (sequelize, DataTypes) => {
     ],
   });
 
-  LectureGradeWeights.associate = (models) => {
-    LectureGradeWeights.belongsTo(models.LectureForSection, {
+  LectureGradeWeight.associate = (models) => {
+    LectureGradeWeight.belongsTo(models.Lecture, {
       foreignKey: 'lectureId',
       onDelete: 'CASCADE',
     });
   };
 
-  return LectureGradeWeights;
+  return LectureGradeWeight;
 };

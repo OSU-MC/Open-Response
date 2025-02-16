@@ -1,7 +1,7 @@
 "use strict";
 
 module.exports = (sequelize, DataTypes) => {
-  const RequiredQuestionsInLectures = sequelize.define('RequiredQuestionsInLectures', {
+  const RequiredQuestionsInLecture = sequelize.define('RequiredQuestionsInLecture', {
     id: {
       type: DataTypes.INTEGER,
       primaryKey: true,
@@ -28,17 +28,17 @@ module.exports = (sequelize, DataTypes) => {
       ],
     });
 
-  RequiredQuestionsInLectures.associate = (models) => {
-    RequiredQuestionsInLectures.belongsTo(models.Lecture, {
+  RequiredQuestionsInLecture.associate = (models) => {
+    RequiredQuestionsInLecture.belongsTo(models.Lecture, {
       foreignKey: 'lectureId',
       onDelete: 'CASCADE',
     });
 
-    RequiredQuestionsInLectures.belongsTo(models.Question, {
+    RequiredQuestionsInLecture.belongsTo(models.Question, {
       foreignKey: 'questionId',
       onDelete: 'CASCADE',
     });
   };
 
-  return RequiredQuestionsInLectures;
+  return RequiredQuestionsInLecture;
 };

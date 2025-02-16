@@ -128,7 +128,7 @@ module.exports = (sequelize, DataTypes) => {
 		Enrollment.belongsTo(models.User);
 		Enrollment.hasMany(models.Response);
 		Enrollment.hasMany(models.Grades);
-		Enrollment.hasMany(models.Attencances);
+		Enrollment.hasMany(models.Attendance);
 	};
 
 	return Enrollment;
