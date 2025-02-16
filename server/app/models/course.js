@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         publishedAt: {
             type: DataTypes.DATE,
             allowNull: true,
+            defaultValue: null
         },
     },
     {

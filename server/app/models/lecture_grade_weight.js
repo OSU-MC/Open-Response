@@ -15,6 +15,12 @@ module.exports = (sequelize, DataTypes) => {
     weight: {
       type: DataTypes.DOUBLE,
       allowNull: false,
+      validate: {
+        min: {
+          args: [0.000000001], // Ensures weight is greater than 0
+          msg: "Validation error: Weight must be greater than 0",
+        },
+      },
     },
   }, {
     tableName: 'LectureGradeWeights',

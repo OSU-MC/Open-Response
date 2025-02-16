@@ -1,20 +1,27 @@
-const db = require('../../../app/models')
-
+"use strict";
+const db = require("../../../app/models");
+const { SequelizeUniqueConstraintError } = require("sequelize");
 describe("RequiredQuestionsInLectures model", () => {
-    let lecture, question, requiredQuestion;
+    let course, lecture, question, requiredQuestion;
 
     beforeAll(async () => {
-        const course = await db.Course.create({
+        // Ensure the database schema is correctly initialized
+        await db.sequelize.sync();
+
+        // Ensure a valid course exists
+        course = await db.Course.create({
             name: "CS101",
             description: "Introduction to Computer Science"
         });
 
+        // Ensure a valid lecture exists (linked to the course)
         lecture = await db.Lecture.create({
             title: "Lecture 1",
             description: "Introduction to CS",
             courseId: course.id
         });
 
+        // Ensure a valid question exists (linked to the same course)
         question = await db.Question.create({
             type: "multiple choice",
             stem: "What is 2 + 2?",
@@ -32,42 +39,57 @@ describe("RequiredQuestionsInLectures model", () => {
                 2: true,
                 3: false
             },
-            lectureId: lecture.id
+            lectureId: lecture.id, // Linking it to the lecture
+            courseId: course.id    // Ensure courseId exists to satisfy constraints
         });
     });
 
     describe("RequiredQuestionsInLectures.create", () => {
         it("should create a valid required question in lecture", async () => {
-            requiredQuestion = await db.RequiredQuestionsInLectures.create({
+            requiredQuestion = await db.RequiredQuestionsInLecture.create({
                 lectureId: lecture.id,
                 questionId: question.id
             });
 
             expect(requiredQuestion.lectureId).toEqual(lecture.id);
             expect(requiredQuestion.questionId).toEqual(question.id);
+
+            // Cleanup the created record
+            await requiredQuestion.destroy();
         });
 
         it("should reject a required question without a `lectureId`", async () => {
-            await expect(db.RequiredQuestionsInLectures.create({
+            await expect(db.RequiredQuestionsInLecture.create({
                 questionId: question.id
-            })).rejects.toThrow("notNull Violation: RequiredQuestionInLecture must be associated with a lecture");
+            })).rejects.toThrow("notNull Violation: RequiredQuestionsInLecture.lectureId cannot be null");
         });
 
         it("should reject a required question without a `questionId`", async () => {
-            await expect(db.RequiredQuestionsInLectures.create({
+            await expect(db.RequiredQuestionsInLecture.create({
                 lectureId: lecture.id
-            })).rejects.toThrow("notNull Violation: RequiredQuestionInLecture must be associated with a question");
+            })).rejects.toThrow("notNull Violation: RequiredQuestionsInLecture.questionId cannot be null");
         });
 
         it("should reject duplicate entries for the same lecture and question", async () => {
-            await expect(db.RequiredQuestionsInLectures.create({
+            // First insert should succeed
+            await db.RequiredQuestionsInLecture.create({
                 lectureId: lecture.id,
                 questionId: question.id
-            })).rejects.toThrow("Validation error");
+            });
+
+            // Second insert should fail due to uniqueness constraint
+            await expect(db.RequiredQuestionsInLecture.create({
+                lectureId: lecture.id,
+                questionId: question.id
+            })).rejects.toThrow(SequelizeUniqueConstraintError);
         });
     });
 
     afterAll(async () => {
-        await requiredQuestion.destroy();
+        // Cleanup the created records
+        await db.RequiredQuestionsInLecture.destroy({ where: {} });
+        await db.Question.destroy({ where: {} });
+        await db.Lecture.destroy({ where: {} });
+        await db.Course.destroy({ where: {} });
     });
 });

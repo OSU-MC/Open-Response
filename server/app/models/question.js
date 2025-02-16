@@ -13,16 +13,16 @@ module.exports = (sequelize, DataTypes) => {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			courseId: {
+			lectureId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 				references: {
-					model: "Courses",
+					model: "Lectures",
 					key: "id",
 				},
 				validate: {
 					notNull: {
-						msg: "Question must have a course"
+						msg: "Question must have a lecture"
 					},
 				},
 			},
@@ -201,7 +201,9 @@ module.exports = (sequelize, DataTypes) => {
 				}
 			},
 			order: {
-				type: DataTypes.INTEGER
+				type: DataTypes.INTEGER,
+				allowNull: false,
+				defaultValue: -1, // -1 is used when it is not sorted
 			},
 			softDelete: {
 				type: DataTypes.BOOLEAN,
@@ -211,11 +213,28 @@ module.exports = (sequelize, DataTypes) => {
 		},
 		{
 			timestamps: true,
+			hooks: {
+				beforeCreate: async (question) => {
+					if (question.order == null || question.order === -1) {
+						const curr_max_order = await Question.max('order', {
+							where: {
+								lectureId: question.lectureId
+							}
+						});
+
+						if (curr_max_order == null || curr_max_order === -1) {
+							question.order = 0; // Start order from 0 if no existing questions
+						} else {
+							question.order = curr_max_order + 1;
+						}
+					}
+				}
+			}
 		}
 	);
 
 	Question.associate = (models) => {
-		Question.belongsTo(models.Course);
+		Question.belongsTo(models.Lecture);
 		Question.hasMany(models.QuestionInLecture);
 	};
 

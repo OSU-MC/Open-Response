@@ -187,7 +187,7 @@ describe("User model", () => {
         })
 
         it("should correctly compute an expired password reset", async () => {
-            user.passwordResetExpiresAt = moment().utc()
+            await user.setPasswordResetExpires()
             await user.save()
             expect(user.passwordResetInitiated).toBeTruthy()
             expect(user.passwordResetExpired()).toEqual(true)

@@ -11,10 +11,18 @@ module.exports = (sequelize, DataTypes) => {
     lectureId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Lectures',
+        key: 'id',
+      },
     },
     questionId: {
       type: DataTypes.INTEGER,
       allowNull: false,
+      references: {
+        model: 'Questions',
+        key: 'id',
+      },
     },
   },
 
@@ -23,7 +31,7 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ['lectureForSectionId', 'questionInLectureId'],
+          fields: ['lectureId', 'questionId'],
         },
       ],
     });

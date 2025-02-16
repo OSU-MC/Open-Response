@@ -94,6 +94,7 @@ module.exports = (sequelize, DataTypes) => {
 
     Lecture.associate = (models) => {
         Lecture.belongsTo(models.Course)
+        Lecture.hasMany(models.Question)
         Lecture.hasMany(models.QuestionInLecture)
         Lecture.hasMany(models.LectureForSection)
         Lecture.hasMany(models.LectureGradeWeight)

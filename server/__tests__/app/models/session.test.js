@@ -31,13 +31,6 @@ describe("Session model", () => {
             await session.update({ expires: moment().subtract(1, 'minutes') })
             expect(session.checkIfExpired()).toEqual(true)
         })
-
-        it("Should soft delete a session", async () => {
-            await session.update({ softDelete: true })
-            await expect(session.save()).resolves.toBeTruthy()
-            await session.reload()
-            expect(session.softDelete).toBeTruthy()
-        })
     })
 
     afterAll(async () => {

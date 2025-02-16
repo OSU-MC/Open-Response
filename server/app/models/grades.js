@@ -79,8 +79,8 @@ module.exports = (sequelize, DataTypes) => {
 			foreignKey: "userId",
 			onDelete: "CASCADE",
 		});
-		Grades.belongsTo(models.Section, {
-			foreignKey: "sectionId",
+		Grades.belongsTo(models.LectureForSection, {
+			foreignKey: "lectureForSectionId",
 			onDelete: "CASCADE",
 		});
 	};

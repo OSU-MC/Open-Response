@@ -30,41 +30,57 @@ describe('LectureForSection model', () => {
         it("should create a valid LectureForSection with default values", async () => {
             const lfs = await db.LectureForSection.create({
                 lectureId: lecture.id,
-                sectionId: section.id
+                sectionId: section.id,
+                attendanceMethod: "join"
             })
 
             expect(lfs.lectureId).toEqual(lecture.id)
             expect(lfs.sectionId).toEqual(section.id)
             expect(lfs.publishedAt).toBeNull() // Default: not published
-            expect(lfs.closedAt).toBeNull() // Null unless changed
-            expect(lfs.closeAttendanceAt).toBeNull() // Default: not set
-            expect(lfs.attendanceMethod).toEqual("join") // Default value
-            expect(lfs.minAttendanceQuestions).toBeNull() // Default: not set
-            expect(lfs.averageScore).toBeNull() // Nullable
-            expect(lfs.participationScore).toBeNull() // Nullable
+            expect(lfs.closeAttendanceAt).toBeNull() // Null unless changed
+            expect(lfs.minAttendanceQuestions).toBe(0) // Default: 0
             await lfs.destroy()
         })
 
         it("should reject a LectureForSection without a lectureId", async () => {
             await expect(db.LectureForSection.create({
-                sectionId: section.id
+                sectionId: section.id,
+                attendanceMethod: "join"
             })).rejects.toThrow("notNull Violation: Lecture For Section must have a lecture")
         })
 
         it("should reject a LectureForSection without a sectionId", async () => {
             await expect(db.LectureForSection.create({
-                lectureId: lecture.id
+                lectureId: lecture.id,
+                attendanceMethod: "join"
             })).rejects.toThrow("notNull Violation: Lecture For Section must have a section")
         })
+
+        it("should reject a LectureForSection without an attendanceMethod", async () => {
+            await expect(db.LectureForSection.create({
+                lectureId: lecture.id,
+                sectionId: section.id
+            })).rejects.toThrow("notNull Violation: LectureForSection.attendanceMethod cannot be null")
+        })
+
+        it("should reject an invalid attendanceMethod value", async () => {
+            await expect(db.LectureForSection.create({
+                lectureId: lecture.id,
+                sectionId: section.id,
+                attendanceMethod: "invalidMethod"
+            })).rejects.toThrow("Lecture For Section must have a valid attendance method")
+        });
 
         it("should reject a duplicate LectureForSection entry", async () => {
             const lfs = await db.LectureForSection.create({
                 lectureId: lecture.id,
-                sectionId: section.id
+                sectionId: section.id,
+                attendanceMethod: "join"
             })
             await expect(db.LectureForSection.create({
                 lectureId: lecture.id,
-                sectionId: section.id
+                sectionId: section.id,
+                attendanceMethod: "join"
             })).rejects.toThrow(UniqueConstraintError)
             await lfs.destroy()
         })
@@ -77,58 +93,50 @@ describe('LectureForSection model', () => {
         beforeEach(async () => {
             lfs = await db.LectureForSection.create({
                 lectureId: lecture.id,
-                sectionId: section.id
+                sectionId: section.id,
+                attendanceMethod: "join"
             })
         })
 
-        it("should update averageScore", async () => {
-            await lfs.update({ averageScore: 1.0 })
-            await expect(lfs.save()).resolves.toBeTruthy()
-            await lfs.reload()
-            expect(lfs.averageScore).toEqual(1.0)
-        })
+        it("should update publishedAt timestamp", async () => {
+            const publishedAt = moment().utc();
 
-        it("should update participationScore", async () => {
-            await lfs.update({ participationScore: 1.0 })
-            await expect(lfs.save()).resolves.toBeTruthy()
-            await lfs.reload()
-            expect(lfs.participationScore).toEqual(1.0)
-        })
+            await lfs.update({ publishedAt });
+            await expect(lfs.save()).resolves.toBeTruthy();
 
-        it("should update publishedAt and set closedAt to null", async () => {
-            const publishedAt = new Date()
-            await lfs.update({ publishedAt })
-            await expect(lfs.save()).resolves.toBeTruthy()
-            await lfs.reload()
-            expect(lfs.publishedAt).toEqual(publishedAt)
-            expect(lfs.closedAt).toBeNull()
-        })
+            const updatedLfs = await db.LectureForSection.findOne({ where: { id: lfs.id } });
 
-        it("should update publishedAt to null and set closedAt timestamp", async () => {
-            const publishedAt = new Date()
-            await lfs.update({ publishedAt })
-            await expect(lfs.save()).resolves.toBeTruthy()
+            expect(updatedLfs.publishedAt).not.toBeNull();
+            expect(moment(updatedLfs.publishedAt).utc().isSame(publishedAt, 'second')).toBe(true);
+        });
 
-            await lfs.update({ publishedAt: null })
-            await expect(lfs.save()).resolves.toBeTruthy()
-            await lfs.reload()
+        it("should update closeAttendanceAt timestamp", async () => {
+            const closeAttendanceAt = moment().utc();
 
-            const dateMinusOneSec = moment().subtract(1, 'seconds').utc().format("YYYY-MM-DD HH:mm:ss")
-            const datePlusOneSec = moment().add(1, 'seconds').utc().format("YYYY-MM-DD HH:mm:ss")
-            const isWithinTimeRange = moment(lfs.closedAt).isBetween(dateMinusOneSec, datePlusOneSec)
+            await lfs.update({ closeAttendanceAt });
+            await expect(lfs.save()).resolves.toBeTruthy();
 
-            expect(lfs.publishedAt).toBeNull()
-            expect(isWithinTimeRange).toBeTruthy()
-        })
+            const updatedLfs = await db.LectureForSection.findOne({ where: { id: lfs.id } });
 
-        it("should update closeAttendanceAt", async () => {
-            const closeAttendanceAt = "15:30:00"
-            await lfs.update({ closeAttendanceAt })
-            await expect(lfs.save()).resolves.toBeTruthy()
-            await lfs.reload()
-            expect(lfs.closeAttendanceAt).toEqual(closeAttendanceAt)
-        })
+            expect(updatedLfs.closeAttendanceAt).not.toBeNull();
+            expect(moment(updatedLfs.closeAttendanceAt).utc().isSame(closeAttendanceAt, 'second')).toBe(true);
+        });
 
+        it("should update closedAt timestamp", async () => {
+            const closedAt = moment().utc().format("YYYY-MM-DD HH:mm:ss");
+        
+            await lfs.update({ published: true });
+            await lfs.reload();
+        
+            await lfs.update({ published: false });
+            await expect(lfs.save()).resolves.toBeTruthy();
+        
+            const updatedLfs = await db.LectureForSection.findOne({ where: { id: lfs.id } });
+        
+            expect(updatedLfs.closedAt).not.toBeNull();
+            expect(moment(updatedLfs.closedAt).utc().isSame(closedAt, 'second')).toBe(true);
+        });
+        
         it("should update attendanceMethod", async () => {
             await lfs.update({ attendanceMethod: "requiredQuestions" })
             await expect(lfs.save()).resolves.toBeTruthy()
@@ -152,7 +160,7 @@ describe('LectureForSection model', () => {
         })
 
         afterEach(async () => {
-            await lfs.destroy()
+            if (lfs) await lfs.destroy()
         })
     })
 

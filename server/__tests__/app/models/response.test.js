@@ -1,3 +1,5 @@
+'use strict';
+
 const db = require("../../../app/models");
 
 describe("Response model", () => {
@@ -8,6 +10,7 @@ describe("Response model", () => {
 	let lecture;
 	let lectureForSection;
 	let question;
+	let questionInLecture;
 
 	beforeAll(async () => {
 		user = await db.User.create({
@@ -38,6 +41,7 @@ describe("Response model", () => {
 		lectureForSection = await db.LectureForSection.create({
 			lectureId: lecture.id,
 			sectionId: section.id,
+			attendanceMethod: 'join'
 		});
 		question = await db.Question.create({
 			type: "multiple choice",
@@ -58,6 +62,11 @@ describe("Response model", () => {
 			},
 			lectureId: lecture.id,
 		});
+
+		questionInLecture = await db.QuestionInLecture.create({
+			lectureForSectionId: lectureForSection.id,
+			questionId: question.id
+		});
 	});
 
 	describe("Response.create", () => {
@@ -70,7 +79,7 @@ describe("Response model", () => {
 					2: false,
 					3: false,
 				},
-				questionId: question.id,
+				questionInLectureId: questionInLecture.id,
 				enrollmentId: enrollment.id,
 			});
 			expect(resp.score).toEqual(0.96);
@@ -85,7 +94,7 @@ describe("Response model", () => {
 		it("should default to an empty submission", async () => {
 			let resp = await db.Response.create({
 				score: 0.96,
-				questionId: question.id,
+				questionInLectureId: questionInLecture.id,
 				enrollmentId: enrollment.id,
 			});
 			expect(resp.score).toEqual(0.96);
@@ -152,7 +161,7 @@ describe("Response model", () => {
 					},
 					enrollmentId: enrollment.id,
 				})
-			).rejects.toThrow("a response must have a question");
+			).rejects.toThrow("notNull Violation: a response must have question in a lecture");
 		});
 
 		it("should invalidate without an enrollment", async () => {
@@ -183,23 +192,27 @@ describe("Response model", () => {
 					2: true,
 					3: false,
 				},
-				questionId: question.id,
+				questionInLectureId: questionInLecture.id,
 				enrollmentId: enrollment.id,
 			});
 		});
 
 		it("should update the score", async () => {
-			await response.update({ score: 0.85 });
-			await expect(response.save()).resolves.toBeTruthy();
-			await response.reload();
-			expect(response.score).toEqual(0.85);
+			await db.Response.update(
+				{ score: 0.85 },
+				{ where: { id: response.id } }
+			);
+			const updatedResponse = await db.Response.findByPk(response.id);
+			expect(updatedResponse.score).toEqual(0.85);
 		});
 
 		it("should soft delete a response", async () => {
-			await response.update({ softDelete: true });
-			await expect(response.save()).resolves.toBeTruthy();
-			await response.reload();
-			expect(response.softDelete).toBeTruthy();
+			await db.Response.update(
+				{ softDelete: true },
+				{ where: { id: response.id } }
+			);
+			const updatedResponse = await db.Response.findByPk(response.id);
+			expect(updatedResponse.softDelete).toBeTruthy();
 		});
 
 		afterEach(async () => {
@@ -208,6 +221,7 @@ describe("Response model", () => {
 	});
 
 	afterAll(async () => {
+		await questionInLecture.destroy();
 		await lectureForSection.destroy();
 		await question.destroy();
 		await lecture.destroy();

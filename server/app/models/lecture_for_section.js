@@ -55,10 +55,12 @@ module.exports = (sequelize, DataTypes) => {
     publishedAt: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: null
     },
     closeAttendanceAt: {
       type: DataTypes.DATE,
       allowNull: true,
+      defaultValue: null
     },
     attendanceMethod: {
       type: DataTypes.STRING,
@@ -74,6 +76,7 @@ module.exports = (sequelize, DataTypes) => {
     minAttendanceQuestions: {
       type: DataTypes.INTEGER,
       allowNull: true,
+      defaultValue: 0,
       validate: {
         min: {
           args: [0],

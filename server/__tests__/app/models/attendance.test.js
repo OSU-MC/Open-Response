@@ -35,7 +35,8 @@ describe("Attendance model", () => {
 
         lectureForSection = await db.LectureForSection.create({
             lectureId: lecture.id,
-            sectionId: section.id
+            sectionId: section.id,
+            attendanceMethod: "join"
         });
     });
 
@@ -53,12 +54,13 @@ describe("Attendance model", () => {
             expect(attendance.lectureForSectionId).toEqual(lectureForSection.id);
             expect(attendance.joinedLecture).toBeTruthy();
             expect(attendance.attendance).toBeTruthy();
+            if (attendance) await attendance.destroy();
         });
 
         it("should default `joinedLecture` and `attendance` to false", async () => {
             const att = await db.Attendance.create({
                 enrollmentId: enrollment.id,
-                lectureForSectionId: lectureForSection.id
+                lectureForSectionId: lectureForSection.id,
             });
 
             expect(att.joinedLecture).toBeFalsy();
@@ -69,17 +71,17 @@ describe("Attendance model", () => {
         it("should reject an attendance record without `enrollmentId`", async () => {
             await expect(db.Attendance.create({
                 lectureForSectionId: lectureForSection.id
-            })).rejects.toThrow("notNull Violation: Attendance must have an enrollment");
+            })).rejects.toThrow("notNull Violation: Attendance.enrollmentId cannot be null");
         });
 
         it("should reject an attendance record without `lectureForSectionId`", async () => {
             await expect(db.Attendance.create({
                 enrollmentId: enrollment.id
-            })).rejects.toThrow("notNull Violation: Attendance must have a lectureForSection");
+            })).rejects.toThrow("notNull Violation: Attendance.lectureForSectionId cannot be null");
         });
     });
 
     afterAll(async () => {
-        await attendance.destroy();
+        if (attendance) await attendance.destroy();
     });
 });

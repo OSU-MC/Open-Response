@@ -194,6 +194,13 @@ module.exports = (sequelize, DataTypes) => {
         return this.passwordResetCode
     }
 
+    User.prototype.setPasswordResetExpires = async function () {
+        this.passwordResetExpiresAt = moment().utc();
+        this.passwordResetInitiated = true;
+        await this.save();
+    };
+    
+
     User.prototype.resetPassword = async function (password) {
         await this.update({ rawPassword: password, passwordResetInitiated: false, failedLoginAttempts: 0, lastLogin: moment().utc().format("YYYY-MM-DD HH:mm:ss") })
     }

@@ -3,45 +3,53 @@ const db = require("../../../app/models");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 
 describe("Grades model", () => {
-	let user;
-	let course;
-	let section;
-	let enrollment;
-	let lecture;
-	let lectureForSection;
-	let question;
-	let questionInLecture;
+	let user, course, section, enrollment, lecture, lectureForSection, question, questionInLecture;
 
 	beforeAll(async () => {
+		// Ensure a valid user exists
 		user = await db.User.create({
 			firstName: "Dan",
 			lastName: "Smith",
 			email: "danSmith2@myclassroom.com",
 			rawPassword: "Danny-o123!",
+			isTeacher: false, // Ensure this field is correctly set
 		});
+
+		// Ensure a valid course exists
 		course = await db.Course.create({
 			name: "Testing Things",
 			description: "An introduction to testing many things",
 		});
+
+		// Ensure a valid section exists
 		section = await db.Section.create({
 			number: 16,
 			joinCode: "1yhs19",
 			courseId: course.id,
 		});
+
+		// Ensure a valid enrollment exists
 		enrollment = await db.Enrollment.create({
 			role: "student",
 			sectionId: section.id,
 			userId: user.id,
 		});
+
+		// Ensure a valid lecture exists
 		lecture = await db.Lecture.create({
 			title: "Introduce Testing Thingy Things",
 			description: "The things be testing thingy",
 			courseId: course.id,
 		});
+
+		// Ensure a valid LectureForSection entry exists
 		lectureForSection = await db.LectureForSection.create({
 			lectureId: lecture.id,
 			sectionId: section.id,
+			attendanceMethod: "join", // Fix: Required field
 		});
+
+		// Ensure a valid question exists
 		question = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is 1 + 2?",
@@ -60,7 +68,10 @@ describe("Grades model", () => {
 				3: false,
 			},
 			lectureId: lecture.id,
+			courseId: course.id, // Fix: Ensure the question is linked to a course
 		});
+
+		// Ensure a valid QuestionInLecture entry exists
 		questionInLecture = await db.QuestionInLecture.create({
 			lectureForSectionId: lectureForSection.id,
 			questionId: question.id,
@@ -80,6 +91,7 @@ describe("Grades model", () => {
 		expect(grade.lectureForSectionId).toBe(lectureForSection.id);
 		expect(grade.points).toBe(9.5);
 		expect(grade.totalPoints).toBe(10.0);
+		await grade.destroy();
 	});
 
 	it("should reject negative points", async () => {
@@ -116,6 +128,7 @@ describe("Grades model", () => {
 		});
 		expect(grade.points).toBe(0);
 		expect(grade.totalPoints).toBe(10.0);
+		await grade.destroy();
 	});
 
 	it("should reject a grade without lectureForSectionId", async () => {
@@ -130,13 +143,14 @@ describe("Grades model", () => {
 	});
 
 	afterAll(async () => {
-		await questionInLecture.destroy();
-		await question.destroy();
-		await lectureForSection.destroy();
-		await lecture.destroy();
-		await enrollment.destroy();
-		await section.destroy();
-		await course.destroy();
-		await user.destroy();
+		// Cleanup to prevent test pollution
+		if (questionInLecture) await questionInLecture.destroy();
+		if (question) await question.destroy();
+		if (lectureForSection) await lectureForSection.destroy();
+		if (lecture) await lecture.destroy();
+		if (enrollment) await enrollment.destroy();
+		if (section) await section.destroy();
+		if (course) await course.destroy();
+		if (user) await user.destroy();
 	});
 });
