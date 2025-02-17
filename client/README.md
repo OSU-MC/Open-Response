@@ -6,10 +6,10 @@ This guide is specifically for local development of the MyClassroom Client. You 
 
 Install and configure the Application according to the steps in the main README.md but do not start the application. Then run the following from the root directory.
 
-### Start Server and Client
-Start the MyClassroom Server with Docker:
+### Start Core and Client
+Start the MyClassroom Core with Docker:
 ```
-npm run start:server
+npm run start:core
 ```
 
 Start the local development version of the MyClassroom Client:
@@ -17,16 +17,16 @@ Start the local development version of the MyClassroom Client:
 npm run start -w=client
 ```
 
-### Stop Server and Client
+### Stop Core and Client
 The MyClassroom Client can be stopped by pressing **Ctrl+C** while the process is running in the shell.
 
-The MyClassroom Server can be stopped using the command:
+The MyClassroom Core can be stopped using the command:
 ```
 npm run stop
 ```
 
 ## Update Client Configuration
-Modify `/client/.env` to update the MyClassroom Client configuration. The `VITE_API_URL` environment variable should be set to the MyClassroom Server URL. For basic testing, the default values can be used.
+Modify `/client/.env` to update the MyClassroom Client configuration. The `VITE_API_URL` environment variable should be set to the MyClassroom Core URL. For basic testing, the default values can be used.
 
 ## Tech Stack
 - React / React Native
