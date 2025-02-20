@@ -22,22 +22,20 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
-        lectureId: {
+        lectureForSectionId: {
             type: DataTypes.INTEGER,
             allowNull: false,
             references: {
-                model: 'Lectures',
+                model: 'LectureForSections',
                 key: 'id'
             },
             validate: {
                 notNull: {
-                    msg: 'QuestionInLecture must have a lecture'
+                    msg: 'QuestionInLecture must have a LectureForSection'
                 }
             }
         },
-        order: {
-            type: DataTypes.INTEGER
-        },
+        
         published: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
@@ -50,42 +48,25 @@ module.exports = (sequelize, DataTypes) => {
         },
         publishedAt: {
             type: DataTypes.DATE,
-            allowNull: true,
+            defaultValue: null
         },
     },
     {
         timestamps: true,
         indexes: [
             {
-                name: 'custom_unique_question_in_lectures_order_constraint',
+                name: 'custom_unique_question_in_lectures_question_constraint',
                 unique: true,
-                fields: ['lectureId', 'order']
+                fields: ['lectureForSectionId', 'questionId',]
             }
         ],
-        hooks: {
-            beforeCreate: async (questionInLecture) => {
-                if (questionInLecture.order == null) {  // if lecture order isn't passed in
-                    const curr_max_order = await QuestionInLecture.max('order', {     // get the current max order number for this course
-                        where: {
-                            lectureId: questionInLecture.lectureId
-                        }
-                    })
-        
-                    if (curr_max_order == null) {  // if no order was found (first entry for this course)
-                        questionInLecture.order = 0;    // NOTE: should start off at 0, -1 is used for temporary updating purposes
-                    }
-                    else {  // if there is an entry for this course, get appropriate order number
-                        questionInLecture.order = curr_max_order + 1
-                    }
-                }
-            }
-        }
     })
 
     QuestionInLecture.associate = (models) => {
         QuestionInLecture.belongsTo(models.Question)
-        QuestionInLecture.belongsTo(models.Lecture)
+        QuestionInLecture.belongsTo(models.LectureForSection)
         QuestionInLecture.hasMany(models.Response)
+        QuestionInLecture.hasOne(models.RequiredQuestionsInLecture)
     }
 
     return QuestionInLecture

@@ -9,6 +9,7 @@ const string_helpers = require("../../lib/string_helpers");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 
 // GET request from /courses homepage
+	// returns: all courses associated with a given user
 router.get("/", requireAuthentication, async function (req, res) {
 	const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
 	const teacherCourses = await db.Course.findAll({
