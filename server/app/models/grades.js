@@ -13,19 +13,6 @@ module.exports = (sequelize, DataTypes) => {
 				autoIncrement: true,
 				primaryKey: true,
 			},
-			userId: {
-				type: DataTypes.INTEGER,
-				allowNull: false,
-				references: {
-					model: "Users",
-					key: "id",
-				},
-				validate: {
-					notNull: {
-						msg: "a grade must have a user",
-					},
-				},
-			},
 			enrollmentId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
@@ -39,43 +26,38 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
-			sectionId: {
+			lectureForSectionId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
 				references: {
-					model: "Sections",
+					model: "LectureForSections",
 					key: "id",
 				},
 				validate: {
 					notNull: {
-						msg: "a grade must have a section",
-					},
-				},
-			},
-			grade: {
-				type: DataTypes.DOUBLE,
-				allowNull: false,
-				validate: {
-					notNull: {
-						msg: "a grade must have a score",
-					},
-					min: {
-						args: [0],
-						msg: "score cannot be less than 0",
-					},
-					max: {
-						args: [1],
-						msg: "score cannot be more than 1",
+						msg: "a grade must have an associated lecture",
 					},
 				},
 			},
 			points: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.DOUBLE,
 				allowNull: true,
+				validate: {
+					min: {
+						args: [0],
+						msg: "points cannot be less than 0",
+					},
+				},
 			},
 			totalPoints: {
-				type: DataTypes.INTEGER,
+				type: DataTypes.DOUBLE,
 				allowNull: true,
+				validate: {
+					min: {
+						args: [0],
+						msg: "total points cannot be less than 0",
+					},
+				},
 			},
 			softDelete: {
 				type: DataTypes.BOOLEAN,
@@ -97,8 +79,8 @@ module.exports = (sequelize, DataTypes) => {
 			foreignKey: "userId",
 			onDelete: "CASCADE",
 		});
-		Grades.belongsTo(models.Section, {
-			foreignKey: "sectionId",
+		Grades.belongsTo(models.LectureForSection, {
+			foreignKey: "lectureForSectionId",
 			onDelete: "CASCADE",
 		});
 	};

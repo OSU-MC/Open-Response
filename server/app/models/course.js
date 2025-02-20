@@ -50,6 +50,7 @@ module.exports = (sequelize, DataTypes) => {
         publishedAt: {
             type: DataTypes.DATE,
             allowNull: true,
+            defaultValue: null
         },
     },
     {
@@ -60,7 +61,6 @@ module.exports = (sequelize, DataTypes) => {
         Course.hasMany(models.Enrollment)
         Course.hasMany(models.Section)
         Course.hasMany(models.Lecture)
-        Course.hasMany(models.Question)
     }
 
     return Course
