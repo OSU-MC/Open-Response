@@ -3,14 +3,29 @@ const QuestionService = require('../../../app/services/question_service')
 
 describe("QuestionService.getQuestionScore", () => {
 
-    let course
+    let course, lecture
 
     beforeAll(async () => {
-        course = await db.Course.create({
-            name: "Question Testing Course"
-        })
-    })
-
+        course = await db.Course.create({title: 'Sample Course', name: 'Sample Course Name'});
+        lecture = await db.Lecture.create({ title: 'Sample Lecture', courseId: course.id });
+    
+        question = await db.Question.create({
+            type: 'multiple choice',
+            stem: 'What is 1 + 2?',
+            courseId: course.id,
+            lectureId: lecture.id,
+            content: {
+                options: {
+                    0: 2,
+                    1: 3,
+                    2: 4,
+                    3: 5
+                }
+            },
+            answers: {0: false, 1:true, 2:false, 3:false},
+            weights: {0: 0, 1: 1, 2: 0, 3: 0}
+        });
+    });
     describe("type: multiple choice", () => {
         
         let question
@@ -33,7 +48,9 @@ describe("QuestionService.getQuestionScore", () => {
                     2: false,
                     3: false
                 },
-                courseId: course.id
+                courseId: course.id,
+                lectureId: lecture.id,
+                weights: {0: 0, 1: 1, 2: 0, 3: 0}
             })
         })
 
@@ -88,7 +105,9 @@ describe("QuestionService.getQuestionScore", () => {
                     2: true,
                     3: true
                 },
-                courseId: course.id
+                courseId: course.id,
+                lectureId: lecture.id,
+                weights: {0: 0, 1: 1, 2: 1, 3: 1}
             })
         })
 
@@ -195,5 +214,6 @@ describe("QuestionService.getQuestionScore", () => {
     
     afterAll ( async () => {
         await course.destroy()
+        await lecture.destroy()
     })
 })
