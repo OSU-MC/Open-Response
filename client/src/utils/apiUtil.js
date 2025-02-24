@@ -5,7 +5,7 @@ import Notice from '../components/Notice'
 // TODO: set up config for stuff like CORS
 
 const axiosInstance = axios.create({
-    baseURL: import.meta.env.VITE_API_URL || 'http://localhost:3001',
+    baseURL: import.meta.env.VITE_API_URL || 'http://core.open-response.org',
     withCredentials: true
 });
 
