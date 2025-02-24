@@ -4,8 +4,8 @@
     "private": true,
     "description": "Open Source Classroom Polling Software",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/OSU-MC/MyClassroom/"
+        "type": "git",
+        "url": "https://github.com/OSU-MC/MyClassroom/"
     },
     "workspaces": [
         "server",

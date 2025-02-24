@@ -9,6 +9,10 @@ import useLectureQuestions from '../hooks/useLectureQuestions';
 import QuestionListItem from '../components/questions/QuestionListItem';
 import SingleQuestionStudent from '../components/questions/SingleQuestionStudent';
 import SingleQuestionTeacher from '../components/questions/SingleQuestionTeacher';
+import io from 'socket.io-client';
+
+const socket = io('http://localhost:3001'); // TODO change url
+
 
 function LiveLecture() {
     const location = useLocation();
@@ -16,16 +20,33 @@ function LiveLecture() {
     const { courseId, lectureId} = useParams();
     const [lectures, message, error, loading] = useLectures()
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
-    const [lecture, lMessage, lError, lLoading] = useLectureQuestions();
+    const [lecture, lMessage, lError, lLoading, getLecture] = useLectureQuestions();
     const [currentQuestion, setCurrentQuestion] = useState(null);
     
-    console.log("currentQuestion: ", currentQuestion);
-    console.log("lecture: ", lecture);
+    // console.log("currentQuestion: ", currentQuestion);
+    // console.log("lecture: ", lecture);
     useEffect(() => {
         if (lecture?.questions?.length > 0) {
             setCurrentQuestion(lecture.questions[lecture.questions.length - 1]);
         }
     }, [lecture]);
+
+    useEffect(() => {
+        
+        socket.emit("joinLecture", { lectureId });
+
+        socket.on("questionUpdated", () => {
+            console.log("Received questionUpdated event, refetching questions...");
+            getLecture();
+        });
+
+        return () => {
+            socket.off("questionUpdated");
+        };
+
+    
+    }, [lectureId, getLecture]);
+
 
     return (
         <div className="LiveLecture">
