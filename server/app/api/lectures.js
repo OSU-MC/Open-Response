@@ -141,7 +141,10 @@ router.post('/', requireAuthentication, async function (req, res) {
             for (let i = 0; i < sectionIds.length; i++) {
                 await db.LectureForSection.create({
                     lectureId: lecture.id,
-                    sectionId: sectionIds[i]
+                    sectionId: sectionIds[i],
+                    published: false,
+                    softDelete: false,
+                    attendanceMethod: 'join'
                 })
             }
         }
@@ -199,66 +202,45 @@ router.put('/:lecture_id', requireAuthentication, async function (req, res) {
     }
 })
 
-// get a specific lecture usign lectureId
+// get a specific lecture using lectureId
 router.get('/:lecture_id', requireAuthentication, async function (req, res) {
-    const user = await db.User.findByPk(req.payload.sub)
-    const lectureId = parseInt(req.params['lecture_id'])
-    const courseId = parseInt(req.params['course_id'])
-    const enrollment = await getEnrollmentFromCourse(user.id, courseId) || await getEnrollmentFromSectionInCourse(user.id, courseId)
-    const lecture = await getLecture(lectureId)
-    var full_response = {}  // will hold response with lecture info and related questions
+    try {
+        const user = await db.User.findByPk(req.payload.sub)
+        const lectureId = parseInt(req.params['lecture_id'])
+        const courseId = parseInt(req.params['course_id'])
+        const enrollment = await getEnrollmentFromCourse(user.id, courseId) || await getEnrollmentFromSectionInCourse(user.id, courseId)
+        const lecture = await getLecture(lectureId)
+        var full_response = {}  // will hold response with lecture info and related questions
 
-    if (enrollment == null) {   // if user is not enrolled in this course
-        return res.status(403).send()
-    }
-    else if (lecture == null) {      // if passed in lectureId does not exist
-        return res.status(404).send({error: "Lecture of this id does not exist"})
-    }
-    else if (enrollment.role == 'teacher') {     // if teacher, send lecture info & all related questions
-        try {
-            full_response['lecture'] = lecture  // full_response will hold wanted lecture along with its related questions in the end
-            const questions_in_lec = await db.sequelize.query(  // raw sql query to get all questions in this lecture using `QuestionInLecture`
-                'SELECT q.*, ql.order, ql.published FROM Questions q INNER JOIN QuestionInLectures ql ON q.id = ql.questionId INNER JOIN Lectures l ON ql.lectureId = l.id WHERE l.id = $lectureId ORDER BY ql.order',
-                {
-                    bind: { lectureId: lectureId },
-                    type: db.sequelize.QueryTypes.SELECT
-                }
-            )
-            full_response['questions'] = questions_in_lec
+        console.log("User:", user)
+        console.log("Lecture ID:", lectureId)
+        console.log("Course ID:", courseId)
+        console.log("Enrollment:", enrollment)
+        console.log("Lecture:", lecture)
+
+        if (enrollment == null) {   // if user is not enrolled in this course
+            console.log("User is not enrolled in this course")
+            return res.status(403).send()
         }
-        catch (e) {
-            if (e instanceof ValidationError) {
-                return res.status(400).send({error: serializeSequelizeErrors(e)})
-            }
-            else {
-                return res.status(400).send({error: "Unable to get lecture or questions"})
-            }
+        else if (lecture == null) {      // if passed in lectureId does not exist
+            console.log("Lecture does not exist")
+            return res.status(404).send({error: "Lecture of this id does not exist"})
         }
-        res.status(200).send(full_response)
-    }
-    else {  // if student, only send published info
-        let sectionLectureRelation = await getSectionLectureRelation(lectureId, enrollment.sectionId)
-        if (sectionLectureRelation == null) {
-            res.status(404).send({error: "This lecture does not exist in your section"})
-        }
-        else if (!sectionLectureRelation.published) {    // if this lecture (from user's section) isn't published
-            res.status(404).send({error: "This lecture is not yet published"})
-        }
-        else {  // if this lecture (from user's section) is published
+        else if (enrollment.role == 'teacher') {     // if teacher, send lecture info & all related questions
             try {
-                const lecture = await getLecture(lectureId)
-                full_response['lecture'] = lecture
-    
-                const questions_in_lec = await db.sequelize.query(  // raw sql query to get all published questions in this lecture using `QuestionInLecture`
-                    'SELECT q.* FROM Questions q INNER JOIN QuestionInLectures ql ON q.id = ql.questionId INNER JOIN Lectures l ON ql.lectureId = l.id WHERE ql.published = 1 AND l.id = $lectureId',
+                full_response['lecture'] = lecture  // full_response will hold wanted lecture along with its related questions in the end
+                const questions_in_lec = await db.sequelize.query(  // raw sql query to get all questions in this lecture using `QuestionInLecture`
+                    'SELECT q.*, MAX(ql.published) as published FROM Questions q INNER JOIN QuestionInLectures ql ON q.id = ql.questionId INNER JOIN LectureForSections lfs ON ql.lectureForSectionId = lfs.id WHERE lfs.lectureId = $lectureId GROUP BY q.id',
                     {
                         bind: { lectureId: lectureId },
                         type: db.sequelize.QueryTypes.SELECT
                     }
                 )
                 full_response['questions'] = questions_in_lec
+                console.log("Questions in lecture:", questions_in_lec)
             }
             catch (e) {
+                console.error("Error fetching lecture or questions:", e)
                 if (e instanceof ValidationError) {
                     return res.status(400).send({error: serializeSequelizeErrors(e)})
                 }
@@ -266,8 +248,47 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
                     return res.status(400).send({error: "Unable to get lecture or questions"})
                 }
             }
-            res.status(200).json(full_response)   // all good, return updated lecture object
+            res.status(200).send(full_response)
         }
+        else {  // if student, only send published info
+            let sectionLectureRelation = await getSectionLectureRelation(lectureId, enrollment.sectionId)
+            console.log("Section Lecture Relation:", sectionLectureRelation)
+            if (sectionLectureRelation == null) {
+                res.status(404).send({error: "This lecture does not exist in your section"})
+            }
+            else if (!sectionLectureRelation.published) {    // if this lecture (from user's section) isn't published
+                res.status(404).send({error: "This lecture is not yet published"})
+            }
+            else {  // if this lecture (from user's section) is published
+                try {
+                    const lecture = await getLecture(lectureId)
+                    full_response['lecture'] = lecture
+        
+                    const questions_in_lec = await db.sequelize.query(  // raw sql query to get all published questions in this lecture using `QuestionInLecture`
+                        'SELECT q.* FROM Questions q INNER JOIN QuestionInLectures ql ON q.id = ql.questionId INNER JOIN LectureForSections lfs ON ql.lectureForSectionId = lfs.id WHERE ql.published = 1 AND lfs.lectureId = $lectureId GROUP BY q.id',
+                        {
+                            bind: { lectureId: lectureId },
+                            type: db.sequelize.QueryTypes.SELECT
+                        }
+                    )
+                    full_response['questions'] = questions_in_lec
+                    console.log("Published questions in lecture:", questions_in_lec)
+                }
+                catch (e) {
+                    console.error("Error fetching lecture or questions:", e)
+                    if (e instanceof ValidationError) {
+                        return res.status(400).send({error: serializeSequelizeErrors(e)})
+                    }
+                    else {
+                        return res.status(400).send({error: "Unable to get lecture or questions"})
+                    }
+                }
+                res.status(200).json(full_response)   // all good, return updated lecture object
+            }
+        }
+    } catch (error) {
+        console.error("Unexpected error:", error)
+        res.status(500).send({error: "An unexpected error occurred"})
     }
 })
 
