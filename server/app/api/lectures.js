@@ -212,18 +212,10 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
         const lecture = await getLecture(lectureId)
         var full_response = {}  // will hold response with lecture info and related questions
 
-        console.log("User:", user)
-        console.log("Lecture ID:", lectureId)
-        console.log("Course ID:", courseId)
-        console.log("Enrollment:", enrollment)
-        console.log("Lecture:", lecture)
-
         if (enrollment == null) {   // if user is not enrolled in this course
-            console.log("User is not enrolled in this course")
             return res.status(403).send()
         }
         else if (lecture == null) {      // if passed in lectureId does not exist
-            console.log("Lecture does not exist")
             return res.status(404).send({error: "Lecture of this id does not exist"})
         }
         else if (enrollment.role == 'teacher') {     // if teacher, send lecture info & all related questions
@@ -237,10 +229,8 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
                     }
                 )
                 full_response['questions'] = questions_in_lec
-                console.log("Questions in lecture:", questions_in_lec)
             }
             catch (e) {
-                console.error("Error fetching lecture or questions:", e)
                 if (e instanceof ValidationError) {
                     return res.status(400).send({error: serializeSequelizeErrors(e)})
                 }
@@ -252,7 +242,6 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
         }
         else {  // if student, only send published info
             let sectionLectureRelation = await getSectionLectureRelation(lectureId, enrollment.sectionId)
-            console.log("Section Lecture Relation:", sectionLectureRelation)
             if (sectionLectureRelation == null) {
                 res.status(404).send({error: "This lecture does not exist in your section"})
             }
@@ -272,10 +261,8 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
                         }
                     )
                     full_response['questions'] = questions_in_lec
-                    console.log("Published questions in lecture:", questions_in_lec)
                 }
                 catch (e) {
-                    console.error("Error fetching lecture or questions:", e)
                     if (e instanceof ValidationError) {
                         return res.status(400).send({error: serializeSequelizeErrors(e)})
                     }
@@ -287,7 +274,6 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
             }
         }
     } catch (error) {
-        console.error("Unexpected error:", error)
         res.status(500).send({error: "An unexpected error occurred"})
     }
 })
