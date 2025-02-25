@@ -7,7 +7,7 @@ import Notice from '../components/Notice';
 import LectureCard from '../components/LectureCard';
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
-import "../styles/Section.css";
+// import "../styles/Section.css";
 
 function Section() { 
     const { sectionId, courseId } = useParams();

@@ -215,18 +215,23 @@ module.exports = (sequelize, DataTypes) => {
 			timestamps: true,
 			hooks: {
 				beforeCreate: async (question) => {
-					if (question.order == null || question.order === -1) {
-						const curr_max_order = await Question.max('order', {
-							where: {
-								lectureId: question.lectureId
-							}
-						});
+					try {
+						if (question.order == null || question.order === -1) {
+							const curr_max_order = await Question.max('order', {
+								where: {
+									lectureId: question.lectureId
+								}
+							});
 
-						if (curr_max_order == null || curr_max_order === -1) {
-							question.order = 0; // Start order from 0 if no existing questions
-						} else {
-							question.order = curr_max_order + 1;
+							if (curr_max_order == null || curr_max_order === -1) {
+								question.order = 0; // Start order from 0 if no existing questions
+							} else {
+								question.order = curr_max_order + 1;
+							}
 						}
+					} catch (error) {
+						console.error("Error in beforeCreate hook:", error);
+						throw error;
 					}
 				}
 			}
