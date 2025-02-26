@@ -148,11 +148,16 @@ exports.getQuestionInCourse = async (questionId, courseId) => {
 	});
 };
 
-exports.getQuestionInLecture = async (questionId, lectureId) => {
-	return await db.QuestionInLecture.findOne({
-		where: {
-			questionId: questionId,
-			lectureId: lectureId,
-		},
-	});
+exports.getQuestionInLecture = async function (questionId, lectureForSectionId) {
+    try {
+        return await db.QuestionInLecture.findOne({
+            where: {
+                questionId: questionId,
+                lectureForSectionId: lectureForSectionId // Ensure the correct column name is used
+            }
+        });
+    } catch (error) {
+        console.error("Error in getQuestionInLecture:", error);
+        throw error;
+    }
 };

@@ -15,38 +15,54 @@ router.get('/:question_id', requireAuthentication, async function (req, res, nex
     const questionId = parseInt(req.params['question_id'])
 
     try {
+        console.log(`User ID: ${user.id}, Course ID: ${courseId}, Lecture ID: ${lectureId}, Question ID: ${questionId}`);
+        
         //check if the user is a teacher
         const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId)
+        console.log(`Is Teacher: ${isTeacher}`);
+        
         if (isTeacher) {
             const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId)
+            console.log(`Is Lecture in Course: ${isLecInCourse}`);
+            
             if (isLecInCourse) {
                 const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureId)
+                console.log(`Is Question in Lecture: ${questionInLecture}`);
+                
                 if (questionInLecture) {
                     const question = await questionService.getQuestionInCourse(questionId, courseId)
+                    console.log(`Is Question in Course: ${question}`);
+                    
                     if (question) {
                         const respObj = {   // create response with question info and lecture-relationship info
                             ...questionService.extractQuestionFields(question),
                             ...questionService.extractQuestionInLectureFields(questionInLecture)
                         }
+                        console.log(`Response Object: ${JSON.stringify(respObj)}`);
                         res.status(200).send(respObj)
                     }
                     else {  // if there's no question of this id (from this course)
+                        console.error("The given question ID not found in this course");
                         res.status(404).send({error: "The given question ID not found in this course"})
                     }
                 }
                 else {  // if given question is not in this lecture
+                    console.error("The given question ID does not belong to this lecture");
                     res.status(400).send({error: "The given question ID does not belong to this lecture"})
                 }
             }
             else {  // if given lecture is not in this course
+                console.error("The given lecture ID does not belong to this course");
                 res.status(400).send({error: "The given lecture ID does not belong to this course"})
             }
         }
         else {  // user is not a teacher
+            console.error("Must be a teacher of this course to get question info");
             res.status(403).send({error: "Must be a teacher of this course to get question info"})
         }
     }
     catch (e) {
+        console.error("An error occurred:", e);
         next(e)
     }
 })
