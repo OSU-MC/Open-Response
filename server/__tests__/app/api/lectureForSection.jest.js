@@ -57,6 +57,7 @@ describe('Test api/lecturesForSection', () => {
 
         sec1_lec1 = await db.LectureForSection.create({
             sectionId: section1.id,
+            attendanceMethod: 'join',
             lectureId: lecture1.id
         })
 
