@@ -1,5 +1,6 @@
 const questionInsertSchema = {
 	courseId: { required: true },
+	lectureId: { required: true },
 	type: { required: true },
 	stem: { required: true },
 	content: { required: true },
@@ -39,7 +40,7 @@ const db = require("../models/index");
 
 const questionInformationSchema = {
 	id: { required: true },
-	courseId: { required: true },
+	lectureId: { required: true },
 	type: { required: true },
 	stem: { required: true },
 	weights: { required: false },
