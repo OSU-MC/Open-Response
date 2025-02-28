@@ -86,7 +86,7 @@ CREATE USER 'dev_admin'@'localhost' IDENTIFIED BY 'password';
 
 Grant the Administrative User Access to the Application Database
 ```
-GRANT ALL PRIVILEGES ON myclassroom.* TO 'dev_admin'@'localhost';
+GRANT ALL PRIVILEGES ON myclassroom_development.* TO 'dev_admin'@'localhost';
 ```
 
 Disconnect from the MySQL Database
