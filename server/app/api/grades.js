@@ -85,15 +85,15 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			});
 
 			// get lectures for the section
-			const lectures = await db.Lecture.findAll({
+			const lectureForSections = await db.LectureForSection.findAll({
+				where: {
+					sectionId: sectionId,
+					published: true,
+				},
 				include: [
 					{
-						model: db.LectureForSection,
+						model: db.Lecture,
 						required: true,
-						where: {
-							sectionId: sectionId,
-							published: true,
-						},
 					},
 				],
 			});
@@ -111,12 +111,13 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				let totalPoints = 0;
 				let points = 0;
 				// for each lecture in the section
-				for (let j = 0; j < lectures.length; j++) {
+				for (let j = 0; j < lectureForSections.length; j++) {
 					// get all the questions asked during the lecture
 					const questionsInLecture = await db.QuestionInLecture.findAll({
 						where: {
-							lectureId: lectures[j].id,
+							lectureForSectionId: lectureForSections[j].id,
 						},
+						attributes: { exclude: ["LectureId"] }
 					});
 					let lectureGradeObj = {};
 					let lectureScore = 0;
@@ -150,7 +151,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 							lectureQuestionsAnswered++;
 						}
 					}
-					lectureGradeObj.lectureId = lectures[j].id;
+					lectureGradeObj.lectureId = lectureForSections[j].lectureId;
 					lectureGradeObj.lectureGrade = parseFloat(
 						(lectureScore / lectureQuestionsAsked).toFixed(2)
 					);
@@ -175,6 +176,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 
 			res.status(200).send(resp);
 		} catch (e) {
+			console.error("Error fetching grades for teacher:", e);
 			next(e);
 		}
 	}
@@ -198,15 +200,15 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			let resp = [];
 
 			// get lectures for the section
-			const lectures = await db.Lecture.findAll({
+			const lectureForSections = await db.LectureForSection.findAll({
+				where: {
+					sectionId: sectionId,
+					published: true,
+				},
 				include: [
 					{
-						model: db.LectureForSection,
+						model: db.Lecture,
 						required: true,
-						where: {
-							sectionId: sectionId,
-							published: true,
-						},
 					},
 				],
 			});
@@ -215,13 +217,15 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			let totalQuestionsAsked = 0;
 			let totalQuestionsAnswered = 0;
 			// for each lecture in the section
-			for (let j = 0; j < lectures.length; j++) {
+			for (let j = 0; j < lectureForSections.length; j++) {
 				// get all the questions asked during the lecture
 				const questionsInLecture = await db.QuestionInLecture.findAll({
 					where: {
-						lectureId: lectures[j].id,
+						lectureForSectionId: lectureForSections[j].id,
 					},
+					attributes: { exclude: ["LectureId"] }
 				});
+				
 				let lectureGradeObj = {};
 				let lectureScore = 0;
 				let lectureQuestionsAsked = 0;
@@ -244,7 +248,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						lectureQuestionsAnswered++;
 					}
 				}
-				lectureGradeObj.lectureId = lectures[j].id;
+				lectureGradeObj.lectureId = lectureForSections[j].lectureId;
 				lectureGradeObj.lectureGrade = parseFloat(
 					(lectureScore / lectureQuestionsAsked).toFixed(2)
 				);
@@ -256,6 +260,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 
 			res.status(200).send(resp);
 		} catch (e) {
+			console.error("Error fetching grades for student:", e);
 			next(e);
 		}
 	} else {
@@ -311,56 +316,66 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 
 	// Get the grades for each student in the section
 	if (enrollmentTeacher) {
-		const students = await db.User.findAll({
-			include: [
-				{
-					model: db.Enrollment,
-					required: true,
-					where: {
-						sectionId: sectionId,
+		try {
+			const students = await db.User.findAll({
+				include: [
+					{
+						model: db.Enrollment,
+						required: true,
+						where: {
+							sectionId: sectionId,
+						},
 					},
-				},
-			],
-		});
-
-		const grades = await db.Grades.findAll({
-			where: {
-				sectionId: sectionId,
-			},
-		});
-
-		const studentGrades = [];
-		for (let i = 0; i < students.length; i++) {
-			const studentGrade =
-				grades.find((grade) => grade.userId === students[i].id) || 0;
-			studentGrades.push({
-				studentId: students[i].id,
-				studentName: `${students[i].firstName} ${students[i].lastName}`,
-				grade: studentGrade.grade,
+				],
 			});
-		}
 
-		res.status(200).send(studentGrades);
+			const grades = await db.Grades.findAll({
+				where: {
+					lectureForSectionId: sectionId,
+				},
+			});
+
+			const studentGrades = [];
+			for (let i = 0; i < students.length; i++) {
+				const studentGrade =
+					grades.find((grade) => grade.userId === students[i].id) || 0;
+				studentGrades.push({
+					studentId: students[i].id,
+					studentName: `${students[i].firstName} ${students[i].lastName}`,
+					grade: studentGrade.grade,
+				});
+			}
+
+			res.status(200).send(studentGrades);
+		} catch (e) {
+			console.error("Error fetching all grades for teacher:", e);
+			next(e);
+		}
 		return;
 	}
 
 	// Return the grade for the individual student
 	if (enrollmentStudent) {
-		const grades = await db.Grades.findAll({
-			where: {
-				sectionId: sectionId,
-			},
-		});
+		try {
+			const grades = await db.Grades.findAll({
+				where: {
+					lectureForSectionId: sectionId,
+				},
+			});
 
-		const studentGrades = [];
-		const studentGrade = grades.find((grade) => grade.userId === user.id) || 0;
-		studentGrades.push({
-			studentId: user.id,
-			studentName: `${user.firstName} ${user.lastName}`,
-			grade: studentGrade.grade,
-		});
+			const studentGrades = [];
+			const studentGrade = grades.find((grade) => grade.userId === user.id) || 0;
+			studentGrades.push({
+				studentId: user.id,
+				studentName: `${user.firstName} ${user.lastName}`,
+				grade: studentGrade.grade,
+			});
 
-		res.status(200).send(studentGrades);
+			res.status(200).send(studentGrades);
+		} catch (e) {
+			console.error("Error fetching all grades for student:", e);
+			next(e);
+		}
 		return;
 	}
 });
@@ -419,50 +434,60 @@ router.get(
 
 		// Get the grades for the individual student
 		if (enrollmentTeacher) {
-			const student = await db.User.findByPk(studentId);
-			const grades = await db.Grades.findOne({
-				where: {
-					sectionId: sectionId,
-					userId: studentId,
-				},
-			});
-			if (!grades) {
-				res.status(204).send({
-					error: `No grades found for student with id ${studentId}`,
+			try {
+				const student = await db.User.findByPk(studentId);
+				const grades = await db.Grades.findOne({
+					where: {
+						lectureForSectionId: sectionId,
+						enrollmentId: studentId,
+					},
 				});
-				return;
-			}
+				if (!grades) {
+					res.status(204).send({
+						error: `No grades found for student with id ${studentId}`,
+					});
+					return;
+				}
 
-			const grade = grades.grade || 0;
-			res.status(200).send({
-				studentId: student.id,
-				studentName: `${student.firstName} ${student.lastName}`,
-				grade: grade,
-			});
+				const grade = grades.grade || 0;
+				res.status(200).send({
+					studentId: student.id,
+					studentName: `${student.firstName} ${student.lastName}`,
+					grade: grade,
+				});
+			} catch (e) {
+				console.error("Error fetching grades for individual student by teacher:", e);
+				next(e);
+			}
 			return;
 		}
 
 		// Return the grade for the individual student
 		if (enrollmentStudent) {
-			const grades = await db.Grades.findOne({
-				where: {
-					sectionId: sectionId,
-					userId: user.id,
-				},
-			});
-			if (!grades) {
-				res.status(204).send({
-					error: `No grades found for student with ID ${user.id}`,
+			try {
+				const grades = await db.Grades.findOne({
+					where: {
+						lectureForSectionId: sectionId,
+						enrollmentId: user.id,
+					},
 				});
-				return;
-			}
+				if (!grades) {
+					res.status(204).send({
+						error: `No grades found for student with ID ${user.id}`,
+					});
+					return;
+				}
 
-			const grade = grades.grade || 0;
-			res.status(200).send({
-				studentId: user.id,
-				studentName: `${user.firstName} ${user.lastName}`,
-				grade: grade,
-			});
+				const grade = grades.grade || 0;
+				res.status(200).send({
+					studentId: user.id,
+					studentName: `${user.firstName} ${user.lastName}`,
+					grade: grade,
+				});
+			} catch (e) {
+				console.error("Error fetching grades for individual student:", e);
+				next(e);
+			}
 			return;
 		}
 	}

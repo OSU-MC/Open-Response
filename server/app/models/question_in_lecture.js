@@ -35,7 +35,6 @@ module.exports = (sequelize, DataTypes) => {
                 }
             }
         },
-        
         published: {
             type: DataTypes.BOOLEAN,
             defaultValue: false,
@@ -65,9 +64,7 @@ module.exports = (sequelize, DataTypes) => {
     QuestionInLecture.associate = (models) => {
         QuestionInLecture.belongsTo(models.Question)
         QuestionInLecture.belongsTo(models.LectureForSection,
-           { foreignKey: 'lectureForSectionId'
-
-           });
+           { foreignKey: 'lectureForSectionId'});
         QuestionInLecture.hasMany(models.Response)
         QuestionInLecture.hasOne(models.RequiredQuestionsInLecture)
     }
