@@ -11,7 +11,7 @@ describe('POST /users', () => {
         const resp = await request(app).post('/users').send({
             firstName: "Memey",
             lastName: "Meme",
-            email: "MemeyMeme@myclassroom.com",
+            email: "MemeyMeme@open-response.org",
             rawPassword: "TheMemeiestSecret",
             isTeacher: true,
             confirmedPassword: "TheMemeiestSecret"
@@ -19,14 +19,14 @@ describe('POST /users', () => {
         expect(resp.statusCode).toEqual(201)
         expect(resp.body.user.firstName).toEqual("Memey")
         expect(resp.body.user.lastName).toEqual("Meme")
-        expect(resp.body.user.email).toEqual("MemeyMeme@myclassroom.com")
+        expect(resp.body.user.email).toEqual("MemeyMeme@open-response.org")
         
     })
 
     it('should respond with 400 and missing fields', async () => {
         const resp = await request(app).post('/users').send({
             firstName: "Memey",
-            email: "MemeyMeme@myclassroom.com",
+            email: "MemeyMeme@open-response.org",
             rawPassword: "TheMemeiestSecret",
         })
         expect(resp.statusCode).toEqual(400)
@@ -37,7 +37,7 @@ describe('POST /users', () => {
         const resp = await request(app).post('/users').send({
             firstName: "Memer",
             lastName: "Memey",
-            email: "MemeyMemer123@myclassroom.com",
+            email: "MemeyMemer123@open-response.org",
             rawPassword: "TheMemeiestSecret",
             isTeacher: true,
             confirmedPassword: "TheMemeiestSecret123"
@@ -50,7 +50,7 @@ describe('POST /users', () => {
         const resp = await request(app).post('/users').send({
             firstName: "Memer",
             lastName: "Memey",
-            email: "MemeyMeme@myclassroom.com",
+            email: "MemeyMeme@open-response.org",
             rawPassword: "TheMemeiestSecret123",
             isTeacher: true,
             confirmedPassword: "TheMemeiestSecret123"
@@ -63,7 +63,7 @@ describe('POST /users', () => {
         const resp = await request(app).post('/users').send({
             firstName: "Memer",
             lastName: "",
-            email: "MemeyMemer123@myclassroom",
+            email: "MemeyMemer123@open-response",
             rawPassword: "TheMemeiestSecret123",
             isTeacher: true,
             confirmedPassword: "TheMemeiestSecret123"
@@ -80,19 +80,19 @@ describe('POST /users/login', () => {
         const user = await db.User.create({
             firstName: "Login",
             lastName: "Tester",
-            email: "loginTester1@myclassroom.com",
+            email: "loginTester1@open-response.org",
             rawPassword: "loginTester123!",
             isTeacher: true,
             confirmedPassword: "loginTester123!"
         })
         const resp = await request(app).post('/users/login').send({
-            email: "loginTester1@myclassroom.com",
+            email: "loginTester1@open-response.org",
             rawPassword: "loginTester123!"
         })
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.user.firstName).toEqual("Login")
         expect(resp.body.user.lastName).toEqual("Tester")
-        expect(resp.body.user.email).toEqual("loginTester1@myclassroom.com")
+        expect(resp.body.user.email).toEqual("loginTester1@open-response.org")
         
         expect(resp.body.message).toEqual("This account email has not been confirmed. You cannot recover your account in the case of a lost password unless you confirm your email.")
         await user.destroy()
@@ -102,20 +102,20 @@ describe('POST /users/login', () => {
         const user = await db.User.create({
             firstName: "Login",
             lastName: "Tester",
-            email: "loginTester2@myclassroom.com",
+            email: "loginTester2@open-response.org",
             rawPassword: "loginTester123!",
             isTeacher: true,
             confirmedPassword: "loginTester123!",
             emailConfirmed: true
         })
         const resp = await request(app).post('/users/login').send({
-            email: "loginTester2@myclassroom.com",
+            email: "loginTester2@open-response.org",
             rawPassword: "loginTester123!",
         })
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.user.firstName).toEqual("Login")
         expect(resp.body.user.lastName).toEqual("Tester")
-        expect(resp.body.user.email).toEqual("loginTester2@myclassroom.com")
+        expect(resp.body.user.email).toEqual("loginTester2@open-response.org")
         
         expect(resp.body.message).toEqual("")
         await user.destroy()
@@ -125,7 +125,7 @@ describe('POST /users/login', () => {
         const user = await db.User.create({
             firstName: "Login",
             lastName: "Tester",
-            email: "loginTester3@myclassroom.com",
+            email: "loginTester3@open-response.org",
             rawPassword: "loginTester123!",
             confirmedPassword: "loginTester123!",
             isTeacher: true,
@@ -133,13 +133,13 @@ describe('POST /users/login', () => {
             passwordResetInitiated: true
         })
         const resp = await request(app).post('/users/login').send({
-            email: "loginTester3@myclassroom.com",
+            email: "loginTester3@open-response.org",
             rawPassword: "loginTester123!",
         })
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.user.firstName).toEqual("Login")
         expect(resp.body.user.lastName).toEqual("Tester")
-        expect(resp.body.user.email).toEqual("loginTester3@myclassroom.com")
+        expect(resp.body.user.email).toEqual("loginTester3@open-response.org")
         
         expect(resp.body.message).toEqual("A password reset has been initiated for this account, but the password has not been reset")
         await user.destroy()
@@ -147,25 +147,25 @@ describe('POST /users/login', () => {
 
     it('should respond with 404 and message that email does not exist', async () => {
         const resp = await request(app).post('/users/login').send({
-            email: "abc123@myclassroom.com",
+            email: "abc123@open-response.org",
             rawPassword: "loginTester123!",
         })
         expect(resp.statusCode).toEqual(404)
-        expect(resp.body.error).toEqual('No account found with email: abc123@myclassroom.com')
+        expect(resp.body.error).toEqual('No account found with email: abc123@open-response.org')
     })
 
     it('should respond with 401 and message that account is locked', async () => {
         const user = await db.User.create({
             firstName: "Login",
             lastName: "Tester",
-            email: "loginTester4@myclassroom.com",
+            email: "loginTester4@open-response.org",
             rawPassword: "loginTester123!",
             isTeacher: true,
             confirmedPassword: "loginTester123!",
             failedLoginAttempts: 3
         })
         const resp = await request(app).post('/users/login').send({
-            email: "loginTester4@myclassroom.com",
+            email: "loginTester4@open-response.org",
             rawPassword: "loginTester123!",
         })
         expect(resp.statusCode).toEqual(401)
@@ -177,14 +177,14 @@ describe('POST /users/login', () => {
         let user = await db.User.create({
             firstName: "Login",
             lastName: "Tester",
-            email: "loginTester5@myclassroom.com",
+            email: "loginTester5@open-response.org",
             isTeacher: true,
             rawPassword: "loginTester123!",
             confirmedPassword: "loginTester123!",
             failedLoginAttempts: 2
         })
         const resp = await request(app).post('/users/login').send({
-            email: "loginTester5@myclassroom.com",
+            email: "loginTester5@open-response.org",
             rawPassword: "loginTester123",
         })
         expect(resp.statusCode).toEqual(401)
@@ -198,13 +198,13 @@ describe('POST /users/login', () => {
         let user = await db.User.create({
             firstName: "Login",
             lastName: "Tester",
-            email: "loginTester6@myclassroom.com",
+            email: "loginTester6@open-response.org",
             isTeacher: true,
             rawPassword: "loginTester123!",
             confirmedPassword: "loginTester123!"
         })
         const resp = await request(app).post('/users/login').send({
-            email: "loginTester6@myclassroom.com",
+            email: "loginTester6@open-response.org",
             rawPassword: "loginTester123",
         })
         expect(resp.statusCode).toEqual(401)
@@ -223,7 +223,7 @@ describe('PUT /users', () => {
         user = await db.User.create({
             firstName: 'password',
             lastName: 'resetter',
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             rawPassword: 'toberesetuhoh!',
             isTeacher: true,
             confirmedPassword: 'toberesetuhoh!',
@@ -234,13 +234,13 @@ describe('PUT /users', () => {
     it('should respond with 200 and reset the password successfully', async () => {
         const code = await user.generatePasswordReset()
         const resp = await request(app).put('/users').send({
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             passwordResetCode: code,
             rawPassword: 'newresetpassword!',
             confirmedPassword: 'newresetpassword!'
         })
         expect(resp.statusCode).toEqual(200)
-        expect(resp.body.user.email).toEqual('passwordresetter@myclassroom.com')
+        expect(resp.body.user.email).toEqual('passwordresetter@open-response.org')
         expect(resp.body.user.firstName).toEqual('password')
         expect(resp.body.user.lastName).toEqual('resetter')
         await user.reload()
@@ -253,7 +253,7 @@ describe('PUT /users', () => {
     it('should respond with 400 and missing fields for request', async () => {
         const code = await user.generatePasswordReset()
         const resp = await request(app).put('/users').send({
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             rawPassword: 'newresetpassword!',
             isTeacher: true,
             confirmedPassword: 'newresetpassword!'
@@ -265,7 +265,7 @@ describe('PUT /users', () => {
     it('should respond with 404 and email not found', async () => {
         const code = await user.generatePasswordReset()
         const resp = await request(app).put('/users').send({
-            email: 'passwordresette@myclassroom.com',
+            email: 'passwordresette@open-response.org',
             passwordResetCode: code,
             rawPassword: 'newresetpassword!',
             isTeacher: true,
@@ -277,7 +277,7 @@ describe('PUT /users', () => {
     
     it('should respond with 401 and invalid credentials', async () => {
         const resp = await request(app).put('/users').send({
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             passwordResetCode: "abc123",
             rawPassword: 'newresetpassword!',
             isTeacher: true,
@@ -292,7 +292,7 @@ describe('PUT /users', () => {
         user.passwordResetExpiresAt = moment().utc()
         await user.save()
         const resp = await request(app).put('/users').send({
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             passwordResetCode: code,
             rawPassword: 'newresetpassword!',
             isTeacher: true,
@@ -305,7 +305,7 @@ describe('PUT /users', () => {
     it('should respond with 400 and passwords do not match', async () => {
         const code = await user.generatePasswordReset()
         const resp = await request(app).put('/users').send({
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             passwordResetCode: code,
             rawPassword: 'newresetpassword!',
             isTeacher: true,
@@ -318,7 +318,7 @@ describe('PUT /users', () => {
     it('should respond with 400 and password validation when too short', async () => {
         const code = await user.generatePasswordReset()
         const resp = await request(app).put('/users').send({
-            email: 'passwordresetter@myclassroom.com',
+            email: 'passwordresetter@open-response.org',
             passwordResetCode: code,
             rawPassword: 'newpass',
             isTeacher: true,
@@ -341,7 +341,7 @@ describe('PUT /users/password', () => {
         user = await db.User.create({
             firstName: 'password',
             lastName: 'resetreq',
-            email: 'requestpassreset@myclassroom.com',
+            email: 'requestpassreset@open-response.org',
             isTeacher: true,
             rawPassword: 'requestPassReset',
             confirmedPassword: 'requestPassReset'
@@ -350,7 +350,7 @@ describe('PUT /users/password', () => {
 
     it('should respond with 204 and initiate password reset request', async () => {
         const resp = await request(app).put('/users/password').send({
-            email: 'requestpassreset@myclassroom.com'
+            email: 'requestpassreset@open-response.org'
         })
         expect(resp.statusCode).toEqual(200)
         expect(resp.body.message).toEqual(`If an account exists for ${user.email}, password reset instructions will be sent`)
@@ -362,10 +362,10 @@ describe('PUT /users/password', () => {
 
     it('should respond with 204 and not initiate reset for non-existent email', async () => {
         const resp = await request(app).put('/users/password').send({
-            email: 'thisemaildoesntexist@myclassroom.com'
+            email: 'thisemaildoesntexist@open-response.org'
         })
         expect(resp.statusCode).toEqual(200)
-        expect(resp.body.message).toEqual(`If an account exists for thisemaildoesntexist@myclassroom.com, password reset instructions will be sent`)
+        expect(resp.body.message).toEqual(`If an account exists for thisemaildoesntexist@open-response.org, password reset instructions will be sent`)
     })
 
     it('should respond with 400 and missing fields', async () => {
@@ -394,7 +394,7 @@ describe('/users/:userId', () => {
         user = await db.User.create({
             firstName: 'regular',
             lastName: 'user',
-            email: 'regularuser@myclassroom.com',
+            email: 'regularuser@open-response.org',
             rawPassword: 'regularuserpass!',
             confirmedPassword: 'regularuserpassword!',
             emailConfirmed: true
@@ -403,7 +403,7 @@ describe('/users/:userId', () => {
         admin = await db.User.create({
             firstName: 'admin',
             lastName: 'user',
-            email: 'adminuser@myclassroom.com',
+            email: 'adminuser@open-response.org',
             rawPassword: 'adminuserpass!',
             confirmedPassword: 'adminuserpassword!',
             admin: true,
@@ -420,8 +420,8 @@ describe('/users/:userId', () => {
         const userSession = await generateUserSession(user)
         const adminSession = await generateUserSession(admin)
         
-        userCookies = [`_myclassroom_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
-        adminCookies = [`_myclassroom_session=${adminJwt}`, `xsrf-token=${adminSession.csrfToken}`]
+        userCookies = [`_openresponse_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
+        adminCookies = [`_openresponse_session=${adminJwt}`, `xsrf-token=${adminSession.csrfToken}`]
     })
 
     describe('GET', () => {
@@ -430,7 +430,7 @@ describe('/users/:userId', () => {
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.user.firstName).toEqual('regular')
             expect(resp.body.user.lastName).toEqual('user')
-            expect(resp.body.user.email).toEqual('regularuser@myclassroom.com')
+            expect(resp.body.user.email).toEqual('regularuser@open-response.org')
         })
 
         it ('should return 200 and user information for admin user', async () => {
@@ -438,7 +438,7 @@ describe('/users/:userId', () => {
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.user.firstName).toEqual('regular')
             expect(resp.body.user.lastName).toEqual('user')
-            expect(resp.body.user.email).toEqual('regularuser@myclassroom.com')
+            expect(resp.body.user.email).toEqual('regularuser@open-response.org')
         })
 
         it ('should return 403 and insufficient permissions', async () => {
@@ -491,24 +491,24 @@ describe('/users/:userId', () => {
             const resp = await request(app).put(`/users/${user.id}`).set('Cookie', userCookies).send({
                 firstName: 'updated',
                 lastName: 'irregular',
-                email: 'irregularuser@myclassroom.com'
+                email: 'irregularuser@open-response.org'
             })
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.user.firstName).toEqual('updated')
             expect(resp.body.user.lastName).toEqual('irregular')
-            expect(resp.body.user.email).toEqual('irregularuser@myclassroom.com')
+            expect(resp.body.user.email).toEqual('irregularuser@open-response.org')
             await user.reload()
             expect(user.emailConfirmed).toEqual(false)
             expect(user.firstName).toEqual('updated')
             expect(user.lastName).toEqual('irregular')
-            expect(user.email).toEqual('irregularuser@myclassroom.com')
+            expect(user.email).toEqual('irregularuser@open-response.org')
         })
 
         it('should respond with 400 and missing fields for password change', async () => {
             const resp = await request(app).put(`/users/${user.id}`).set('Cookie', userCookies).send({
                 firstName: 'updated',
                 lastName: 'irregular',
-                email: 'irregularuser@myclassroom.com',
+                email: 'irregularuser@open-response.org',
                 oldPassword: 'regularuserpass!',
                 isTeacher: true,
                 rawPassword: 'irregularuserpass!'
@@ -521,7 +521,7 @@ describe('/users/:userId', () => {
             const resp = await request(app).put(`/users/${user.id}`).set('Cookie', userCookies).send({
                 firstName: 'updated',
                 lastName: 'irregular',
-                email: 'irregularuser@myclassroom.com',
+                email: 'irregularuser@open-response.org',
                 oldPassword: 'regularuserpass',
                 isTeacher: true,
                 rawPassword: 'irregularuserpass!',
@@ -535,7 +535,7 @@ describe('/users/:userId', () => {
             const resp = await request(app).put(`/users/${user.id}`).set('Cookie', userCookies).send({
                 firstName: 'updated',
                 lastName: 'irregular',
-                email: 'irregularuser@myclassroom.com',
+                email: 'irregularuser@open-response.org',
                 oldPassword: 'regularuserpass!',
                 isTeacher: true,
                 rawPassword: 'irregularuserpass!',
@@ -549,7 +549,7 @@ describe('/users/:userId', () => {
             const resp = await request(app).put(`/users/${user.id}`).set('Cookie', userCookies).send({
                 firstName: 'updater',
                 lastName: 'irregulars',
-                email: 'irregularsuser@myclassroom.com',
+                email: 'irregularsuser@open-response.org',
                 oldPassword: 'regularuserpass!',
                 rawPassword: 'irregularuserpass!',
                 isTeacher: true,
@@ -558,12 +558,12 @@ describe('/users/:userId', () => {
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.user.firstName).toEqual('updater')
             expect(resp.body.user.lastName).toEqual('irregulars')
-            expect(resp.body.user.email).toEqual('irregularsuser@myclassroom.com')
+            expect(resp.body.user.email).toEqual('irregularsuser@open-response.org')
             await user.reload()
             expect(user.emailConfirmed).toEqual(false)
             expect(user.firstName).toEqual('updater')
             expect(user.lastName).toEqual('irregulars')
-            expect(user.email).toEqual('irregularsuser@myclassroom.com')
+            expect(user.email).toEqual('irregularsuser@open-response.org')
             expect(user.validatePassword('irregularuserpass!')).toEqual(true)
         })
     })
@@ -579,7 +579,7 @@ describe('/users/:userId', () => {
             user = await db.User.create({
                 firstName: 'regular',
                 lastName: 'user',
-                email: 'regularuser2@myclassroom.com',
+                email: 'regularuser2@open-response.org',
                 rawPassword: 'regularuserpass!',
                 confirmedPassword: 'regularuserpassword!'
             })
@@ -587,7 +587,7 @@ describe('/users/:userId', () => {
             admin = await db.User.create({
                 firstName: 'admin',
                 lastName: 'user',
-                email: 'adminuser2@myclassroom.com',
+                email: 'adminuser2@open-response.org',
                 rawPassword: 'adminuserpass!',
                 isTeacher: true,
                 confirmedPassword: 'adminuserpassword!',
@@ -599,7 +599,7 @@ describe('/users/:userId', () => {
             })
             
             const userSession = await generateUserSession(user)
-            userCookies = [`_myclassroom_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
+            userCookies = [`_openresponse_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
         })
 
         it('should respond with 404 and user not found', async () => {
@@ -676,7 +676,7 @@ describe('/users/:userId', () => {
             user = await db.User.create({
                 firstName: 'regular',
                 lastName: 'user',
-                email: 'regularuser3@myclassroom.com',
+                email: 'regularuser3@open-response.org',
                 rawPassword: 'regularuserpass!',
                 isTeacher: true,
                 confirmedPassword: 'regularuserpassword!'
@@ -685,7 +685,7 @@ describe('/users/:userId', () => {
             admin = await db.User.create({
                 firstName: 'admin',
                 lastName: 'user',
-                email: 'adminuser3@myclassroom.com',
+                email: 'adminuser3@open-response.org',
                 rawPassword: 'adminuserpass!',
                 isTeacher: true,
                 confirmedPassword: 'adminuserpassword!',
@@ -697,7 +697,7 @@ describe('/users/:userId', () => {
             })
 
             const userSession = await generateUserSession(user)
-            userCookies = [`_myclassroom_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
+            userCookies = [`_openresponse_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
         })
 
         it('should respond with 404 and user not found', async () => {
@@ -741,7 +741,7 @@ describe('/users/:userId', () => {
             user = await db.User.create({
                 firstName: 'regular',
                 lastName: 'user',
-                email: 'regularuser4@myclassroom.com',
+                email: 'regularuser4@open-response.org',
                 rawPassword: 'regularuserpass!',
                 isTeacher: true,
                 confirmedPassword: 'regularuserpassword!'
@@ -750,7 +750,7 @@ describe('/users/:userId', () => {
             admin = await db.User.create({
                 firstName: 'admin',
                 lastName: 'user',
-                email: 'adminuser4@myclassroom.com',
+                email: 'adminuser4@open-response.org',
                 rawPassword: 'adminuserpass!',
                 isTeacher: true,
                 confirmedPassword: 'adminuserpassword!',
@@ -767,8 +767,8 @@ describe('/users/:userId', () => {
             const userSession = await generateUserSession(user)
             const adminSession = await generateUserSession(admin)
             
-            userCookies = [`_myclassroom_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
-            adminCookies = [`_myclassroom_session=${adminJwt}`, `xsrf-token=${adminSession.csrfToken}`]
+            userCookies = [`_openresponse_session=${userJwt}`, `xsrf-token=${userSession.csrfToken}`]
+            adminCookies = [`_openresponse_session=${adminJwt}`, `xsrf-token=${adminSession.csrfToken}`]
         })
 
         it('should respond with 404 and user not found', async () => {

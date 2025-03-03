@@ -1,6 +1,6 @@
 services:
   backend:
-    container_name: myclassroom_backend
+    container_name: openresponse_backend
     build:
       context: .
       dockerfile: Dockerfile
@@ -23,7 +23,7 @@ services:
 
   db:
     image: mysql:latest
-    container_name: myclassroom_db
+    container_name: openresponse_db
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
     ports:

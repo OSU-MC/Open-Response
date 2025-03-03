@@ -13,7 +13,7 @@ describe("Response model", () => {
 		user = await db.User.create({
 			firstName: "Dan",
 			lastName: "Smith",
-			email: "danSmith2@myclassroom.com",
+			email: "danSmith2@open-response.org",
 			rawPassword: "Danny-o123!",
 		});
 		course = await db.Course.create({
