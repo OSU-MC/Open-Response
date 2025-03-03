@@ -2,7 +2,7 @@ const { CourierClient } = require("@trycourier/courier");
 const { logger } = require("./logger");
 
 let courier
-const applicationName = process.env.APP_NAME || 'MyClassroom'
+const applicationName = process.env.APP_NAME || 'Open Response'
 const email_enabled = process.env.ENABLE_EMAIL === 'true'
 if (email_enabled) {
   courier = CourierClient() // creates the client and uses the COURIER_AUTH_TOKEN env variable as authorization
