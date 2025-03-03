@@ -180,6 +180,20 @@ or
 DROP DATABASE openresponse_test;
 ```
 
+You can also copy and paste this script to force the database to drop all changes to the database and update it:
+```
+mysql -u root -p -e "
+  DROP DATABASE IF EXISTS openresponse_development;
+  DROP DATABASE IF EXISTS openresponse_test;
+  CREATE DATABASE openresponse_development;
+  CREATE DATABASE openresponse_test;
+"
+npx sequelize db:migrate --env development
+npx sequelize db:migrate --env test
+npx sequelize db:seed:all --env development
+npx sequelize db:seed:all --env test
+```
+
 ## Update Core Configuration
 Modify `/core/.env` to update the Open-Response Core configuration. The `DEV_DB_...` and `TEST_DB_...` environment variables should match those in the database/user creation commands listed in the [MySQL](#mysql) setup steps below. Additionally, `CLIENT_URL` should be set to the Open-Response Client application URL. For basic testing, the default values can be used.
 
