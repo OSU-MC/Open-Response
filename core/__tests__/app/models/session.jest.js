@@ -7,7 +7,7 @@ describe("Session model", () => {
 
     beforeAll(async() => {
         user = await db.User.create({
-            email: "session@myclassroom.com",
+            email: "session@open-response.org",
             rawPassword: "passwordmystery!!!",
             firstName: "Memer",
             lastName: "McMemerson"

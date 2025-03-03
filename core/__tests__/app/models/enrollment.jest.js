@@ -10,7 +10,7 @@ describe("Enrollment model", () => {
         user = await db.User.create({
             firstName: 'Dan',
             lastName: 'Smith',
-            email: 'danSmith2@myclassroom.com',
+            email: 'danSmith2@open-response.org',
             isTeacher: true,
             rawPassword: 'Danny-o123!'
         })

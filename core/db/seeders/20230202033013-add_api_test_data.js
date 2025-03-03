@@ -16,7 +16,7 @@ module.exports = {
 				{
 					firstName: "Teacher",
 					lastName: "User",
-					email: "teacheruser@myclassroom.com",
+					email: "teacheruser@open-response.org",
 					password: await bcrypt.hash("teacherteacher", saltRounds),
 					isTeacher: true,
 					admin: false,
@@ -31,7 +31,7 @@ module.exports = {
 				{
 					firstName: "Student",
 					lastName: "User",
-					email: "studentuser@myclassroom.com",
+					email: "studentuser@open-response.org",
 					password: await bcrypt.hash("studentstudent", saltRounds),
 					isTeacher: false,
 					admin: false,
@@ -46,7 +46,7 @@ module.exports = {
 				{
 					firstName: "No",
 					lastName: "Courses",
-					email: "nocourses@myclassroom.com",
+					email: "nocourses@open-response.org",
 					password: await bcrypt.hash("nocourses", saltRounds),
 					isTeacher: false,
 					admin: false,
@@ -58,7 +58,7 @@ module.exports = {
 		//let comboUser = await queryInterface.bulkInsert('Users', [{
 		//  firstName: 'Combo',
 		//  lastName: 'User',
-		//  email: 'combouser@myclassroom.com',
+		//  email: 'combouser@open-response.org',
 		//  password: await bcrypt.hash('combocombocombo', saltRounds),
 		//  admin: false
 		//}], {});
@@ -345,28 +345,28 @@ module.exports = {
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "teacheruser@myclassroom.com",
+				email: "teacheruser@open-response.org",
 			},
 			{}
 		);
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "studentuser@myclassroom.com",
+				email: "studentuser@open-response.org",
 			},
 			{}
 		);
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "combouser@myclassroom.com",
+				email: "combouser@open-response.org",
 			},
 			{}
 		);
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "nocourses@myclassroom.com",
+				email: "nocourses@open-response.org",
 			},
 			{}
 		);

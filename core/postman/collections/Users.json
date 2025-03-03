@@ -16,7 +16,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"testuser3@myclassroom.com\"\n}",
+							"raw": "{\n    \"email\": \"testuser3@open-response.org\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -48,7 +48,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"email\": \"testuser3@myclassroom.com\",\n    \"rawPassword\": \"password2password2\"\n}",
+							"raw": "{\n    \"email\": \"testuser3@open-response.org\",\n    \"rawPassword\": \"password2password2\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -238,7 +238,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\r\n    \"email\": \"testuser6@myclassroom.com\",\r\n    \"rawPassword\": \"password2password2\",\r\n    \"confirmedPassword\": \"password2password2\",\r\n    \"firstName\": \"testy\",\r\n    \"lastName\": \"usery\"\r\n}",
+					"raw": "{\r\n    \"email\": \"testuser6@open-response.org\",\r\n    \"rawPassword\": \"password2password2\",\r\n    \"confirmedPassword\": \"password2password2\",\r\n    \"firstName\": \"testy\",\r\n    \"lastName\": \"usery\"\r\n}",
 					"options": {
 						"raw": {
 							"language": "json"
@@ -264,7 +264,7 @@
 				"header": [],
 				"body": {
 					"mode": "raw",
-					"raw": "{\n    \"email\": \"testuser@myclassroom.com\",\n    \"passwordResetCode\": \"123456\",\n    \"rawPassword\": \"mynewtestuserpass\",\n    \"confirmedPassword\": \"mynewtestuserpass\"\n}",
+					"raw": "{\n    \"email\": \"testuser@open-response.org\",\n    \"passwordResetCode\": \"123456\",\n    \"rawPassword\": \"mynewtestuserpass\",\n    \"confirmedPassword\": \"mynewtestuserpass\"\n}",
 					"options": {
 						"raw": {
 							"language": "json"
