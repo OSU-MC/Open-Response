@@ -5,7 +5,7 @@
     "description": "Open Source Classroom Polling Software",
     "repository": {
         "type": "git",
-        "url": "https://github.com/OSU-MC/MyClassroom/"
+        "url": "https://github.com/OSU-MC/Open-Response/"
     },
     "workspaces": [
         "core",
