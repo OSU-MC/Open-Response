@@ -18,7 +18,7 @@ export default defineConfig({
     setupFiles: './src/setupTests.js',
   },
   // added to specify client side port so that CORS will work
-  // ../server/.env CLIENT_URL should be specified as
+  // ../core/.env CLIENT_URL should be specified as
   // CLIENT_URL='http://localhost:3000'
   server: {
     port: 3000,
