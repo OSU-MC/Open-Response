@@ -29,7 +29,7 @@ const setUserAuthCookie = async (res, user) => {
     
     // Set two cookies: one for the session token and another for the CSRF token
     res.setHeader("Set-Cookie", [
-        serialize("_myclassroom_session", generateUserAuthToken(user), {
+        serialize("_openresponse_session", generateUserAuthToken(user), {
             path: "/",
             httpOnly: true, // Cookie is HTTP only for security
             expires: expiry // Set expiry for cookie
@@ -52,7 +52,7 @@ const removeUserAuthCookie = async (req, res) => {
     
     // Clear both cookies by setting them to empty strings
     res.setHeader("Set-Cookie", [
-        serialize("_myclassroom_session", "", { path: "/", httpOnly: true }),
+        serialize("_openresponse_session", "", { path: "/", httpOnly: true }),
         serialize("xsrf-token", "", { path: "/" })
     ]);
 };
@@ -65,7 +65,7 @@ const removeUserAuthCookie = async (req, res) => {
  */
 const requireAuthentication = async (req, res, next) => {
     // Extract session/CSRF token from cookies
-    const token = req.cookies["_myclassroom_session"] || req.headers["_myclassroom_session"]; // Prefer cookie over header
+    const token = req.cookies["_openresponse_session"] || req.headers["_openresponse_session"]; // Prefer cookie over header
     const csrfToken = req.cookies["xsrf-token"] || req.headers["xsrf-token"]; // Prefer cookie over header
     
     try {

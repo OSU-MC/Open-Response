@@ -20,7 +20,7 @@ describe("User model", () => {
             user = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'danSmith@myclassroom.com',
+                email: 'danSmith@open-response.org',
                 rawPassword: 'Danny-o123!',
                 isTeacher: true
             })
@@ -29,7 +29,7 @@ describe("User model", () => {
             expect(user.firstName).toEqual("Dan")
             expect(user.lastName).toEqual("Smith")
             expect(user.fullName).toEqual("Dan Smith")
-            expect(user.email).toEqual("danSmith@myclassroom.com")
+            expect(user.email).toEqual("danSmith@open-response.org")
             expect(user.rawPassword).toBeUndefined()
             expect(user.password).not.toEqual("Danny-o123!")
             expect(user.admin).toBeFalsy()
@@ -46,7 +46,7 @@ describe("User model", () => {
         it ("should reject a null firstName", async () => {
             await expect(db.User.create({
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!',
             })).rejects.toThrow("notNull Violation: First name required")
         })
@@ -55,7 +55,7 @@ describe("User model", () => {
             await expect(db.User.create({
                 firstName: '',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!',
             })).rejects.toThrow("Validation error: First name cannot be empty")
         })
@@ -63,7 +63,7 @@ describe("User model", () => {
         it ("should reject a null lastName", async () => {
             await expect(db.User.create({
                 firstName: 'Dan',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!',
             })).rejects.toThrow("notNull Violation: Last name required")
         })
@@ -72,7 +72,7 @@ describe("User model", () => {
             await expect(db.User.create({
                 firstName: 'Dan',
                 lastName: '',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!',
             })).rejects.toThrow("Validation error: Last name cannot be empty")
         })
@@ -81,13 +81,13 @@ describe("User model", () => {
             const user = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'danSmith@myclassroom.com',
+                email: 'danSmith@open-response.org',
                 rawPassword: 'Danny-o123!',
             })
             await expect(db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'danSmith@myclassroom.com',
+                email: 'danSmith@open-response.org',
                 rawPassword: 'Danny-o123!',
             })).rejects.toThrow("Validation error")
             await user.destroy()
@@ -106,7 +106,7 @@ describe("User model", () => {
             await expect(db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com'
+                email: 'dannySmith@open-response.org'
             })).rejects.toThrow("notNull Violation: Password cannot be null")
         })
 
@@ -114,7 +114,7 @@ describe("User model", () => {
             await expect(db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o!'
             })).rejects.toThrow("Validation error: Password must be 11-32 characters")
         })
@@ -123,7 +123,7 @@ describe("User model", () => {
             await expect(db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o!Danny-o!Danny-o!Danny-o!!'
             })).rejects.toThrow("Validation error: Password must be 11-32 characters")
         })
@@ -144,7 +144,7 @@ describe("User model", () => {
             user = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!',
                 isTeacher: true
             })
@@ -158,10 +158,10 @@ describe("User model", () => {
         })
 
         it ("should update the email", async () => {
-            await user.update({email: "danSmithy@myclassroom.com"})
+            await user.update({email: "danSmithy@open-response.org"})
             await expect(user.save()).resolves.toBeTruthy()
             await user.reload()
-            expect(user.email).toEqual("danSmithy@myclassroom.com")
+            expect(user.email).toEqual("danSmithy@open-response.org")
         })
 
         it ("should update the password", async () => {
@@ -177,12 +177,12 @@ describe("User model", () => {
             const user2 = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'danSmith@myclassroom.com',
+                email: 'danSmith@open-response.org',
                 rawPassword: 'Danny-o123!'
             })
-            await expect(user.update({email: "danSmith@myclassroom.com"})).rejects.toThrow("Validation error")
+            await expect(user.update({email: "danSmith@open-response.org"})).rejects.toThrow("Validation error")
             await user.reload() 
-            expect(user.email).toEqual("dannySmith@myclassroom.com")
+            expect(user.email).toEqual("dannySmith@open-response.org")
             await user2.destroy()
         })
 
@@ -196,7 +196,7 @@ describe("User model", () => {
             user = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!'
             })
         })
@@ -222,7 +222,7 @@ describe("User model", () => {
             user = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!'
             })
         })
@@ -271,7 +271,7 @@ describe("User model", () => {
             user = await db.User.create({
                 firstName: 'Dan',
                 lastName: 'Smith',
-                email: 'dannySmith@myclassroom.com',
+                email: 'dannySmith@open-response.org',
                 rawPassword: 'Danny-o123!'
             })
         })

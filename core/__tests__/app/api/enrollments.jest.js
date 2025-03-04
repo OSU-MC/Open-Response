@@ -32,51 +32,51 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
         user = await db.User.create({
             firstName: 'Dan',
             lastName: 'Smith',
-            email: 'dannySmith@myclassroom.com',
+            email: 'dannySmith@open-response.org',
             rawPassword: 'Danny-o123!'
         })
         userToken = jwtUtils.encode({
             sub: user.id
         })
         const userSession = await generateUserSession(user)
-        userCookies = [`_myclassroom_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
+        userCookies = [`_openresponse_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
         
 
         user2 = await db.User.create({
             firstName: 'Mitchell',
             lastName: 'DaGoat',
-            email: 'mitchdagoat@myclassroom.com',
+            email: 'mitchdagoat@open-response.org',
             rawPassword: 'mitchell123!!'
         })
         user2Token = jwtUtils.encode({
             sub: user2.id
         })
         const user2Session = await generateUserSession(user2)
-        user2Cookies = [`_myclassroom_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
+        user2Cookies = [`_openresponse_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
 
         user3 = await db.User.create({
             firstName: 'TheUser',
             lastName: 'ItsMe',
-            email: 'theuser@myclassroom.com',
+            email: 'theuser@open-response.org',
             rawPassword: 'Imtheuseryesthatsme'
         })
         user3Token = jwtUtils.encode({
             sub: user3.id
         })
         const user3Session = await generateUserSession(user3)
-        user3Cookies = [`_myclassroom_session=${user3Token}`, `xsrf-token=${user3Session.csrfToken}`]
+        user3Cookies = [`_openresponse_session=${user3Token}`, `xsrf-token=${user3Session.csrfToken}`]
 
         user4 = await db.User.create({
             firstName: 'HelloImauser',
             lastName: 'yessir',
-            email: 'yessir@myclassroom.com',
+            email: 'yessir@open-response.org',
             rawPassword: 'youalreadyknowwhoitis'
         })
         user4Token = jwtUtils.encode({
             sub: user4.id
         })
         const user4Session = await generateUserSession(user4)
-        user4Cookies = [`_myclassroom_session=${user4Token}`, `xsrf-token=${user4Session.csrfToken}`]
+        user4Cookies = [`_openresponse_session=${user4Token}`, `xsrf-token=${user4Session.csrfToken}`]
 
         course = await db.Course.create({
             name: 'Testing Things 101',

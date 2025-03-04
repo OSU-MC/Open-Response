@@ -1,11 +1,11 @@
 {
-    "name": "myclassroom",
+    "name": "open-response",
     "version": "0.1.0",
     "private": true,
     "description": "Open Source Classroom Polling Software",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/OSU-MC/MyClassroom/"
+        "type": "git",
+        "url": "https://github.com/OSU-MC/Open-Response/"
     },
     "workspaces": [
         "core",
@@ -20,5 +20,8 @@
     },
     "keywords": [],
     "author": "",
-    "license": "GPL-3.0-or-later"
+    "license": "GPL-3.0-or-later",
+    "dependencies": {
+        "forever": "^4.0.3"
+    }
 }
