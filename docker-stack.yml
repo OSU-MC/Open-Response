@@ -28,7 +28,6 @@ services:
       TEST_DB_HOST: db
       TEST_DB_PORT: 3306
       TEST_DB_PASS: password
-      CLIENT_URL: "http://frontend:3000"
     entrypoint: ["./entrypoint.sh"]
     ports:
       - "3001:3001"
