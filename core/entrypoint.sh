@@ -14,24 +14,39 @@ check_mysql() {
 # Run the MySQL readiness check
 check_mysql
 
-echo "MySQL is ready. Proceeding with startup..."
+DB_USER="dev_admin"
+DB_PASSWORD="password"
+DB_NAME="openresponse_development"
+DB_HOST="db"
+DB_PORT="3306"
+TABLE_TO_CHECK="Users"
 
-# First-time setup
-CONTAINER_FIRST_STARTUP="CONTAINER_FIRST_STARTUP"
+# Function to check if database is initialized
+is_database_initialized() {
+    TABLE_COUNT=$(mysql -u$DB_USER -p$DB_PASSWORD -h $DB_HOST -P $DB_PORT -D $DB_NAME -se \
+        "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '$TABLE_TO_CHECK';")
 
-if [ ! -e /$CONTAINER_FIRST_STARTUP ]; then
-    touch /$CONTAINER_FIRST_STARTUP
-    echo "Container first start initializing database..."
+    if [ "$TABLE_COUNT" -gt 0 ]; then
+        return 0  # Database is initialized
+    else
+        return 1  # Database is uninitialized
+    fi
+}
+
+# Check if database is already initialized
+if is_database_initialized; then
+    echo "Database is already initialized. Skipping migrations and seeders."
+else
+    echo "Database not initialized. Running migrations and seeders..."
     
-    # Run database migrations and seeders only on the first startup
+    # Run migrations and seeders
     npx sequelize-cli db:migrate --env test &&
     npx sequelize-cli db:migrate --env development &&
     npx sequelize-cli db:seed:all --env test &&
     npx sequelize-cli db:seed:all --env development
     
-    echo "Completed migrating and seeding databases."
-    npm run start:dev
-else
-    echo "Not running first startup script."
-    npm run start:dev
+    echo "Database migrations and seeding completed."
 fi
+
+# Start the application
+npm run start:dev
