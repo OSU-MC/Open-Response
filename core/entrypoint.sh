@@ -15,15 +15,12 @@ check_mysql() {
 check_mysql
 
 DB_USER="dev_admin"
-DB_PASSWORD="password"
 DB_NAME="openresponse_development"
-DB_HOST="db"
-DB_PORT="3306"
 TABLE_TO_CHECK="Users"
 
 # Function to check if database is initialized
 is_database_initialized() {
-    TABLE_COUNT=$(mysql -u$DB_USER -p$DB_PASSWORD -h $DB_HOST -P $DB_PORT -D $DB_NAME -se \
+    TABLE_COUNT=$(mysql -u$DB_USER -p$DEV_DB_PASSWORD -h $DEV_DB_HOST -P $DEV_DB_PORT -D $DB_NAME -se \
         "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '$TABLE_TO_CHECK';")
 
     if [ "$TABLE_COUNT" -gt 0 ]; then
