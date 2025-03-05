@@ -80,6 +80,13 @@ docker service scale openresponse_backend=3
 ```
 This scales the backend service to three replicas.
 
+### Automatically Scaling Services
+To automatically scale services based on CPU usage run the script:
+```sh
+python docker_swarm_scaling.py
+```
+This script monitors system and container resource usage and scales the services up or down based on the defined thresholds.
+
 ## Shutting Down the Swarm
 To remove the deployed stack:
 ```sh
