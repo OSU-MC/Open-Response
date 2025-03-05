@@ -14,8 +14,6 @@
         "test": "NODE_ENV=test jest --runInBand",
         "start": "node app/core.js --NODE_ENV=production",
         "start:dev": "nodemon app/core.js --NODE_ENV=development",
-        "start:docker": "docker compose up -d --build",
-        "stop:docker": "docker compose down",
         "seed": "npm exec -- sequelize-cli db:seed:all",
         "unseed": "npm exec -- sequelize-cli db:seed:undo:all",
         "redis:basics": "node redis/basics.js",
