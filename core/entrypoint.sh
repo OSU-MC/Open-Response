@@ -24,9 +24,9 @@ is_database_initialized() {
         "SELECT COUNT(*) FROM information_schema.tables WHERE table_name = '$TABLE_TO_CHECK';")
 
     if [ "$TABLE_COUNT" -gt 0 ]; then
-        return 0  # Database is initialized
+        return 0  # Database is uninitialized
     else
-        return 1  # Database is uninitialized
+        return 1  # Database is initialized
     fi
 }
 
