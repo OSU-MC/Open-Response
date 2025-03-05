@@ -26,13 +26,14 @@ MIN_REPLICAS = int(os.getenv("MIN_REPLICAS", 1))
 MAX_REPLICAS = int(os.getenv("MAX_REPLICAS", 5))
 
 # Cooldown period (in seconds)
-SCALE_COOLDOWN = int(os.getenv("SCALE_COOLDOWN", 300))  # 5 minutes
+SCALE_COOLDOWN = int(os.getenv("SCALE_COOLDOWN", 900))  # 15 minutes
 
 # Logging configuration
 logging.basicConfig(filename="autoscaler.log", level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
 # Initialize Docker client
 client = docker.from_env()
+api_client = docker.APIClient()
 
 # Track last scaling time for cooldown
 last_scaled = {BACKEND_SERVICE: 0, FRONTEND_SERVICE: 0}
@@ -75,7 +76,7 @@ def scale_service(service_name, new_replicas):
 def get_service_stats(service_name):
     """Fetches CPU and memory usage for a specific Docker Swarm service."""
     try:
-        tasks = client.tasks(filters={"service": service_name})
+        tasks = api_client.tasks(filters={"service": service_name})
         total_cpu_usage = 0
         total_memory_usage = 0
         container_count = 0
@@ -83,15 +84,23 @@ def get_service_stats(service_name):
         for task in tasks:
             if "ContainerStatus" in task["Status"]:
                 container_id = task["Status"]["ContainerStatus"]["ContainerID"]
-                stats = client.containers.get(container_id).stats(stream=False)
+                
+                # Get container details to check status
+                container = client.containers.get(container_id)
+                if container.status != "running":
+                    logging.warning(f"Skipping non-running container {container_id} (status: {container.status})")
+                    continue  # Skip exited containers
+                
+                stats = container.stats(stream=False)
 
                 # Extract CPU usage
                 cpu_delta = stats["cpu_stats"]["cpu_usage"]["total_usage"] - stats["precpu_stats"]["cpu_usage"]["total_usage"]
-                system_cpu_delta = stats["cpu_stats"]["system_cpu_usage"] - stats["precpu_stats"]["system_cpu_usage"]
-                if system_cpu_delta > 0:
+                system_cpu_delta = stats["cpu_stats"].get("system_cpu_usage", 0) - stats["precpu_stats"].get("system_cpu_usage", 0)
+
+                if system_cpu_delta > 0 and "percpu_usage" in stats["cpu_stats"]["cpu_usage"]:
                     cpu_percent = (cpu_delta / system_cpu_delta) * len(stats["cpu_stats"]["cpu_usage"]["percpu_usage"]) * 100
                     total_cpu_usage += cpu_percent
-                
+
                 # Extract Memory usage
                 memory_usage = stats["memory_stats"]["usage"] / (1024 * 1024)  # Convert bytes to MB
                 total_memory_usage += memory_usage
@@ -107,7 +116,9 @@ def get_service_stats(service_name):
 
     except Exception as e:
         logging.error(f"Error fetching stats for {service_name}: {e}")
-        return None, None
+        return 0, 0  # Return 0 instead of None to prevent further errors
+
+
 
 def monitor_and_scale():
     """Monitors system and service resources, adjusting scaling accordingly."""
@@ -119,45 +130,25 @@ def monitor_and_scale():
         if system_memory_usage > SYSTEM_MEMORY_LIMIT:
             logging.warning("System memory usage exceeded threshold! Scaling down services.")
 
-            # Scale down backend
-            backend_replicas = get_service_replicas(BACKEND_SERVICE)
-            if backend_replicas is not None and backend_replicas > MIN_REPLICAS:
-                scale_service(BACKEND_SERVICE, backend_replicas - 1)
-
-            # Scale down frontend
-            frontend_replicas = get_service_replicas(FRONTEND_SERVICE)
-            if frontend_replicas is not None and frontend_replicas > MIN_REPLICAS:
-                scale_service(FRONTEND_SERVICE, frontend_replicas - 1)
+            for service in [BACKEND_SERVICE, FRONTEND_SERVICE]:
+                replicas = get_service_replicas(service)
+                if replicas is not None and replicas > MIN_REPLICAS:
+                    scale_service(service, replicas - 1)
 
         else:
-            # **Per-service scaling**
-            backend_cpu, backend_memory = get_service_stats(BACKEND_SERVICE)
-            frontend_cpu, frontend_memory = get_service_stats(FRONTEND_SERVICE)
-
-            # Backend Scaling
-            current_backend_replicas = get_service_replicas(BACKEND_SERVICE)
-            if backend_cpu is not None:
-                if backend_cpu > CPU_UP_THRESHOLD or backend_memory > MEMORY_UP_THRESHOLD:
-                    new_backend_replicas = min(current_backend_replicas + 1, MAX_REPLICAS)
-                    if new_backend_replicas != current_backend_replicas:
-                        scale_service(BACKEND_SERVICE, new_backend_replicas)
-                elif backend_cpu < CPU_DOWN_THRESHOLD and backend_memory < MEMORY_DOWN_THRESHOLD:
-                    new_backend_replicas = max(current_backend_replicas - 1, MIN_REPLICAS)
-                    if new_backend_replicas != current_backend_replicas:
-                        scale_service(BACKEND_SERVICE, new_backend_replicas)
-
-            # Frontend Scaling
-            current_frontend_replicas = get_service_replicas(FRONTEND_SERVICE)
-            if frontend_cpu is not None:
-                if frontend_cpu > CPU_UP_THRESHOLD or frontend_memory > MEMORY_UP_THRESHOLD:
-                    new_frontend_replicas = min(current_frontend_replicas + 1, MAX_REPLICAS)
-                    if new_frontend_replicas != current_frontend_replicas:
-                        scale_service(FRONTEND_SERVICE, new_frontend_replicas)
-                elif frontend_cpu < CPU_DOWN_THRESHOLD and frontend_memory < MEMORY_DOWN_THRESHOLD:
-                    new_frontend_replicas = max(current_frontend_replicas - 1, MIN_REPLICAS)
-                    if new_frontend_replicas != current_frontend_replicas:
-                        scale_service(FRONTEND_SERVICE, new_frontend_replicas)
-
+            for service in [BACKEND_SERVICE, FRONTEND_SERVICE]:
+                cpu, memory = get_service_stats(service)
+                logging.info(f"{service} - CPU: {cpu}%, Memory: {memory}MB")
+                current_replicas = get_service_replicas(service)
+                if cpu is not None and current_replicas is not None:
+                    if cpu > CPU_UP_THRESHOLD or memory > MEMORY_UP_THRESHOLD:
+                        new_replicas = min(current_replicas + 1, MAX_REPLICAS)
+                    elif cpu < CPU_DOWN_THRESHOLD and memory < MEMORY_DOWN_THRESHOLD:
+                        new_replicas = max(current_replicas - 1, MIN_REPLICAS)
+                    else:
+                        continue
+                    if new_replicas != current_replicas:
+                        scale_service(service, new_replicas)
         time.sleep(10)
 
 if __name__ == "__main__":
