@@ -1,7 +1,8 @@
 :root {
     --primary: #fff;
-    --splash: #D2DFD3;
+    --splash: #C5EFAA;
     --splash2: #93c48f;
+    --splash3: #456731;
     --accent: lightgrey;
     --accent2: #f3f3f3;
 }
@@ -111,6 +112,7 @@ body {
     font-weight: 700 !important;
     border-radius: 20px !important;
 }   
+
 .form-control {
     width: 75%;
     resize: none;
@@ -123,6 +125,7 @@ body {
     justify-content: flex-start;
     margin: 0 auto;
 }
+
 
 /* Back button */
 .back-btn {

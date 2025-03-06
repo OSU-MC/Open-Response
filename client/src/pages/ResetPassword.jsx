@@ -3,6 +3,10 @@ import apiUtil from '../utils/apiUtil'
 import { useNavigate } from 'react-router-dom'
 import Notice from '../components/Notice'
 import { TailSpin } from  'react-loader-spinner'
+import "../styles/auth.css"
+
+const VITE_NAME = import.meta.env.VITE_NAME;
+import classroomIcon from '../../public/classroomIcon.png';
 
 function ResetPasswordForLoginUser(){
 const [email, setEmail] = useState("")
@@ -57,24 +61,75 @@ const navigate = useNavigate()
     }
 
     return(
-    <div className="passwordDivContainer">
-        <h1 className="passwordPageh1">Reset Password</h1>
-        <p>Please enter in the confirmation code as well as the
-            new password for the account.
-        </p>
-        <br/>
-        <div>
-            <form onSubmit={(event) => event.preventDefault()}>
-                <input ref={emailInput} placeholder="Enter email here..." onChange={ (event) => {setEmail(event.target.value)} }/>
-                <input ref={confirmationCodeInput} placeholder="Enter confirmation code here..." onChange={ (event) => {setConfirmationCode(event.target.value)} }/>
-                <input ref={passwordInput} placeholder="Enter new password here..." onChange={ (event) => {setNewPassword(event.target.value)} }/>
-                <input ref={passwordConfirmInput} placeholder="Enter new password to confirm here..." onChange={ (event) => {setConfirmNewPassword(event.target.value)} }/>
-
-                <button onClick={resetPasswordObjectStaging} type="submit"> Reset Password</button>
-            </form>
-            { message !== "" && <Notice message={message} error={error}/> }
+        <div id="auth">
+            <div className='leftContainer'>
+                <div className='welcomeBox'>
+                    <span className='classroomLink'>
+                    {/*Image attr: Unknown, need to ask*/}
+                        <img className="classroomIcon" src={classroomIcon} alt="Classroom Icon" />
+                        {VITE_NAME}
+                    </span>
+                    <div className='textBox'>
+                        <h1>Welcome Back!</h1>
+                        <h2><a href="/create" className='subText'>New user?</a></h2>
+                    </div>
+                    <div className='linkBox'>
+                        <a href="/home" className='homeButton'><img src="/arrow-left-solid.svg" alt="Back" />Return to home</a>
+                    </div>
+                </div>
+            </div>
+            <div className="rightContainer">    
+                <div className="formContainer">
+                    <form onSubmit={(event) => event.preventDefault()}>
+                        <div className="formGroup">
+                            <label htmlFor="email">Email Address</label>
+                            <input
+                                id="email"
+                                className="inputField"
+                                ref={emailInput}
+                                placeholder="Enter email here..."
+                                onChange={(event) => setEmail(event.target.value)}
+                            />
+                        </div>
+                        <div className="formGroup">
+                            <label htmlFor="confirmationCode">Confirmation Code</label>
+                            <input
+                                id="confirmationCode"
+                                className="inputField"
+                                ref={confirmationCodeInput}
+                                placeholder="Enter confirmation code here..."
+                                onChange={(event) => setConfirmationCode(event.target.value)}
+                            />
+                        </div>
+                        <div className="formGroup">
+                            <label htmlFor="newPassword">New Password</label>
+                            <input
+                                id="newPassword"
+                                type="password"
+                                className="inputField"
+                                ref={passwordInput}
+                                placeholder="Enter new password here..."
+                                onChange={(event) => setNewPassword(event.target.value)}
+                            />
+                        </div>
+                        <div className="formGroup">
+                            <label htmlFor="confirmNewPassword">Confirm New Password</label>
+                            <input
+                                id="confirmNewPassword"
+                                type="password"
+                                className="inputField"
+                                ref={passwordConfirmInput}
+                                placeholder="Confirm new password here..."
+                                onChange={(event) => setConfirmNewPassword(event.target.value)}
+                            />
+                        </div>
+                        <button type="submit" className="submitButtonReset" onClick={resetPasswordObjectStaging}>
+                            Reset Password
+                        </button>
+                    </form>
+                </div>
+            </div>
         </div>
-    </div>
     )
 }
 

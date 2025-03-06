@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notification Test Page</title>
+</head>
+<body>
+    <h1>Notification Test Page</h1>
+
+    <script>
+        // Replace with your generated VAPID key
+        const publicVapidKey = "";
+        
+        // Start service worker
+        async function registerServiceWorker() {
+            const register = await navigator.serviceWorker.register('./service_worker.js', {
+                scope: '/'
+            });
+            
+            // Wait for user permission
+            const subscription = await register.pushManager.subscribe({
+                userVisibleOnly: true,
+                applicationServerKey: publicVapidKey,
+            });
+
+            await fetch("/subscribe", {
+                method: "POST",
+                body: JSON.stringify(subscription),
+                headers: {
+                    "Content-Type": "application/json",
+                }
+            })
+        }
+
+        registerServiceWorker();
+    </script>
+</body>
+</html>
