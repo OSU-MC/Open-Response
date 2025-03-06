@@ -38,7 +38,13 @@ function TeacherLanding(props) {
                     {/*Places all courses in course cards*/}
                     <div className='courses'>
                         {courses.teacherCourses.map((teacherCourse) => {
-                            return <CourseCard key={teacherCourse.id} course={teacherCourse} role={"teacher"} />
+                            return (
+                                <Link 
+                                    key={teacherCourse.id} 
+                                    to={`/${teacherCourse.id}/sections/`}>
+                                    <CourseCard course={teacherCourse} role={"teacher"} />
+                                </Link>
+                            );
                         })}
                     </div>
                 </div>

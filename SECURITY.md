@@ -14,4 +14,4 @@ All tagged versions (`v0.x.x`) are currently pre-release and unsupported. Releas
 | < 1.0.0   | :x:                |
 
 ## Reporting a Vulnerability
-Please create a GitHub Issue [here](https://github.com/OSU-MC/MyClassroom/issues) if you encounter any vulnerabilities (outside of dependancy updates). These are regularly checked and updated with statuses. If a stable release version has been tagged and a vulnerability issue goes unread, please reach out to the project maintainers.
+Please create a GitHub Issue [here](https://github.com/OSU-MC/Open-Response/issues) if you encounter any vulnerabilities (outside of dependancy updates). These are regularly checked and updated with statuses. If a stable release version has been tagged and a vulnerability issue goes unread, please reach out to the project maintainers.

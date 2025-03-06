@@ -2,7 +2,7 @@
 ## About
 The Open-Source Classroom Polling Project seeks to simplify the interactive side of the educational experience, through the development of a free-to-use web-based polling system. Addressing the shortcomings of existing polling software, this project emphasizes affordability, responsiveness, and enhanced interactive capabilities suitable for today’s classrooms. The app aims to deliver a solution that fosters real-time engagement, collaborative learning, and seamless integration with educational platforms.
 
-Read more about MyClassroom on the [MyClassroom website](https://osu-mc.github.io).
+Read more about Open Response on the [Open Response website](https://osu-mc.github.io).
 
 ## Dependencies
 - npm: 10.7.0
@@ -16,12 +16,12 @@ Install Docker
 
 Clone the GitHub repository:
 ```
-git clone git@github.com:OSU-MC/MyClassroom.git
+git clone git@github.com:OSU-MC/Open-Response.git
 ```
 
 Navigate to the cloned repository:
 ```
-cd MyClassroom
+cd MyCOpen-Responselassroom
 ```
 
 Install the application dependencies:
@@ -35,24 +35,24 @@ Configure the local environment:
 npm run config
 ```
 
-- Modify `/server/.env` to update the MyClassroom Server configuration.
-- Modify `/client/.env` to update the MyClassroom Client configuration.
+- Modify `/core/.env` to update the Open Response Core configuration.
+- Modify `/client/.env` to update the Open Response Client configuration.
 
-### Start MyClassroom Application
-Start MyClassroom using the following command:
+### Start Open Response Application
+Start Open Response using the following command:
 ```
 npm run start
 ```
 
-### Stop MyClassroom Application
+### Stop Open Response Application
 Press **Ctrl+C** to stop the server and shut down the Docker container.
 
 ## Development info
 ### Client
-For more info about developing for the frontend client, visit [client/README.md](https://github.com/OSU-MC/MyClassroom/tree/main/client)
+For more info about developing for the frontend client, visit [client/README.md](https://github.com/OSU-MC/Open-Response/tree/main/client)
 
-### Server
-For more info about developing for the backend server and database, visit [server/README.md](https://github.com/OSU-MC/MyClassroom/tree/main/server)
+### Core
+For more info about developing for the backend core and database, visit [core/README.md](https://github.com/OSU-MC/Open-Response/tree/main/core)
 
 ## Licensing
 GNU General Public License v3.0

@@ -1,7 +1,9 @@
 :root {
     --primary: #fff;
     --splash: #C5EFAA;
+    --splash: #C5EFAA;
     --splash2: #93c48f;
+    --splash3: #456731;
     --splash3: #456731;
     --accent: lightgrey;
     --accent2: #f3f3f3;
@@ -81,22 +83,24 @@ body {
 /* Lectures */
 .lectures {
     width: 100%;
+    padding: 20px;
 }
 
 .lectures-container {
     display: flex;
     flex-direction: row;
     flex-wrap: wrap;
-    margin: 20px 100px 100px 100px;
 }
 
 #lectures-subtitle {
-    font-size: 27px;
-    margin: 20px 20px 0px;
+    font-size: 24px;
+    font-weight: 700;
+    margin: 10px 0;
 }
 
 .lecture-card {
-    min-width: 300px;
+    width: 500px;
+    height: 250px;
     margin: 5px;
     width: 29%;
 }
@@ -148,8 +152,7 @@ body {
 }
 
 .lectures-top-bar {
-    margin: 20px 100px;
-    display: flex;
+    margin-bottom: 20px;
 }
 
 .inputOrderContainer {

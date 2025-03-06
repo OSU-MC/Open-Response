@@ -1,38 +1,38 @@
-# MyClassroom Client
-Welcome to the MyClassroom React.js Frontend Client! This README.md is dedicated to development guidance and information reguarding the client side of the application. For more information about contributing, or general user guides, please visit the [MyClassroom Wiki](https://github.com/OSU-MC/MyClassroom/wiki).
+# Open-Response Client
+Welcome to the Open-Response React.js Frontend Client! This README.md is dedicated to development guidance and information reguarding the client side of the application. For more information about contributing, or general user guides, please visit the [Open-Response Wiki](https://github.com/OSU-MC/Open-Response/wiki).
 
 ## Setup Application for Client Development
-This guide is specifically for local development of the MyClassroom Client. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
+This guide is specifically for local development of the Open-Response Client. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
 
 Install and configure the Application according to the steps in the main README.md but do not start the application. Then run the following from the root directory.
 
-### Start Server and Client
-Start the MyClassroom Server with Docker:
+### Start Core and Client
+Start the Open-Response Core with Docker:
 ```
-npm run start:server
+npm run start:core
 ```
 
-Start the local development version of the MyClassroom Client:
+Start the local development version of the Open-Response Client:
 ```
 npm run start -w=client
 ```
 
-### Stop Server and Client
-The MyClassroom Client can be stopped by pressing **Ctrl+C** while the process is running in the shell.
+### Stop Core and Client
+The Open-Response Client can be stopped by pressing **Ctrl+C** while the process is running in the shell.
 
-The MyClassroom Server can be stopped using the command:
+The Open-Response Core can be stopped using the command:
 ```
 npm run stop
 ```
 
 ## Update Client Configuration
-Modify `/client/.env` to update the MyClassroom Client configuration. The `VITE_API_URL` environment variable should be set to the MyClassroom Server URL. For basic testing, the default values can be used.
+Modify `/client/.env` to update the Open-Response Client configuration. The `VITE_API_URL` environment variable should be set to the Open-Response Core URL. For basic testing, the default values can be used.
 
 ## Tech Stack
 - React / React Native
 - Redux
 - Javascript
-![New Architecture](https://github.com/OSU-MC/MyClassroom/assets/25465133/633b6e2b-bbdd-4ff6-b986-f5d809c96a9b)
+![New Architecture](https://github.com/OSU-MC/Open-Response/assets/25465133/633b6e2b-bbdd-4ff6-b986-f5d809c96a9b)
 
 ## Organization
 ```bash

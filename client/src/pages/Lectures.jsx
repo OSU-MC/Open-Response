@@ -6,12 +6,27 @@ import Notice from '../components/Notice'
 import { Button, Card } from "react-bootstrap"
 import useCourse from "../hooks/useCourse";
 import LectureCard from '../components/LectureCard';
+import Tabs from "../components/nav/Tabs.jsx";
+import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
+import { useSelector} from 'react-redux'
+import { getUserState } from '../redux/selectors'
+
 
 function Lectures(props){
     //get the lectures for the current course & section
     const { courseId } = useParams()
     const [lectures, message, error, loading] = useLectures()
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
+    const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
+    const user = useSelector(getUserState);
+
+    const tabs_o = [
+        ["Sections", "sections"],
+        ["Lecture Templates", "lectures"], 
+        ["Roster", "roster"], 
+        ["Settings", "settings"]
+    ];
+
     
     
 
@@ -20,18 +35,17 @@ function Lectures(props){
     return (
         <div className='lectures'>
             <div className='lectures-top-bar'>
-            <Link className='back-btn-lectures' to={`/`}>
-                <Button className='back-btn'> 
-                    <div id="back-btn-image"/>
-                </Button>
-            </Link>
-
+            <div>
+                <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
+            </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
 
+            <Tabs courseId={courseId} tabs={tabs_o} />
+                
             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
             {role == "teacher" && 
-                <Link className="create-lecture-btn" to={`/${courseId}/createlecture`}>
-                    <Button variant="primary" className="btn-add">Create Lecture</Button>
+                <Link to={`/${courseId}/createlecture`}>
+                    <Button className="create-lecture-btn"> + Create Lecture</Button>
                 </Link>}
             <hr></hr>
             {/* && lectures[courseId]  */}
