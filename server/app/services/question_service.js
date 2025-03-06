@@ -139,11 +139,11 @@ const getMatchResults = function (question, answers) {
 exports.getQuestionScore = getQuestionScore;
 
 // just as if 'getQuestion', but checks against given course as well
-exports.getQuestionInCourse = async (questionId, courseId) => {
+exports.getQuestionFromLecture = async (questionId, lectureId) => {
 	return await db.Question.findOne({
 		where: {
 			id: questionId,
-			courseId: courseId,
+			lectureId: lectureId,
 		},
 	});
 };
@@ -154,7 +154,8 @@ exports.getQuestionInLecture = async function (questionId, lectureForSectionId) 
             where: {
                 questionId: questionId,
                 lectureForSectionId: lectureForSectionId // Ensure the correct column name is used
-            }
+            },
+			attributes: { exclude: ['LectureId'] },
         });
     } catch (error) {
         console.error("Error in getQuestionInLecture:", error);

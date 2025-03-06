@@ -1,4 +1,4 @@
-'use strict'
+ 'use strict'
 
 module.exports = (sequelize, DataTypes) => {
     const Lecture = sequelize.define('Lecture', {
