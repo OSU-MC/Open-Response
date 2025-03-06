@@ -54,7 +54,7 @@ To view detailed service information:
 docker service inspect <service-name>
 ```
 
-To inspect service healt and list running tasks, their state, and recent failures:
+To inspect service health and list running tasks, their state, and recent failures:
 ```sh
 docker service ps <service-name>
 ```
