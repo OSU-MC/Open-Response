@@ -13,10 +13,11 @@
     ],
     "scripts": {
         "config": "npm run config -w=core && npm run config -w=client",
-        "start": "trap 'npm run stop:docker -w=core' EXIT; npm run start:docker -w=core && npm run deploy -w=client",
-        "stop": "npm run stop:docker -w=core",
-        "start:core": "npm run start:docker -w=core",
-        "start:client": "npm run deploy -w=client &"
+        "start": "npm run build:containers && npm run deploy:stack",
+        "stop": "npm run remove:stack",
+        "build:containers": "docker build -t openresponse_backend ./core && docker build -t openresponse_frontend ./client",
+        "deploy:stack": "docker stack deploy -c docker-stack.yml openresponse",
+        "remove:stack": "docker stack rm openresponse"
     },
     "keywords": [],
     "author": "",

@@ -77,6 +77,12 @@ Once the instance has rebooted, start MySQL and Docker again with the following 
 ```sudo systemctl start mysql```  
 ```sudo systemctl start docker```
 
+Next, to enable docker swarm mode, run the following command:
+
+```sudo docker swarm init```
+
+Note: you can disable the swarm mode with `sudo docker swarm leave --force`.
+
 ### Adding the Open-Response Repository
 
 Unless the repository name has changed, enter the following:
