@@ -1,0 +1,108 @@
+name: Node.js Test Environment
+
+on:
+  pull_request:
+    branches: [ "main", "dev" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: rootpassword
+          MYSQL_DATABASE: database_test
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      
+      docker:
+        image: docker:dind
+        options: --privileged
+
+    strategy:
+      matrix:
+        node-version: ['18.x', '20.x']
+
+    env:
+      DB_USER: root
+      DB_PASSWORD: rootpassword
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3306
+
+      APPLICATION_SECRET: myclassroom
+
+    steps:
+    - name: Checkout Repository
+      uses: actions/checkout@v4
+    
+    - name: Use Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+
+    - name: Install MySQL Client
+      run: sudo apt-get update && sudo apt-get install -y mysql-client
+    
+    - name: Install Docker
+      run: sudo apt-get update && sudo apt-get install -y docker
+
+    - name: Wait for MySQL to be ready
+      run: |
+        for i in {1..30}; do
+          if mysqladmin ping -h"${{ env.DB_HOST }}" --silent; then
+            echo "MySQL is up and running"
+            break
+          fi
+          echo "Waiting for MySQL..."
+          sleep 2
+        done
+
+    - name: Create Additional MySQL User and Grant Privileges
+      run: |
+        mysql -h"${{ env.DB_HOST  }}" -u"${{ env.DB_USER }}" -p"${{ env.DB_PASSWORD }}" -e"
+          CREATE DATABASE openresponse_test;
+          CREATE USER 'test_admin'@'%' IDENTIFIED BY 'password';
+          GRANT ALL PRIVILEGES ON openresponse_test.* TO 'test_admin'@'%';
+          exit
+        "
+    
+    - name: Start Docker
+      run: sudo service docker start || true
+
+    - name: Verify Database Connection
+      run: |
+        mysql -h"${{ env.DB_HOST }}" -u"${{ env.DB_USER }}" -p"${{ env.DB_PASSWORD }}" -e "SHOW DATABASES;"
+
+    - name: Install Dependencies
+      run: cd core && npm ci
+
+    - name: Verify Migrations Dir Exists
+      run: |
+        cd core
+        mkdir -p migrations
+        ls -la migrations
+    
+    - name: Verify Seeders Dir Exists
+      run: |
+        cd core
+        mkdir -p seeders
+        ls -la seeders
+
+    - name: Set Up Database
+      run: |
+        cd core
+        npx sequelize-cli db:migrate --env test
+        npx sequelize-cli db:seed:all --env test
+
+    - name: Run Tests
+      run: |
+        cd core
+        npm run test
