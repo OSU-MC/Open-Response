@@ -1,4 +1,4 @@
-name: Node.js Test Environment
+name: Core Testing Environment
 
 on:
   pull_request:
