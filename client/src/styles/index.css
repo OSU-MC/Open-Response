@@ -111,15 +111,35 @@ body {
     font-weight: 700 !important;
     border-radius: 20px !important;
 }   
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
 
 /* Back button */
 .back-btn {
     width: 40px;
+    height: 40px; 
     background-image: url(../../public/free-back-arrow-1767531-1502435.webp);
-    background-size: cover;
+    background-size: contain; 
+    background-repeat: no-repeat; 
+    background-position: center; 
     border: none;
     background-color: transparent;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
 }
+
+
 
 .back-btn:hover {
     border: none;
@@ -391,6 +411,9 @@ body {
         background-color: white;
         border-color: black;
     }
+}
+.btn-secondary{
+    margin: 10px;
 }
 
 .btn-secondary:focus {
