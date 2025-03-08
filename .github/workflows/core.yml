@@ -82,7 +82,7 @@ jobs:
         mysql -h"${{ env.DB_HOST }}" -u"${{ env.DB_USER }}" -p"${{ env.DB_PASSWORD }}" -e "SHOW DATABASES;"
 
     - name: Install Dependencies
-      run: npm ci
+      run: npm i
 
     - name: Verify Migrations Dir Exists
       run: |
