@@ -50,7 +50,7 @@ function Lectures(props){
             <hr></hr>
             {/* && lectures[courseId]  */}
             {/*Join Live Lecture Button - ONLY if enrollment != teacher and a live lecture exists*/}
-            {role !== "teacher" && lectureId &&
+            {role !== "teacher" && lectureId && liveLecture?.isLive && 
                 <Link className="join-live-btn" to={`/${courseId}/live/${lectureId}`}>
                     <Button variant="success" className="btn-add">Join Live Lecture</Button>
                 </Link>
