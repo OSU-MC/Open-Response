@@ -25,7 +25,7 @@ describe('/courses endpoints', () => {
         user = await db.User.create({
             firstName: 'Dan',
             lastName: 'Smith',
-            email: 'dannySmith@myclassroom.com',
+            email: 'dannySmith@open-response.org',
             isTeacher: true,
             rawPassword: 'Danny-o123!'
         })
@@ -33,13 +33,13 @@ describe('/courses endpoints', () => {
             sub: user.id
         })
         const userSession = await generateUserSession(user)
-        userCookies = [`_myclassroom_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
+        userCookies = [`_openresponse_session=${userToken}`, `xsrf-token=${userSession.csrfToken}`]
         
 
         user2 = await db.User.create({
             firstName: 'Mitchell',
             lastName: 'DaGoat',
-            email: 'mitchdagoat@myclassroom.com',
+            email: 'mitchdagoat@open-response.org',
             isTeacher: false,
             rawPassword: 'mitchell123!!'
         })
@@ -47,7 +47,7 @@ describe('/courses endpoints', () => {
             sub: user2.id
         })
         const user2Session = await generateUserSession(user2)
-        user2Cookies = [`_myclassroom_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
+        user2Cookies = [`_openresponse_session=${user2Token}`, `xsrf-token=${user2Session.csrfToken}`]
 
         course2 = await db.Course.create({
             name: "TestingTest 123",

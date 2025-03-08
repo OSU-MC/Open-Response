@@ -21,6 +21,12 @@ function Sections() {
     const [courseName, setCourseName] = useState('');
     const user = useSelector(getUserState)
     const breadcrumbs_object = [['Courses', '/'], [courseName, null]];
+    const tabs_o = [
+        ["Sections", "sections"],
+        ["Lecture Templates", "lectures"], 
+        ["Roster", "roster"], 
+        ["Settings", "settings"]
+    ];
 
 
     // Using the useCourses hook to get course data
@@ -56,8 +62,11 @@ function Sections() {
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />
             </div>
                 <h1 className="course-title">{courseName}</h1>
-                <Tabs user={user} courseId={courseId} />
-            </div>
+
+                    
+                <Tabs courseId={courseId} tabs={tabs_o} />
+                
+     </div>
 
             {showCreateModal && (
                 <Popup close={closeCreateModal}>

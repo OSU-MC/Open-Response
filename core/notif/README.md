@@ -25,12 +25,12 @@ Your VAPID keys should now be displayed in the console.
 
 ### Step 4: Set VAPID Keys
 
-Now, go to the `server.js` file under `MyClassroom/core/notif` in your IDE and replace the `publicVapidKey` and `privateVapidKey` constants with your own. 
+Now, go to the `server.js` file under `Open-Response/core/notif` in your IDE and replace the `publicVapidKey` and `privateVapidKey` constants with your own. 
 
-You will also need to change the `publicVapidKey` constant in the `index.html` file under `MyClassroom/core/notif/client`.
+You will also need to change the `publicVapidKey` constant in the `index.html` file under `Open-Response/core/notif/client`.
 
 ### Step 5: Test Notification Service
-To verify that the service has been set up correctly, run the following while still being under `MyClassroom/core` in your console:
+To verify that the service has been set up correctly, run the following while still being under `Open-Response/core` in your console:
 
 ```
 npm run notif:basics

@@ -8,7 +8,7 @@ function Home() {
     return(
        <div id="home">
            <div className="section">
-               <p className="homeHeader">Welcome to MyClassroom</p>
+               <p className="homeHeader">Welcome to Open Response</p>
                <p>Open-Source Classroom Polling Software</p>
            </div>
 
