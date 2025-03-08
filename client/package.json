@@ -40,7 +40,7 @@
     "vitest": "^2.1.3"
   },
   "scripts": {
-    "config": "cp .env.example .env && nano .env",
+    "config": "copy .env.example .env && nano .env",
     "start": "vite",
     "build": "vite build",
     "lint": "eslint .",
