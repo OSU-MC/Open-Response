@@ -1,5 +1,5 @@
 # Pull Request Template
-<!--Thank you for contributing to MyClassroom! Please fill out this template before submitting your PR.-->
+<!--Thank you for contributing to Open=Response! Please fill out this template before submitting your PR.-->
 
 ## Screenshots
 <!--If applicable, add screenshots to help explain your problem or feature.-->

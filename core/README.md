@@ -1,10 +1,10 @@
-# MyClassroom Core
-Welcome to the MyClassroom node.js Backend Core! This README.md is dedicated to development guidance and information reguarding the core side of the application. For more information about contributing, or general user guides, please visit the [MyClassroom Wiki](https://github.com/OSU-MC/MyClassroom/wiki).
+# Open-Response Core
+Welcome to the Open-Response node.js Backend Core! This README.md is dedicated to development guidance and information reguarding the core side of the application. For more information about contributing, or general user guides, please visit the [Open-Response Wiki](https://github.com/OSU-MC/Open-Response/wiki).
 
 ## Setup Application for Core Development
-This guide is specifically for local development of the MyClassroom Core. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
+This guide is specifically for local development of the Open-Response Core. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
 
-There are two development methods for the MyClassroom Core application.
+There are two development methods for the Open-Response Core application.
 
 1. [Docker](#docker): Install Docker locally and automatically deploy the databases for a simple development environment.
 2. [MySQL](#mysql): Install MySQL locally and manually intilize databases for detailed application control.
@@ -14,7 +14,7 @@ The core NodeJS app and MySQL database can also be deployed in containers using 
 
 Install and configure the Application according to the steps in the main [README.md](../README.md) but do not start the application. Then run the following from the root directory.
 
-#### Build MyClassroom Core and MySQL Docker Containers
+#### Build Open-Response Core and MySQL Docker Containers
 Build Docker containers:
 ```
 docker compose build
@@ -41,7 +41,7 @@ docker container start myclasroom_db
 ```
 
 ### MySQL
-If you are working on the MyClassroom Core application without Docker, you will need to install MySQL.
+If you are working on the Open-Response Core application without Docker, you will need to install MySQL.
 
 - Refer to the [MySQL Getting Started Guide](https://dev.mysql.com/doc/mysql-getting-started/en/) for installing and troubleshooting MySQL.
 
@@ -49,7 +49,7 @@ If you are working on the MyClassroom Core application without Docker, you will 
 
 Navigate to the Core Directory
 ```
-cd MyClassroom/core
+cd Open-Response/core
 ```
 
 Install the Application Dependencies
@@ -57,15 +57,15 @@ Install the Application Dependencies
 npm install
 ```
 
-#### Build MyClassroom Core
-Build MyClassroom Core (without DB):
+#### Build Open-Response Core
+Build Open-Response Core (without DB):
 ```
-docker build -t myclassroom_core .
+docker build -t openresponse_core .
 ```
 
-Run MyClassroom Core (without DB):
+Run Open-Response Core (without DB):
 ```
-docker run -p 3001:3001: myclassroom_core
+docker run -p 3001:3001: openresponse_core
 ```
 
 #### Setup Development Database
@@ -76,7 +76,7 @@ mysql -u root -p
 
 Create the Application Database
 ```
-CREATE DATABASE myclassroom_development;
+CREATE DATABASE openresponse_development;
 ```
 
 Create the Administrative Database User
@@ -86,7 +86,9 @@ CREATE USER 'dev_admin'@'localhost' IDENTIFIED BY 'password';
 
 Grant the Administrative User Access to the Application Database
 ```
-GRANT ALL PRIVILEGES ON myclassroom_development.* TO 'dev_admin'@'localhost';
+
+GRANT ALL PRIVILEGES ON openresponse.* TO 'dev_admin'@'localhost';
+
 ```
 
 Disconnect from the MySQL Database
@@ -107,7 +109,7 @@ mysql -u root -p
 
 Create the Test Application Database
 ```
-CREATE DATABASE myclassroom_test;
+CREATE DATABASE openresponse_test;
 ```
 
 Create the Testing Administrative Database User
@@ -117,7 +119,7 @@ CREATE USER 'test_admin'@'localhost' IDENTIFIED BY 'password';
 
 Grant the Testing Administrative User Access to the Test Application Database
 ```
-GRANT ALL PRIVILEGES ON myclassroom_test.* TO 'test_admin'@'localhost';
+GRANT ALL PRIVILEGES ON openresponse_test.* TO 'test_admin'@'localhost';
 ```
 
 Disconnect from the MySQL Database
@@ -136,7 +138,7 @@ npx sequelize-cli db:seed:all --env test
 ```
 
 #### Start Core
-Start the MyClassroom Core
+Start the Open-Response Core
 ```
 npm run start
 ```
@@ -171,20 +173,34 @@ mysql -u root -p
 ```
 
 ```
-DROP DATABASE myclassroom_development;
+DROP DATABASE openresponse_development;
 ```
 
 or
 
 ```
-DROP DATABASE myclassroom_test;
+DROP DATABASE openresponse_test;
+```
+
+You can also copy and paste this script to force the database to drop all changes to the database and update it:
+```
+mysql -u root -p -e "
+  DROP DATABASE IF EXISTS openresponse_development;
+  DROP DATABASE IF EXISTS openresponse_test;
+  CREATE DATABASE openresponse_development;
+  CREATE DATABASE openresponse_test;
+"
+npx sequelize db:migrate --env development
+npx sequelize db:migrate --env test
+npx sequelize db:seed:all --env development
+npx sequelize db:seed:all --env test
 ```
 
 ## Update Core Configuration
-Modify `/core/.env` to update the MyClassroom Core configuration. The `DEV_DB_...` and `TEST_DB_...` environment variables should match those in the database/user creation commands listed in the [MySQL](#mysql) setup steps below. Additionally, `CLIENT_URL` should be set to the MyClassroom Client application URL. For basic testing, the default values can be used.
+Modify `/core/.env` to update the Open-Response Core configuration. The `DEV_DB_...` and `TEST_DB_...` environment variables should match those in the database/user creation commands listed in the [MySQL](#mysql) setup steps below. Additionally, `CLIENT_URL` should be set to the Open-Response Client application URL. For basic testing, the default values can be used.
 
 ## Application Authentication & Session
-The application uses cookie-based authentication once a user session has been created (i.e. a user has logged in). A user's session will have a specific XSRF token value associated with it to protect against XSRF attacks. As such, the value of that token will be sent back as a cookie, and the application expects to recieve with each authenticated request a custom X-XSRF-TOKEN header with that value, along with the traditional authentication cookie \_myclassroom_session which the application generated as part of initial session creation.
+The application uses cookie-based authentication once a user session has been created (i.e. a user has logged in). A user's session will have a specific XSRF token value associated with it to protect against XSRF attacks. As such, the value of that token will be sent back as a cookie, and the application expects to recieve with each authenticated request a custom X-XSRF-TOKEN header with that value, along with the traditional authentication cookie \_openresponse_session which the application generated as part of initial session creation.
 
 A user's session is valid for a minimum of 4 hours, and as long as the user is active within 4 hours of last activity, the session can be valid for as long as 24 hours. In other words, users will be asked to login again after 4 hours of inactivity or 24 hours since they last provided their credentials.
 

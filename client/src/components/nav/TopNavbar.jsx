@@ -12,7 +12,7 @@ function TopNavbar(props) {
 		<nav>
 			<a className='page' id='classroomLink' href='/home'>
 				<img id='classroomIcon' src='/classroomIcon.png'></img>
-				<span>MyClassroom</span>
+				<span>Open Response</span>
 			</a>
 			{props.loggedIn ? <LoggedIn loggedIn={props.loggedIn} /> : <LoggedOut />}
 		</nav>

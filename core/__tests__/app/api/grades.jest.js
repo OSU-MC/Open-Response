@@ -48,7 +48,7 @@ describe("/grades endpoints", () => {
 		user = await db.User.create({
 			firstName: "Dan",
 			lastName: "Smith",
-			email: "dannySmith2@myclassroom.com",
+			email: "dannySmith2@open-response.org",
 			rawPassword: "Danny-o123!",
 		});
 		userToken = jwtUtils.encode({
@@ -56,14 +56,14 @@ describe("/grades endpoints", () => {
 		});
 		const userSession = await generateUserSession(user);
 		userCookies = [
-			`_myclassroom_session=${userToken}`,
+			`_openresponse_session=${userToken}`,
 			`xsrf-token=${userSession.csrfToken}`,
 		];
 
 		user2 = await db.User.create({
 			firstName: "Mitchell",
 			lastName: "DaGoat",
-			email: "mitchdabest@myclassroom.com",
+			email: "mitchdabest@open-response.org",
 			rawPassword: "mitchell123!!",
 		});
 		user2Token = jwtUtils.encode({
@@ -71,14 +71,14 @@ describe("/grades endpoints", () => {
 		});
 		const user2Session = await generateUserSession(user2);
 		user2Cookies = [
-			`_myclassroom_session=${user2Token}`,
+			`_openresponse_session=${user2Token}`,
 			`xsrf-token=${user2Session.csrfToken}`,
 		];
 
 		user3 = await db.User.create({
 			firstName: "Tester",
 			lastName: "TheTest",
-			email: "testingtesting124@myclassroom.com",
+			email: "testingtesting124@open-response.org",
 			rawPassword: "mitchell123!!",
 		});
 		user3Token = jwtUtils.encode({
@@ -86,14 +86,14 @@ describe("/grades endpoints", () => {
 		});
 		const user3Session = await generateUserSession(user3);
 		user3Cookies = [
-			`_myclassroom_session=${user3Token}`,
+			`_openresponse_session=${user3Token}`,
 			`xsrf-token=${user3Session.csrfToken}`,
 		];
 
 		user4 = await db.User.create({
 			firstName: "Fourth",
 			lastName: "Person",
-			email: "Iamdafourthmanman@myclassroom.com",
+			email: "Iamdafourthmanman@open-response.org",
 			rawPassword: "mitchell123!!",
 		});
 		user4Token = jwtUtils.encode({
@@ -101,14 +101,14 @@ describe("/grades endpoints", () => {
 		});
 		const user4Session = await generateUserSession(user4);
 		user4Cookies = [
-			`_myclassroom_session=${user4Token}`,
+			`_openresponse_session=${user4Token}`,
 			`xsrf-token=${user4Session.csrfToken}`,
 		];
 
 		user5 = await db.User.create({
 			firstName: "Fifth",
 			lastName: "Person",
-			email: "Iamdafifththmanman@myclassroom.com",
+			email: "Iamdafifththmanman@open-response.org",
 			rawPassword: "stewartmitch22!!",
 		});
 		user5Token = jwtUtils.encode({
@@ -116,14 +116,14 @@ describe("/grades endpoints", () => {
 		});
 		const user5Session = await generateUserSession(user5);
 		user5Cookies = [
-			`_myclassroom_session=${user5Token}`,
+			`_openresponse_session=${user5Token}`,
 			`xsrf-token=${user5Session.csrfToken}`,
 		];
 
 		user6 = await db.User.create({
 			firstName: "Sixth",
 			lastName: "Person",
-			email: "Iamdasixththmanman@myclassroom.com",
+			email: "Iamdasixththmanman@open-response.org",
 			rawPassword: "stewrgergmch22!!",
 		});
 		user6Token = jwtUtils.encode({
@@ -131,7 +131,7 @@ describe("/grades endpoints", () => {
 		});
 		const user6Session = await generateUserSession(user6);
 		user6Cookies = [
-			`_myclassroom_session=${user6Token}`,
+			`_openresponse_session=${user6Token}`,
 			`xsrf-token=${user6Session.csrfToken}`,
 		];
 

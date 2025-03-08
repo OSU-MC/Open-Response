@@ -18,26 +18,26 @@ describe('Test api/questionsInLecture', () => {
         teacher = await db.User.create({
             firstName: 'Dan',
             lastName: 'Smith',
-            email: 'dannySmith@myclassroom.com',
+            email: 'dannySmith@open-response.org',
             rawPassword: 'Danny-o123!'
         })
         const teacherToken = jwtUtils.encode({
             sub: teacher.id
         })
         const teachSession = await generateUserSession(teacher)
-        teachCookies = [`_myclassroom_session=${teacherToken}`, `xsrf-token=${teachSession.csrfToken}`]
+        teachCookies = [`_openresponse_session=${teacherToken}`, `xsrf-token=${teachSession.csrfToken}`]
         
         student = await db.User.create({
             firstName: 'John',
             lastName: 'Doe',
-            email: 'johndoe@myclassroom.com',
+            email: 'johndoe@open-response.org',
             rawPassword: 'superdupersecret'
         })
         const studentToken = jwtUtils.encode({
             sub: student.id
         })
         const studentSession = await generateUserSession(student)
-        studentCookies = [`_myclassroom_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
+        studentCookies = [`_openresponse_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
 
         course1 = await db.Course.create({
             name: 'Capstone Course',

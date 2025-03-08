@@ -9,7 +9,7 @@ import store from './redux/store'
 
 const rootElement = document.getElementById('root');
 const root = ReactDOM.createRoot(rootElement);
-
+console.log(import.meta.env.VITE_API_URL);
 root.render(
   <Provider store={store}>
     <BrowserRouter>
