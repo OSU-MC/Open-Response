@@ -4,6 +4,7 @@
 /node_modules
 /core/node_modules
 /client/node_modules
+/core/socket/node_modules
 /.pnp
 .pnp.js
 
