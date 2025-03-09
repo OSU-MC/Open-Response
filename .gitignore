@@ -19,6 +19,7 @@
 .DS_Store
 *.log*
 .env*
+!.env.example
 /core/.env
 /core/logs
 

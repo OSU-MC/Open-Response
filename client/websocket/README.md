@@ -9,7 +9,7 @@ Open a WSL console.
 Navigate to the client directory:
 
 ```
-cd MyClassroom/client
+cd Open-Response/client
 ```
 
 Install all dependencies:

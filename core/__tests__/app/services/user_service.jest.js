@@ -6,7 +6,7 @@ describe('Users Service', () => {
     let completeCreationFields = {
         firstName: "Memer",
         lastName: "Magic",
-        email: "memer@myclassroom.com",
+        email: "memer@open-response.org",
         rawPassword: "Iamsuchamemer!",
         isTeacher: true
     }
@@ -51,7 +51,7 @@ describe('Users Service', () => {
                 id: user.id,
                 firstName: "Memer",
                 lastName: "Magic",
-                email: "memer@myclassroom.com",
+                email: "memer@open-response.org",
                 isTeacher:true
             })
         })

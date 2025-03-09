@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TailSpin } from  'react-loader-spinner'
 import useLectures from '../hooks/useLectures';
@@ -10,6 +10,9 @@ import Tabs from "../components/nav/Tabs.jsx";
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import { useSelector} from 'react-redux'
 import { getUserState } from '../redux/selectors'
+import Popup from '../components/Popup';
+import AddLecture from '../components/AddLecture';
+
 
 
 function Lectures(props){
@@ -20,6 +23,22 @@ function Lectures(props){
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
 
+    const tabs_o = [
+        ["Sections", "sections"],
+        ["Lecture Templates", "lectures"], 
+        ["Roster", "roster"], 
+        ["Settings", "settings"]
+    ];
+
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    
+    const closeCreateModal = () => {
+        setShowCreateModal(false);
+    };
+
+    const openCreateModal = () => {
+        setShowCreateModal(true);
+    };
 
     return (
         <div className='lectures'>
@@ -28,16 +47,21 @@ function Lectures(props){
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
-            <Tabs user={user} courseId={courseId} />
 
-
-
+            <Tabs courseId={courseId} tabs={tabs_o} />
+                
             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
-            {role == "teacher" && 
+            {/* {role == "teacher" && 
                 <Link to={`/${courseId}/createlecture`}>
                     <Button className="create-lecture-btn"> + Create Lecture</Button>
-                </Link>}
+                </Link>} */}
             </div>
+
+            {showCreateModal && (
+                <Popup close={closeCreateModal}>
+                    <AddLecture closeFunction={closeCreateModal} />
+                </Popup>
+            )}
 
             {/*No Lectures*/}
             { message ? <Notice error={error ? "error" : ""} message={message}/> : (!lectures) ? <Notice message={"You Do Not Have Any Lectures Yet"}/> : <></>}
@@ -47,6 +71,12 @@ function Lectures(props){
                     return <LectureCard key={lecture.id} lecture={lecture} view={role} />;
                 })}
             </div>
+            <Button 
+                className="create-lecture-btn"
+                onClick={openCreateModal}
+            >
+                + Create Lecture
+            </Button>
         </div>
     )
 }
