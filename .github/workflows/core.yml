@@ -2,7 +2,7 @@ name: Core Testing Environment
 
 on:
   pull_request:
-    branches: [ "main", "dev" ]
+    branches: ["main", "development"]
 
 jobs:
   build:
