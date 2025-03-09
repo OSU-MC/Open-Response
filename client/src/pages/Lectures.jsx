@@ -47,6 +47,9 @@ function Lectures(props){
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
+            <Tabs courseId={courseId} tabs={tabs_o} />
+                
+
 
             <Tabs courseId={courseId} tabs={tabs_o} />
                 

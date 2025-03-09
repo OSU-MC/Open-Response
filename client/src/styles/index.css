@@ -125,6 +125,20 @@ body {
     margin: 0 auto;
 }
 
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
+
+
 /* Back button */
 .back-btn {
     width: 40px;

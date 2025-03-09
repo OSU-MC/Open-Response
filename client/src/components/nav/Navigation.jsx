@@ -6,7 +6,8 @@ import useCourse from '../../hooks/useCourse'
 function Navigation(props) {
     const location = useLocation()
     const courseRegex = /\/\d+/ //regular expression: / followed by 1 or more digits
-    const inCourse = location.pathname.match(courseRegex) && !((location.pathname.match("sections") || location.pathname.match("lectures")));
+
+    const inCourse = location.pathname.match(courseRegex) && !((location.pathname.match("sections") || location.pathname.match("lectures")) || (location.pathname.match("createlecture")));
     const disableTopNavbar = !(location.pathname.match("login") || location.pathname.match("create")) //between this and inCourse, surely theres a better way.
 
     return <>

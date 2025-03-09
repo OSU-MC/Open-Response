@@ -61,12 +61,10 @@ function Sections() {
                 {/* Display the Breadcrumbs component */}
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />
             </div>
-                <h1 className="course-title">{courseName}</h1>
-
-                    
+                <h1 className="course-title">{courseName}</h1>                   
                 <Tabs courseId={courseId} tabs={tabs_o} />
                 
-     </div>
+            </div>
 
             {showCreateModal && (
                 <Popup close={closeCreateModal}>
@@ -85,6 +83,7 @@ function Sections() {
                     <Notice message={"You have not created any sections for this course yet"} />
                 )}
             </div>
+
 
             <Button 
                 className="create-section-btn"

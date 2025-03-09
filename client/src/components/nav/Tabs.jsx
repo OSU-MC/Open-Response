@@ -26,12 +26,13 @@
  * The component does not apply role-based filtering; ensure tabs are pre-filtered before passing them in.
  */
 
+
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "../../styles/Tabs.css";
 
-
 const Tabs = ({ courseId, tabs }) => {
+
 
     const location = useLocation(); // Get current URL path
 
@@ -50,7 +51,6 @@ const Tabs = ({ courseId, tabs }) => {
                         </span>
                     </Link>
                 ))}
-
             </div>
             <hr />
         </>
@@ -58,6 +58,3 @@ const Tabs = ({ courseId, tabs }) => {
 };
 
 export default Tabs;
-
-
-

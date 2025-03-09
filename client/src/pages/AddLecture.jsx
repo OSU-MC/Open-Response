@@ -61,7 +61,7 @@ function AddLecture(props){
                             <div id="back-btn-image"/>
                         </Button>
                     </Link>
-                    <p className='create-subtitle'>Create Lecture</p>
+                    <h1 className='create-subtitle'>Create Lecture</h1>
                 </div>
                 <hr className='create-hr-bar'></hr>
                 <Form.Group className="inputTitleContainer">
