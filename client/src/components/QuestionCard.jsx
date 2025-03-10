@@ -17,17 +17,20 @@ function QuestionCard(props){
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const [ published, setPublished ] = useState(!!props.question.published)
+    const [ isLive, setIsLive ] = useState(!!props.question.isLive)
     const { courseId, lectureId, sectionId } = useParams()
     const [ error, setError ] = useState(false)
     const [ message, setMessage ] = useState("")
     const [ loading, setLoading ] = useState(false)
+
+
 
     //(un)publish a question
     //called on switch onChange()
     async function changePublishState(){
         //call the api for an update 
         setLoading(true)
-        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}}`, { dispatch: dispatch, navigate: navigate})
+        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}`, { dispatch: dispatch, navigate: navigate})
         setLoading(false)
         setError(response.error)
         setMessage(response.message)
@@ -39,6 +42,26 @@ function QuestionCard(props){
         }
 
     }
+
+    async function goLive() {
+
+        setLoading(true);    
+        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/live`, { 
+            dispatch: dispatch,
+            navigate: navigate,
+            data: { isLive: !isLive }
+        });
+    
+        setLoading(false);
+        setError(response.error);
+        setMessage(response.message);
+    
+        if (response.status === 200 && response.data?.isLive !== undefined) {
+            setIsLive(!isLive);
+            socket.emit("setLiveQuestion", { lectureId });
+        }
+    }
+
 
     return (
         <>
@@ -78,8 +101,8 @@ function QuestionCard(props){
                                 </div>
                             )}
 
-                            <Button className="btn-live">
-                                Go Live
+                            <Button className="btn-live" onClick={goLive}>
+                                {isLive ? "End Live" : "Go Live"}  {/* Toggle button text based on 'isLive' state */}
                             </Button>
                         </Card.Body>
                     </Card>
