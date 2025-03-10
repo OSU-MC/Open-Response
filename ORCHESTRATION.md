@@ -13,6 +13,7 @@ Ensure that the following dependencies are installed on your system:
 To use Docker Swarm, initialize a Swarm mode cluster:
 ```sh
 docker swarm init
+docker network create --driver overlay openresponse_network
 ```
 This command sets up the current machine as a manager node in the Swarm.
 

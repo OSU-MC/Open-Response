@@ -45,6 +45,7 @@ function Lectures(props){
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
             <Tabs courseId={courseId} tabs={tabs_o} />
+            </div>
                 
                
             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
