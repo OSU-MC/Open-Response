@@ -60,13 +60,13 @@ router.put('/:lecture_id/live', requireAuthentication, async function (req, res,
         if (isTeacher) {
             const foundLecture = await db.Lecture.findByPk(lectureId)
             if (foundLecture) {
-                const { isLive, published } = req.body
+                const { isLive = false, published } = req.body
                 await foundLecture.update({ isLive, published })
-                res.status(200).send({ message: "Lecture live status updated successfully" })
-            } else {
+                res.status(200).send({ message: "Live status updated" })
+            } else { //no lecture
                 res.status(404).send({ error: "Lecture not found" })
             }
-        } else {
+        } else { //user is not a teacher
             res.status(403).send({ error: "User must be a teacher to update the lecture" })
         }
     } catch (e) {

@@ -101,9 +101,15 @@ function QuestionCard(props){
                                 </div>
                             )}
 
-                            <Button className="btn-live" onClick={goLive}>
-                                {isLive ? "End Live" : "Go Live"}  {/* Toggle button text based on 'isLive' state */}
-                            </Button>
+                            {props.isLectureLive && (
+                                <Button 
+                                    className="btn-live" 
+                                    onClick={goLive}
+                                    disabled={loading}
+                                >
+                                    {isLive ? "End Live" : "Go Live"}
+                                </Button>
+                            )}
                         </Card.Body>
                     </Card>
                 </div>

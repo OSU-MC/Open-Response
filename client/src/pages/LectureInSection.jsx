@@ -52,6 +52,8 @@ function LectureInSection() {
 
     const changeLiveState = async () => {
         setLoadingPublish(true);
+        const requestData = { isLive: !isLive, published: true };
+        console.log('Sending live state:', requestData);
         const response = await apiUtil("put", `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/live`, { 
             dispatch, 
             navigate,
@@ -103,8 +105,14 @@ function LectureInSection() {
                     </div>
 
                     <div className='questions'>
-                        {loading ? <TailSpin visible={true}/> : questions.questions.map((question) => {
-                            return <QuestionCard key={question.id} question={question} view={'teacher'} lecturePublished={published}/>;
+                    {loading ? <TailSpin visible={true}/> : questions.questions.map((question) => {
+                            return <QuestionCard 
+                                        key={question.id} 
+                                        question={question} 
+                                        view={'teacher'} 
+                                        lecturePublished={published}
+                                        isLectureLive={isLive}
+                                    />;
                         })}
                     </div>
                 </div>
