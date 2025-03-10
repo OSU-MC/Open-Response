@@ -47,7 +47,6 @@ services:
     volumes:
       - db_data:/var/lib/mysql
       - ./core/db/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - ./core/db/my.cnf:/etc/mysql/conf.d/my.cnf
     healthcheck:
       test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -prootpassword || exit 1"]
       interval: 10s
