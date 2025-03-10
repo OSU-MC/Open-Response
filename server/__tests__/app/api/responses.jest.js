@@ -560,6 +560,7 @@ describe("/responses endpoints", () => {
 	afterAll(async () => {
 		await user.destroy();
 		await user2.destroy();
+		await user3.destroy();
 		await course.destroy(); // should cascade on delete and delete sections and enrollments as well
 	});
 });
