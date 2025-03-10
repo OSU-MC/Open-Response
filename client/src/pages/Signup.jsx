@@ -107,12 +107,14 @@ function Signup(props){
     render(){
         return(
             <form onSubmit={this.handleSubmit}>
-                <label className="switch">
-                    <p id="studentText">I am a <b>student</b></p>
-                    <p id="teacherText">I am a <b>teacher</b></p>
-                    <input type="checkbox" name="isTeacher" className="teacherCheck" checked={this.state.isTeacher} onChange={this.handleChange} />
-                    <span className="slider"></span>
-                </label>
+                <div className="userTypeSelector">
+                    <label className="switch">
+                        <p id="studentText">I am a <b>student</b></p>
+                        <p id="teacherText">I am a <b>teacher</b></p>
+                        <input type="checkbox" name="isTeacher" className="teacherCheck" checked={this.state.isTeacher} onChange={this.handleChange} />
+                        <span className="slider"></span>
+                    </label>
+                </div>
                 {/*Input fields: value mapped to React state through handleChange*/}
                 <input type="text" name="firstName"
                     value={this.state.firstName} onChange={this.handleChange}
@@ -134,8 +136,8 @@ function Signup(props){
                     value={this.state.confirmedPassword} onChange={this.handleChange}
                     className="inputContainer passwordContainer" placeholder="Confirm Password"
                 />
-                <input type="submit" value="Get Started" className="submitButton" />
-                <p className='orSSOText'> or </p>
+                <input type="submit" value="Sign Up" className="submitButton" />
+                <p className='orSSOTextSignup'> or </p>
                 <input type="submit" value="Continue with SSO" className="ssoButton" />
             </form>
         )

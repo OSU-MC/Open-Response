@@ -1,24 +1,28 @@
 {
-    "name": "myclassroom",
+    "name": "open-response",
     "version": "0.1.0",
     "private": true,
     "description": "Open Source Classroom Polling Software",
     "repository": {
-      "type": "git",
-      "url": "https://github.com/OSU-MC/MyClassroom/"
+        "type": "git",
+        "url": "https://github.com/OSU-MC/Open-Response/"
     },
     "workspaces": [
-        "server",
+        "core",
         "client"
     ],
     "scripts": {
-        "config": "npm run config -w=server && npm run config -w=client",
-        "start": "trap 'npm run stop:docker -w=server' EXIT; npm run start:docker -w=server && npm run deploy -w=client",
-        "stop": "npm run stop:docker -w=server",
-        "start:server": "npm run start:docker -w=server",
-        "start:client": "npm run deploy -w=client &"
+        "config": "npm run config -w=core && npm run config -w=client",
+        "start": "npm run build:containers && npm run deploy:stack",
+        "stop": "npm run remove:stack",
+        "build:containers": "docker build -t openresponse_backend ./core && docker build -t openresponse_frontend ./client",
+        "deploy:stack": "docker stack deploy -c docker-stack.yml openresponse",
+        "remove:stack": "docker stack rm openresponse"
     },
     "keywords": [],
     "author": "",
-    "license": "GPL-3.0-or-later"
+    "license": "GPL-3.0-or-later",
+    "dependencies": {
+        "forever": "^4.0.3"
+    }
 }

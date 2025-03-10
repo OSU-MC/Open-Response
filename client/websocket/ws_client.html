@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>WebSocket Client IDs</title>
+</head>
+
+<body>
+	<h1 id="client">Client</h1>
+	<ul id="clients">
+    <li>No clients connected</li>
+	</ul>
+
+	<script>
+		const socket = new WebSocket('ws://localhost:8080');
+		const client = document.getElementById('client');
+		const clientsList = document.getElementById('clients');
+
+		socket.addEventListener('open', () => {
+			console.log('Connected to WebSocket host');
+		});
+
+		// Display all clients upon recieving message with client data (essentially the same as the host message listener)
+		socket.addEventListener('message', (event) => {
+			try {
+				const data = JSON.parse(event.data);
+
+				if (data.id !== undefined) {
+					client.innerHTML = `Client ${data.id}`;
+				}
+
+				if (data.clients) {
+					clientsList.innerHTML = '';				// Erase clientsList current data
+					data.clients.forEach(clientId => {
+						const li = document.createElement('li');
+						li.textContent = `Client ID: ${clientId}`;
+						clientsList.appendChild(li);
+					});
+				}
+			} catch (error) {
+				console.error('Error parsing message:', error);
+			}
+		});
+
+		// Display disconnected message
+		socket.addEventListener('close', () => {
+			console.log('Disconnected from WebSocket server');
+			clientsList.innerHTML = '<li>Disconnected</li>';
+		});
+
+		// Display error message
+		socket.addEventListener('error', (error) => {
+			console.error('WebSocket error:', error);
+		});
+	</script>
+</body>
+</html>
