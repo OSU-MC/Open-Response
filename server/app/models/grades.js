@@ -16,6 +16,7 @@ module.exports = (sequelize, DataTypes) => {
 			enrollmentId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
+				field: "enrollmentId",
 				references: {
 					model: "Enrollments",
 					key: "id",
@@ -29,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
 			lectureForSectionId: {
 				type: DataTypes.INTEGER,
 				allowNull: false,
+				field: "lectureForSectionId",
 				references: {
 					model: "LectureForSections",
 					key: "id",

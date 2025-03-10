@@ -329,10 +329,19 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 				],
 			});
 
+            const tables = await db.sequelize.query("SHOW TABLES", { type: db.Sequelize.QueryTypes.SHOWTABLES });
+            const dbName = await db.sequelize.query("SELECT DATABASE()", { type: db.Sequelize.QueryTypes.SELECT });
+
+            console.log("Tables in the database:", tables);
+            console.log("Database name:", dbName[0]['DATABASE()']);
+            const gradesColumns = await db.Grades.describe();
+            console.log(gradesColumns);
+
 			const grades = await db.Grades.findAll({
 				where: {
 					lectureForSectionId: sectionId,
 				},
+                attributes: { exclude: ["lectureForSectionId"] }
 			});
 
 			const studentGrades = [];
@@ -361,6 +370,7 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 				where: {
 					lectureForSectionId: sectionId,
 				},
+                
 			});
 
 			const studentGrades = [];

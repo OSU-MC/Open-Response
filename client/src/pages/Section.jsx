@@ -9,6 +9,8 @@ import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
 // import "../styles/Section.css";
 
+// URL for this page: /:courseId/sections/:sectionId
+
 function Section() { 
     const { sectionId, courseId } = useParams();
     const [lecturesInSection, message, error, loading] = useLecturesInSection();
@@ -18,9 +20,8 @@ function Section() {
 
     const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
     const tabs_o = [
-        ["Sections", "sections"],
-        ["Lecture Templates", "lectures"], 
-        ["Roster", "roster"], 
+        ["Lectures", "lectures"], 
+        ["Gradebook", `sections/${sectionId}/grades`], // Updated link to the new Grades page URL
         ["Settings", "settings"]
     ];
 
