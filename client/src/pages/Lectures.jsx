@@ -20,9 +20,8 @@ function Lectures(props){
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
     const tabs_o = [
-        ["Sections", "sections"],
-        ["Lecture Templates", "lectures"], 
-        ["Roster", "roster"], 
+        ["Lectures", "lectures"], 
+        ["Gradebook", "grades"], 
         ["Settings", "settings"]
     ];
 
