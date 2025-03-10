@@ -14,7 +14,6 @@ import Popup from '../components/Popup';
 import AddLecture from '../components/AddLecture';
 
 
-
 function Lectures(props){
     //get the lectures for the current course & section
     const { courseId } = useParams()
@@ -24,12 +23,10 @@ function Lectures(props){
     const user = useSelector(getUserState);
 
     const tabs_o = [
-        ["Sections", "sections"],
-        ["Lecture Templates", "lectures"], 
-        ["Roster", "roster"], 
+        ["Lectures", "lectures"], 
+        ["Gradebook", "grades"], 
         ["Settings", "settings"]
     ];
-
     const [showCreateModal, setShowCreateModal] = useState(false);
     
     const closeCreateModal = () => {
@@ -49,17 +46,8 @@ function Lectures(props){
             <p id="lectures-subtitle">{course.name} Lectures</p>
             <Tabs courseId={courseId} tabs={tabs_o} />
                 
-
-
-            <Tabs courseId={courseId} tabs={tabs_o} />
-                
+               
             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
-            {/* {role == "teacher" && 
-                <Link to={`/${courseId}/createlecture`}>
-                    <Button className="create-lecture-btn"> + Create Lecture</Button>
-                </Link>} */}
-            </div>
-
             {showCreateModal && (
                 <Popup close={closeCreateModal}>
                     <AddLecture closeFunction={closeCreateModal} />

@@ -85,7 +85,8 @@ function Sections() {
             </div>
 
 
-            <Button 
+
+           <Button 
                 className="create-section-btn"
                 onClick={openCreateModal}
             >
