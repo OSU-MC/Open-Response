@@ -26,7 +26,7 @@ function Grades(props) {
 
     const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
     const tabs_o = [
-        ["Lectures", "lectures"], 
+        ["Lectures", `sections/${sectionId}`], 
         ["Gradebook", `sections/${sectionId}/grades`], 
         ["Settings", "settings"]
     ];

@@ -20,8 +20,8 @@ function Section() {
 
     const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
     const tabs_o = [
-        ["Lectures", "lectures"], 
-        ["Gradebook", `sections/${sectionId}/grades`], // Updated link to the new Grades page URL
+        ["Lectures", `sections/${sectionId}`], 
+        ["Gradebook", `sections/${sectionId}/grades`],
         ["Settings", "settings"]
     ];
 
