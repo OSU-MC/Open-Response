@@ -367,6 +367,27 @@ describe("/grades endpoints", () => {
         expect(resp.statusCode).toEqual(403)
     })
 
+	it('should export grades successfully', async () => {
+		const resp = await request(app)
+			.get(
+				`/courses/${course.id}/sections/${section.id}/grades/export`
+			)
+			.set('Cookie', userCookies)
+		
+		
+		expect(resp.statusCode).toEqual(200)
+		expect(resp.headers['content-type']).toEqual(
+			'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+		)
+		expect(resp.headers['content-disposition']).toEqual(
+			'attachment; filename=grades.xlsx'
+		)
+		expect(resp.headers['content-length']).toBeDefined()
+		expect(resp.headers['content-length']).toEqual(
+			`${resp.body.length}`
+		)
+	})
+
     afterAll(async () => {
         await user.destroy()
         await user2.destroy()

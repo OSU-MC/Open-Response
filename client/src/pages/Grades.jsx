@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useGrades from '../hooks/useGrades';
+import useExportGrades from '../hooks/useExportGrades';
+import useImportGrades from '../hooks/useImportGrades';
 import Notice from '../components/Notice';
 import { Table } from "react-bootstrap";
 import useCourse from "../hooks/useCourse";
@@ -15,14 +17,27 @@ function Grades(props) {
     const { courseId, sectionId } = useParams();
     const [grades, message, error, loading] = useGrades(courseId, sectionId);
     const [course, role, Cmessage, Cerror, Cloading] = useCourse();
+    const [exportGrades, exporting, exportError] = useExportGrades(courseId, sectionId);
+    const [importGrades, importing, importError] = useImportGrades(courseId, sectionId);
     const courseName = course?.name || (Cloading ? "Loading..." : "Unknown Course");
 
+    const handleImport = (event) => {
+        const file = event.target.files[0];
+        if (file) {
+            importGrades(file);
+        }
+    };
+
     useEffect(() => {
-        console.log('Grades:', grades); // Log grades data
-        console.log('Message:', message); // Log message
-        console.log('Error:', error); // Log error
-        console.log('Loading:', loading); // Log loading state
+        console.log('Grades:', grades); 
+        console.log('Message:', message);
+        console.log('Error:', error); 
+        console.log('Loading:', loading);
     }, [grades, message, error, loading]);
+
+    useEffect(() => {
+        console.log('Grades:', grades);
+    }, [grades]);
 
     const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
     const tabs_o = [
@@ -30,6 +45,8 @@ function Grades(props) {
         ["Gradebook", `sections/${sectionId}/grades`], 
         ["Settings", "settings"]
     ];
+
+    const isInstructor = role === 'teacher';
 
     return (
         loading || Cloading ? (
@@ -42,6 +59,21 @@ function Grades(props) {
                     </div>
                     <h1 className="course-title">{`${courseName} Grades`}</h1>
                     <Tabs courseId={courseId} tabs={tabs_o} />
+                    <div className="grades-actions">
+                        <button className="btn btn-primary" onClick={exportGrades} disabled={exporting}>
+                            {exporting ? 'Exporting...' : 'Export'}
+                        </button>
+                        <input
+                            type="file"
+                            accept=".csv"
+                            onChange={handleImport}
+                            style={{ display: 'none' }}
+                            id="import-grades"
+                        />
+                        <label htmlFor="import-grades" className="btn btn-secondary">
+                            {importing ? 'Importing...' : 'Import'}
+                        </label>
+                    </div>
                 </div>
 
                 {message ? (
@@ -54,17 +86,35 @@ function Grades(props) {
                     <Table striped bordered hover>
                         <thead>
                             <tr>
-                                <th>Student</th>
-                                <th>Lecture</th>
-                                <th>Grade</th>
+                                {isInstructor && <th>Student</th>}
+                                {isInstructor ? (
+                                    grades[0]?.lectures.map((lecture) => (
+                                        <th key={lecture.lectureId}>{lecture.lectureTitle}</th>
+                                    ))
+                                ) : (
+                                    <>
+                                        <th>Lecture</th>
+                                        <th>Grade</th>
+                                    </>
+                                )}
                             </tr>
                         </thead>
                         <tbody>
                             {Array.isArray(grades) && grades.map((grade) => (
-                                <tr key={grade.id}>
-                                    <td>{grade.studentName}</td>
-                                    <td>{grade.lectureTitle}</td>
-                                    <td>{grade.grade}</td>
+                                <tr key={grade.studentId}>
+                                    {isInstructor && <td>{grade.studentName}</td>}
+                                    {isInstructor ? (
+                                        grade.lectures.map((lecture) => (
+                                            <td key={lecture.lectureId}>{lecture.lectureGrade}</td>
+                                        ))
+                                    ) : (
+                                        grade.lectures.map((lecture) => (
+                                            <React.Fragment key={lecture.lectureId}>
+                                                <td>{lecture.lectureTitle}</td>
+                                                <td>{lecture.lectureGrade}</td>
+                                            </React.Fragment>
+                                        ))
+                                    )}
                                 </tr>
                             ))}
                         </tbody>

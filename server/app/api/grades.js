@@ -5,6 +5,9 @@ const { serializeSequelizeErrors } = require("../../lib/string_helpers");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 const questionService = require("../services/question_service");
 const responseService = require("../services/response_service");
+const csv = require('csv-parser');
+const fs = require('fs');
+const { Parser } = require('json2csv');
 
 // URL: /courses/course_id/grades
 // teacher wants to get grades for each student in the course
@@ -152,6 +155,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						}
 					}
 					lectureGradeObj.lectureId = lectureForSections[j].lectureId;
+					lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
 					lectureGradeObj.lectureGrade = parseFloat(
 						(lectureScore / lectureQuestionsAsked).toFixed(2)
 					);
@@ -161,13 +165,13 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					lectureGradeObj.totalPoints = totalPoints;
 					lectureGradeObj.points = points;
 					studentGradeObj.lectures.push(lectureGradeObj);
-					studentGradeObj.grade = parseFloat(
-						(lectureScore / lectureQuestionsAsked).toFixed(2)
-					);
-					studentGradeObj.pointScore = parseFloat(
-						(lectureScore / lectureQuestionsAsked).toFixed(2)
-					);
 				}
+				studentGradeObj.grade = parseFloat(
+					(totalScore / totalQuestionsAsked).toFixed(2)
+				);
+				studentGradeObj.pointScore = parseFloat(
+					(totalScore / totalQuestionsAsked).toFixed(2)
+				);
 				studentGradeObj.totalQuestions = totalQuestionsAsked;
 				studentGradeObj.totalAnswered = totalQuestionsAnswered;
 				studentGradeObj.totalScore = totalScore;
@@ -188,6 +192,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
                 [
                     {
                         lectureId,
+                        lectureTitle, // Add lectureTitle
                         lectureGrade,
                         totalAnswered,
                         totalQuestions,
@@ -249,6 +254,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					}
 				}
 				lectureGradeObj.lectureId = lectureForSections[j].lectureId;
+				lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
 				lectureGradeObj.lectureGrade = parseFloat(
 					(lectureScore / lectureQuestionsAsked).toFixed(2)
 				);
@@ -328,14 +334,6 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 					},
 				],
 			});
-
-            const tables = await db.sequelize.query("SHOW TABLES", { type: db.Sequelize.QueryTypes.SHOWTABLES });
-            const dbName = await db.sequelize.query("SELECT DATABASE()", { type: db.Sequelize.QueryTypes.SELECT });
-
-            console.log("Tables in the database:", tables);
-            console.log("Database name:", dbName[0]['DATABASE()']);
-            const gradesColumns = await db.Grades.describe();
-            console.log(gradesColumns);
 
 			const grades = await db.Grades.findAll({
 				where: {
@@ -502,5 +500,90 @@ router.get(
 		}
 	}
 );
+
+// URL: /courses/:course_id/sections/:section_id/grades/export
+router.get("/export", requireAuthentication, async function (req, res, next) {
+	const courseId = parseInt(req.params["course_id"]);
+	const sectionId = parseInt(req.params["section_id"]);
+
+	try {
+		const grades = await db.Grade.findAll({
+			where: { sectionId },
+			include: [
+				{
+					model: db.User,
+					as: 'student',
+					attributes: ['firstName', 'lastName']
+				},
+				{
+					model: db.Lecture,
+					attributes: ['title']
+				}
+			]
+		});
+
+		const fields = ['student.firstName', 'student.lastName', 'lecture.title', 'grade'];
+		const json2csvParser = new Parser({ fields });
+		const csv = json2csvParser.parse(grades);
+
+		res.header('Content-Type', 'text/csv');
+		res.attachment('grades.csv');
+		res.send(csv);
+	} catch (e) {
+		console.error("Error exporting grades:", e);
+		next(e);
+	}
+});
+
+// URL: /courses/:course_id/sections/:section_id/grades/import
+router.post("/import", requireAuthentication, async function (req, res, next) {
+	const courseId = parseInt(req.params["course_id"]);
+	const sectionId = parseInt(req.params["section_id"]);
+
+	if (!req.files || !req.files.file) {
+		return res.status(400).send({ error: 'No file uploaded' });
+	}
+
+	const file = req.files.file;
+	const grades = [];
+
+	fs.createReadStream(file.tempFilePath)
+		.pipe(csv())
+		.on('data', (row) => {
+			grades.push(row);
+		})
+		.on('end', async () => {
+			try {
+				for (const grade of grades) {
+					const student = await db.User.findOne({
+						where: {
+							firstName: grade['student.firstName'],
+							lastName: grade['student.lastName']
+						}
+					});
+
+					const lecture = await db.Lecture.findOne({
+						where: {
+							title: grade['lecture.title'],
+							courseId
+						}
+					});
+
+					if (student && lecture) {
+						await db.Grade.create({
+							studentId: student.id,
+							lectureId: lecture.id,
+							sectionId,
+							grade: grade.grade
+						});
+					}
+				}
+				res.status(200).send({ message: 'Grades imported successfully' });
+			} catch (e) {
+				console.error("Error importing grades:", e);
+				next(e);
+			}
+		});
+});
 
 module.exports = router;

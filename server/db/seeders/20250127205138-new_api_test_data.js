@@ -31,7 +31,7 @@ module.exports = {
 				"Users",
 				[
 					{
-						firstName: "Student",
+						firstName: "S222tudent",
 						lastName: "User",
 						email: "studentuser@myclassroom.com",
 						password: await bcrypt.hash("studentstudent", saltRounds),
@@ -51,6 +51,22 @@ module.exports = {
 						lastName: "Courses",
 						email: "nocourses@myclassroom.com",
 						password: await bcrypt.hash("nocourses", saltRounds),
+						isTeacher: false,
+						admin: false,
+					},
+				],
+			)
+		);
+
+		const student2 = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "Student",
+						lastName: "2",
+						email: "student2@myclassroom.com",
+						password: await bcrypt.hash("student2password", saltRounds),
 						isTeacher: false,
 						admin: false,
 					},
@@ -124,6 +140,18 @@ module.exports = {
 			[
 				{
 					userId: studentOnlyUser,
+					sectionId: section1course1,
+					role: "student",
+				},
+			],
+			{}
+		);
+
+		let student2enrollmentsection1course1 = await queryInterface.bulkInsert(
+			"Enrollments",
+			[
+				{
+					userId: student2,
 					sectionId: section1course1,
 					role: "student",
 				},

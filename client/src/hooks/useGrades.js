@@ -14,7 +14,7 @@ function useGrades(courseId, sectionId) {
     useEffect(() => {
         async function fetchGrades() {
             setLoading(true);
-            const response = await apiUtil("get", `courses/${courseId}/sections/${sectionId}/grades/all`, { dispatch, navigate });
+            const response = await apiUtil("get", `courses/${courseId}/sections/${sectionId}/grades`, { dispatch, navigate });
             setLoading(false);
             setMessage(response.message);
             setError(response.error);
