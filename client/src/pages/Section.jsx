@@ -1,20 +1,22 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { TailSpin } from 'react-loader-spinner';
 import useLecturesInSection from '../hooks/useLecturesInSection';
-import useCourse from '../hooks/useCourse'; // Use the new hook
+import useCourse from '../hooks/useCourse';
 import Notice from '../components/Notice';
 import LectureCard from '../components/LectureCard';
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
-// import "../styles/Section.css";
-
-// URL for this page: /:courseId/sections/:sectionId
+import AddLectureToSection from '../components/AddLectureToSection';
 
 function Section() { 
     const { sectionId, courseId } = useParams();
     const [lecturesInSection, message, error, loading] = useLecturesInSection();
     const [course, role, courseMessage, courseError, courseLoading] = useCourse(); 
+    const [showModal, setShowModal] = useState(false);
+
+    const handleOpenModal = () => setShowModal(true);
+    const handleCloseModal = () => setShowModal(false);
 
     const courseName = course?.name || (courseLoading ? "Loading..." : "Unknown Course");
 
@@ -24,7 +26,7 @@ function Section() {
         ["Gradebook", `sections/${sectionId}/grades`],
         ["Settings", "settings"]
     ];
-
+    
     return (
         loading || courseLoading ? (
             <TailSpin visible={true} />
@@ -38,9 +40,13 @@ function Section() {
                     <Tabs courseId={courseId} tabs={tabs_o} />
                 </div>
 
-                <div className='lectures-top-bar'>
-                    <p id="lectures-subtitle">Lectures for Section {sectionId}</p>
+                <div className="section-actions">
+                    <button className="btn btn-primary" onClick={handleOpenModal}>
+                        Add Lecture to Section
+                    </button>
                 </div>
+
+                <AddLectureToSection show={showModal} handleClose={handleCloseModal} courseId={courseId} sectionId={sectionId} />
 
                 {message ? (
                     <Notice error={error ? "error" : ""} message={message} />
@@ -50,7 +56,7 @@ function Section() {
 
                 <div className="horizontal-flex-container">
                     {lecturesInSection.map((lecture) => (
-                        <LectureCard key={lecture.id} lecture={lecture} view={role} section={sectionId} />
+                        <LectureCard key={lecture.id} lecture={lecture} view={role} section={sectionId} course={courseId} />
                     ))}
                 </div>
             </div>

@@ -175,6 +175,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				studentGradeObj.totalQuestions = totalQuestionsAsked;
 				studentGradeObj.totalAnswered = totalQuestionsAnswered;
 				studentGradeObj.totalScore = totalScore;
+				console.log("studentGradeObj", studentGradeObj);
 				resp.push(studentGradeObj);
 			}
 
@@ -501,89 +502,89 @@ router.get(
 	}
 );
 
-// URL: /courses/:course_id/sections/:section_id/grades/export
-router.get("/export", requireAuthentication, async function (req, res, next) {
-	const courseId = parseInt(req.params["course_id"]);
-	const sectionId = parseInt(req.params["section_id"]);
+// // URL: /courses/:course_id/sections/:section_id/grades/export
+// router.get("/export", requireAuthentication, async function (req, res, next) {
+// 	const courseId = parseInt(req.params["course_id"]);
+// 	const sectionId = parseInt(req.params["section_id"]);
 
-	try {
-		const grades = await db.Grade.findAll({
-			where: { sectionId },
-			include: [
-				{
-					model: db.User,
-					as: 'student',
-					attributes: ['firstName', 'lastName']
-				},
-				{
-					model: db.Lecture,
-					attributes: ['title']
-				}
-			]
-		});
+// 	try {
+// 		const grades = await db.Grade.findAll({
+// 			where: { sectionId },
+// 			include: [
+// 				{
+// 					model: db.User,
+// 					as: 'student',
+// 					attributes: ['firstName', 'lastName']
+// 				},
+// 				{
+// 					model: db.Lecture,
+// 					attributes: ['title']
+// 				}
+// 			]
+// 		});
 
-		const fields = ['student.firstName', 'student.lastName', 'lecture.title', 'grade'];
-		const json2csvParser = new Parser({ fields });
-		const csv = json2csvParser.parse(grades);
+// 		const fields = ['student.firstName', 'student.lastName', 'lecture.title', 'grade'];
+// 		const json2csvParser = new Parser({ fields });
+// 		const csv = json2csvParser.parse(grades);
 
-		res.header('Content-Type', 'text/csv');
-		res.attachment('grades.csv');
-		res.send(csv);
-	} catch (e) {
-		console.error("Error exporting grades:", e);
-		next(e);
-	}
-});
+// 		res.header('Content-Type', 'text/csv');
+// 		res.attachment('grades.csv');
+// 		res.send(csv);
+// 	} catch (e) {
+// 		console.error("Error exporting grades:", e);
+// 		next(e);
+// 	}
+// });
 
-// URL: /courses/:course_id/sections/:section_id/grades/import
-router.post("/import", requireAuthentication, async function (req, res, next) {
-	const courseId = parseInt(req.params["course_id"]);
-	const sectionId = parseInt(req.params["section_id"]);
+// // URL: /courses/:course_id/sections/:section_id/grades/import
+// router.post("/import", requireAuthentication, async function (req, res, next) {
+// 	const courseId = parseInt(req.params["course_id"]);
+// 	const sectionId = parseInt(req.params["section_id"]);
 
-	if (!req.files || !req.files.file) {
-		return res.status(400).send({ error: 'No file uploaded' });
-	}
+// 	if (!req.files || !req.files.file) {
+// 		return res.status(400).send({ error: 'No file uploaded' });
+// 	}
 
-	const file = req.files.file;
-	const grades = [];
+// 	const file = req.files.file;
+// 	const grades = [];
 
-	fs.createReadStream(file.tempFilePath)
-		.pipe(csv())
-		.on('data', (row) => {
-			grades.push(row);
-		})
-		.on('end', async () => {
-			try {
-				for (const grade of grades) {
-					const student = await db.User.findOne({
-						where: {
-							firstName: grade['student.firstName'],
-							lastName: grade['student.lastName']
-						}
-					});
+// 	fs.createReadStream(file.tempFilePath)
+// 		.pipe(csv())
+// 		.on('data', (row) => {
+// 			grades.push(row);
+// 		})
+// 		.on('end', async () => {
+// 			try {
+// 				for (const grade of grades) {
+// 					const student = await db.User.findOne({
+// 						where: {
+// 							firstName: grade['student.firstName'],
+// 							lastName: grade['student.lastName']
+// 						}
+// 					});
 
-					const lecture = await db.Lecture.findOne({
-						where: {
-							title: grade['lecture.title'],
-							courseId
-						}
-					});
+// 					const lecture = await db.Lecture.findOne({
+// 						where: {
+// 							title: grade['lecture.title'],
+// 							courseId
+// 						}
+// 					});
 
-					if (student && lecture) {
-						await db.Grade.create({
-							studentId: student.id,
-							lectureId: lecture.id,
-							sectionId,
-							grade: grade.grade
-						});
-					}
-				}
-				res.status(200).send({ message: 'Grades imported successfully' });
-			} catch (e) {
-				console.error("Error importing grades:", e);
-				next(e);
-			}
-		});
-});
+// 					if (student && lecture) {
+// 						await db.Grade.create({
+// 							studentId: student.id,
+// 							lectureId: lecture.id,
+// 							sectionId,
+// 							grade: grade.grade
+// 						});
+// 					}
+// 				}
+// 				res.status(200).send({ message: 'Grades imported successfully' });
+// 			} catch (e) {
+// 				console.error("Error importing grades:", e);
+// 				next(e);
+// 			}
+// 		});
+// });
 
 module.exports = router;

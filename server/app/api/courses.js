@@ -7,6 +7,7 @@ const sectionService = require("../services/section_service");
 const { requireAuthentication } = require("../../lib/auth");
 const string_helpers = require("../../lib/string_helpers");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
+const lectureForSectionRouter = require('./lectureForSection');
 
 // GET request from /courses homepage
 	// returns: all courses associated with a given user
@@ -206,5 +207,6 @@ router.use(
 	require("./lectureSummaries")
 );
 router.use("/:course_id/sections/:section_id/grades", require("./grades"));
+router.use('/:course_id/sections/:section_id/lectures', lectureForSectionRouter);
 
 module.exports = router;

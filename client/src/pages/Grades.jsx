@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import useGrades from '../hooks/useGrades';
-import useExportGrades from '../hooks/useExportGrades';
-import useImportGrades from '../hooks/useImportGrades';
+// import useExportGrades from '../hooks/useExportGrades';
+// import useImportGrades from '../hooks/useImportGrades';
 import Notice from '../components/Notice';
 import { Table } from "react-bootstrap";
 import useCourse from "../hooks/useCourse";
@@ -17,23 +17,17 @@ function Grades(props) {
     const { courseId, sectionId } = useParams();
     const [grades, message, error, loading] = useGrades(courseId, sectionId);
     const [course, role, Cmessage, Cerror, Cloading] = useCourse();
-    const [exportGrades, exporting, exportError] = useExportGrades(courseId, sectionId);
-    const [importGrades, importing, importError] = useImportGrades(courseId, sectionId);
+    // const [exportGrades, exporting, exportError] = useExportGrades(courseId, sectionId);
+    // const [importGrades, importing, importError] = useImportGrades(courseId, sectionId);
     const courseName = course?.name || (Cloading ? "Loading..." : "Unknown Course");
 
-    const handleImport = (event) => {
-        const file = event.target.files[0];
-        if (file) {
-            importGrades(file);
-        }
-    };
+    // const handleImport = (event) => {
+    //     const file = event.target.files[0];
+    //     if (file) {
+    //         importGrades(file);
+    //     }
+    // };
 
-    useEffect(() => {
-        console.log('Grades:', grades); 
-        console.log('Message:', message);
-        console.log('Error:', error); 
-        console.log('Loading:', loading);
-    }, [grades, message, error, loading]);
 
     useEffect(() => {
         console.log('Grades:', grades);
@@ -60,7 +54,10 @@ function Grades(props) {
                     <h1 className="course-title">{`${courseName} Grades`}</h1>
                     <Tabs courseId={courseId} tabs={tabs_o} />
                     <div className="grades-actions">
-                        <button className="btn btn-primary" onClick={exportGrades} disabled={exporting}>
+                        <button className="btn btn-primary">Export</button>
+                        <button className="btn btn-primary">Import</button>
+                        
+                        {/* <button className="btn btn-primary" onClick={exportGrades} disabled={exporting}>
                             {exporting ? 'Exporting...' : 'Export'}
                         </button>
                         <input
@@ -72,7 +69,7 @@ function Grades(props) {
                         />
                         <label htmlFor="import-grades" className="btn btn-secondary">
                             {importing ? 'Importing...' : 'Import'}
-                        </label>
+                        </label> */}
                     </div>
                 </div>
 

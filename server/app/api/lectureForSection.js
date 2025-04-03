@@ -48,4 +48,105 @@ router.put('/:lecture_id', requireAuthentication, async function (req, res, next
     }
 })
 
+// Add a lecture to a section
+router.post('/', requireAuthentication, async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
+    const courseId = parseInt(req.params['course_id']);
+    const sectionId = parseInt(req.params['section_id']);
+    const { lectureId: selectedLectureId, attendanceMethod: selectedAttendanceMethod } = req.body; // Extract lectureId and attendanceMethod from the request body
+
+    console.log("courseId:", courseId, "sectionId:", sectionId, "selectedLectureId:", selectedLectureId, "selectedAttendanceMethod:", selectedAttendanceMethod);
+
+    // Validate the parameters
+    if (!courseId || !sectionId || !selectedLectureId || !selectedAttendanceMethod) {
+        return res.status(400).send({ error: "Missing required parameters: courseId, sectionId, or lectureId" });
+    }
+
+    try {
+        // Check if the user is a teacher for the course
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Must be a teacher of this course to add a lecture to a section" });
+        }
+
+        // Validate the section exists and belongs to the course
+        const section = await db.Section.findOne({
+            where: { id: sectionId, courseId: courseId },
+        });
+        if (!section) {
+            return res.status(404).send({ error: "Section not found or does not belong to the course" });
+        }
+
+        // Validate the lecture exists and belongs to the course
+        const lecture = await db.Lecture.findOne({
+            where: { id: selectedLectureId, courseId: courseId },
+        });
+        if (!lecture) {
+            return res.status(404).send({ error: "Lecture not found or does not belong to the course" });
+        }
+        
+        const existingLectureForSection = await db.LectureForSection.findOne({
+            where: { sectionId: sectionId, lectureId: selectedLectureId },
+        });
+        if (existingLectureForSection) {
+            return res.status(400).send({ error: "Lecture already exists in this section" });
+        }
+
+        // Create the association between the lecture and the section
+        const lectureForSection = await db.LectureForSection.create({
+            sectionId: sectionId,
+            lectureId: selectedLectureId,
+            attendanceMethod: selectedAttendanceMethod,
+            published: false,
+        });
+
+        res.status(200).send(lectureForSection);
+    } catch (error) {
+        console.error("Error adding lecture to section:", error);
+        next(error);
+    }
+});
+
+// Delete a LectureForSection object
+router.delete('/:lecture_id', requireAuthentication, async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
+    const courseId = parseInt(req.params['course_id']);
+    const sectionId = parseInt(req.params['section_id']);
+    const lectureId = parseInt(req.params['lecture_id']);
+
+    console.log("Deleting LectureForSection:", { courseId, sectionId, lectureId });
+
+    try {
+        // Validate the section exists and belongs to the course
+        const section = await db.Section.findOne({
+            where: { id: sectionId, courseId: courseId },
+        });
+        if (!section) {
+            return res.status(404).send({ error: "Section not found or does not belong to the course" });
+        }
+
+        // Validate the lecture exists and belongs to the course
+        const lecture = await db.Lecture.findOne({
+            where: { id: lectureId, courseId: courseId },
+        });
+        if (!lecture) {
+            return res.status(404).send({ error: "Lecture not found or does not belong to the course" });
+        }
+
+        // Find and delete the LectureForSection object
+        const lectureForSection = await db.LectureForSection.findOne({
+            where: { sectionId: sectionId, lectureId: lectureId },
+        });
+        if (!lectureForSection) {
+            return res.status(404).send({ error: "LectureForSection not found" });
+        }
+
+        await lectureForSection.destroy();
+        res.status(200).send({ message: "LectureForSection deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting LectureForSection:", error);
+        next(error);
+    }
+});
+
 module.exports = router
