@@ -100,10 +100,20 @@ body {
 }
 
 .lecture-card {
-    width: 500px;
-    height: 250px;
+    min-width: 500px;
+    min-height: 150px;
+    max-width: 500px;
+    max-height: 150px;
     margin: 5px;
     width: 29%;
+}
+
+.viewLectureBtn {
+    padding: 5px;
+}
+
+.deleteLectureBtn {
+    padding: 5px;
 }
 
 .create-lecture-btn {
@@ -127,6 +137,8 @@ body {
     justify-content: flex-start;
     margin: 0 auto;
 }
+
+
 
 /* Back button */
 .back-btn {
