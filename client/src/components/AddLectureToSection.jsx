@@ -3,11 +3,8 @@ import { Modal, Button, Form } from 'react-bootstrap';
 import apiUtil from '../utils/apiUtil';
 
 /*
-TODO: pass the lectureId throught the req.body
 TODO: rerun the requst for the lecture in section again after lecture add
 TODO: add a method to create a new lecture local to the section
-TODO: remove a lecture from a section. should not delete the lecture from other lectures
-
 */
 
 

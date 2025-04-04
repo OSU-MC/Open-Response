@@ -13,6 +13,11 @@ import "../styles/Grades.css";
 
 // URL for this page: /:courseId/sections/:sectionId/grades
 
+/*
+TODO: make it so that instruct sees all lecures regardless of published or not
+TODO: make it so that studet sees only the published lectures
+*/
+
 function Grades(props) {
     const { courseId, sectionId } = useParams();
     const [grades, message, error, loading] = useGrades(courseId, sectionId);

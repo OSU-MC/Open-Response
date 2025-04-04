@@ -114,8 +114,6 @@ router.delete('/:lecture_id', requireAuthentication, async function (req, res, n
     const sectionId = parseInt(req.params['section_id']);
     const lectureId = parseInt(req.params['lecture_id']);
 
-    console.log("Deleting LectureForSection:", { courseId, sectionId, lectureId });
-
     try {
         // Validate the section exists and belongs to the course
         const section = await db.Section.findOne({

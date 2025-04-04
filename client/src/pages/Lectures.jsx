@@ -11,6 +11,7 @@ import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import { useSelector} from 'react-redux'
 import { getUserState } from '../redux/selectors'
 
+// URL: courses/:courseId/lectures
 
 function Lectures(props){
     //get the lectures for the current course & section
@@ -49,7 +50,7 @@ function Lectures(props){
 
             <div className="lectures-container">
                 {lectures[courseId] && lectures[courseId].map((lecture) => {
-                    return <LectureCard key={lecture.id} lecture={lecture} view={role} />;
+                    return <LectureCard key={lecture.id} lecture={lecture} view={role} course={courseId} />;
                 })}
             </div>
         </div>

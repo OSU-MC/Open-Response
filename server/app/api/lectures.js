@@ -135,27 +135,29 @@ router.post('/', requireAuthentication, async function (req, res) {
         }
 
         // create lecture-section association for all sections in course
-        const sectionIds = await getSectionsIdsFromCourse(courseId);
-        try {
-            // iterate through each section in this course and add relationship
-            for (let i = 0; i < sectionIds.length; i++) {
-                await db.LectureForSection.create({
-                    lectureId: lecture.id,
-                    sectionId: sectionIds[i],
-                    published: false,
-                    softDelete: false,
-                    attendanceMethod: 'join'
-                })
-            }
-        }
-        catch (e) {
-            if (e instanceof ValidationError) {
-                return res.status(400).send({error: serializeSequelizeErrors(e)})
-            }
-            else {
-                return res.status(400).send({error: "Unable to create association between lecture & this course' sections"})
-            }
-        }
+        // NOTE: this has been removed, now lectures are added to sections manually.
+
+        // const sectionIds = await getSectionsIdsFromCourse(courseId);
+        // try {
+        //     // iterate through each section in this course and add relationship
+        //     for (let i = 0; i < sectionIds.length; i++) {
+        //         await db.LectureForSection.create({
+        //             lectureId: lecture.id,
+        //             sectionId: sectionIds[i],
+        //             published: false,
+        //             softDelete: false,
+        //             attendanceMethod: 'join'
+        //         })
+        //     }
+        // }
+        // catch (e) {
+        //     if (e instanceof ValidationError) {
+        //         return res.status(400).send({error: serializeSequelizeErrors(e)})
+        //     }
+        //     else {
+        //         return res.status(400).send({error: "Unable to create association between lecture & this course' sections"})
+        //     }
+        // }
         res.status(201).json(lecture)   // all good, return lecture object
     }
     else {      // if user is not a teacher

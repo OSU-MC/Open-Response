@@ -9,6 +9,10 @@ import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
 import AddLectureToSection from '../components/AddLectureToSection';
 
+/*
+TODO: make it so that on the delete or add of a lecture, the page refreshes
+*/
+
 function Section() { 
     const { sectionId, courseId } = useParams();
     const [lecturesInSection, message, error, loading] = useLecturesInSection();
