@@ -24,7 +24,7 @@ function Section() {
 
     const courseName = course?.name || (courseLoading ? "Loading..." : "Unknown Course");
 
-    const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
+    const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [`Section ${sectionId}`, null]];
     const tabs_o = [
         ["Lectures", `sections/${sectionId}`], 
         ["Gradebook", `sections/${sectionId}/grades`],
@@ -44,8 +44,8 @@ function Section() {
                     <Tabs courseId={courseId} tabs={tabs_o} />
                 </div>
 
-                <div className="section-actions">
-                    <button className="btn btn-primary" onClick={handleOpenModal}>
+                <div className="add-lecture-action">
+                    <button className="btn btn-primary add-lecture-button" onClick={handleOpenModal}>
                         Add Lecture to Section
                     </button>
                 </div>

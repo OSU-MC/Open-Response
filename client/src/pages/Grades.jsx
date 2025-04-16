@@ -38,7 +38,7 @@ function Grades(props) {
         console.log('Grades:', grades);
     }, [grades]);
 
-    const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [courseId, null]];
+    const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [`Section ${sectionId}`, null]];
     const tabs_o = [
         ["Lectures", `sections/${sectionId}`], 
         ["Gradebook", `sections/${sectionId}/grades`], 
@@ -56,7 +56,7 @@ function Grades(props) {
                     <div>
                         <Breadcrumbs breadcrumbs={breadcrumbs_object} />
                     </div>
-                    <h1 className="course-title">{`${courseName} Grades`}</h1>
+                    <h1 className="course-title">{`${courseName} Section ${sectionId} Grades`}</h1>
                     <Tabs courseId={courseId} tabs={tabs_o} />
                     <div className="grades-actions">
                         <button className="btn btn-primary">Export</button>

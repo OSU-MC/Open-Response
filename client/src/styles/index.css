@@ -81,6 +81,16 @@ body {
     padding: 20px;
 }
 
+.add-lecture-action {
+    position:absolute;
+    top:100px;
+    right:100px;
+    background-color:#d9e7d4;
+    color:#000;
+    font-weight:700;
+    border-radius:20px
+}
+
 /* Lectures */
 .lectures {
     width: 100%;
