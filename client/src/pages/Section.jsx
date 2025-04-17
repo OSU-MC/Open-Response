@@ -12,6 +12,7 @@ import AddLectureToSection from '../components/AddLectureToSection';
 /*
 TODO: make it so that on the delete or add of a lecture, the page refreshes
 */
+import "../styles/Section.css";
 
 function Section() { 
     const { sectionId, courseId } = useParams();

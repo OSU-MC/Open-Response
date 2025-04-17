@@ -84,8 +84,7 @@ function Sections() {
                     <Notice message={"You have not created any sections for this course yet"} />
                 )}
             </div>
-
-            <Button 
+           <Button 
                 className="create-section-btn"
                 onClick={openCreateModal}
             >

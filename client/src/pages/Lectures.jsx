@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TailSpin } from  'react-loader-spinner'
 import useLectures from '../hooks/useLectures';
@@ -10,6 +10,8 @@ import Tabs from "../components/nav/Tabs.jsx";
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import { useSelector} from 'react-redux'
 import { getUserState } from '../redux/selectors'
+import Popup from '../components/Popup';
+import AddLecture from '../components/AddLecture';
 
 // URL: courses/:courseId/lectures
 
@@ -27,6 +29,16 @@ function Lectures(props){
         ["Settings", "settings"]
     ];
 
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    
+    const closeCreateModal = () => {
+        setShowCreateModal(false);
+    };
+
+    const openCreateModal = () => {
+        setShowCreateModal(true);
+    };
+
     return (
         <div className='lectures'>
             <div className='lectures-top-bar'>
@@ -35,15 +47,15 @@ function Lectures(props){
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
             <Tabs courseId={courseId} tabs={tabs_o} />
-                
-
-
-            {/*Add Lecture Button - ONLY if enrollment == teacher*/}
-            {role == "teacher" && 
-                <Link to={`/${courseId}/createlecture`}>
-                    <Button className="create-lecture-btn"> + Create Lecture</Button>
-                </Link>}
             </div>
+                
+               
+            {/*Add Lecture Button - ONLY if enrollment == teacher*/}
+            {showCreateModal && (
+                <Popup close={closeCreateModal}>
+                    <AddLecture closeFunction={closeCreateModal} />
+                </Popup>
+            )}
 
             {/*No Lectures*/}
             { message ? <Notice error={error ? "error" : ""} message={message}/> : (!lectures) ? <Notice message={"You Do Not Have Any Lectures Yet"}/> : <></>}
@@ -53,6 +65,12 @@ function Lectures(props){
                     return <LectureCard key={lecture.id} lecture={lecture} view={role} course={courseId} />;
                 })}
             </div>
+            <Button 
+                className="create-lecture-btn"
+                onClick={openCreateModal}
+            >
+                + Create Lecture
+            </Button>
         </div>
     )
 }
