@@ -1,0 +1,317 @@
+{
+	"info": {
+		"_postman_id": "637eff91-5da0-499f-92ce-c6695bbf4e1e",
+		"name": "Users",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "25630077"
+	},
+	"item": [
+		{
+			"name": "Password",
+			"item": [
+				{
+					"name": "Request password reset",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser3@myclassroom.com\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domainName}}/users/password",
+							"host": [
+								"{{domainName}}"
+							],
+							"path": [
+								"users",
+								"password"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Login",
+			"item": [
+				{
+					"name": "Login",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"email\": \"testuser3@myclassroom.com\",\n    \"rawPassword\": \"password2password2\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domainName}}/users/login",
+							"host": [
+								"{{domainName}}"
+							],
+							"path": [
+								"users",
+								"login"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "UserID",
+			"item": [
+				{
+					"name": "Confirm",
+					"item": [
+						{
+							"name": "Confirm Email",
+							"request": {
+								"method": "PUT",
+								"header": [],
+								"body": {
+									"mode": "raw",
+									"raw": "{\n    \"emailConfirmationCode\": \"9d00db\"\n}",
+									"options": {
+										"raw": {
+											"language": "json"
+										}
+									}
+								},
+								"url": {
+									"raw": "{{domainName}}/users/26/confirm",
+									"host": [
+										"{{domainName}}"
+									],
+									"path": [
+										"users",
+										"26",
+										"confirm"
+									]
+								}
+							},
+							"response": []
+						},
+						{
+							"name": "Request Email Confirmation",
+							"request": {
+								"method": "GET",
+								"header": [],
+								"url": {
+									"raw": "{{domainName}}/users/26/confirm",
+									"host": [
+										"{{domainName}}"
+									],
+									"path": [
+										"users",
+										"26",
+										"confirm"
+									]
+								}
+							},
+							"response": []
+						}
+					]
+				},
+				{
+					"name": "Get Account Info",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{domainName}}/users/25",
+							"host": [
+								"{{domainName}}"
+							],
+							"path": [
+								"users",
+								"25"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Edit Account Info",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"firstName\": \"Matthew\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{domainName}}/users/24",
+							"host": [
+								"{{domainName}}"
+							],
+							"path": [
+								"users",
+								"24"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Account",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"url": {
+							"raw": "{{domainName}}/users/24",
+							"host": [
+								"{{domainName}}"
+							],
+							"path": [
+								"users",
+								"24"
+							]
+						}
+					},
+					"response": []
+				}
+			],
+			"auth": {
+				"type": "bearer",
+				"bearer": [
+					{
+						"key": "token",
+						"value": "{{userAuthToken}}",
+						"type": "string"
+					}
+				]
+			},
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"type": "text/javascript",
+						"exec": [
+							""
+						]
+					}
+				}
+			]
+		},
+		{
+			"name": "Create User Account",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"email\": \"testuser6@myclassroom.com\",\r\n    \"rawPassword\": \"password2password2\",\r\n    \"confirmedPassword\": \"password2password2\",\r\n    \"firstName\": \"testy\",\r\n    \"lastName\": \"usery\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domainName}}/users",
+					"host": [
+						"{{domainName}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Reset Password",
+			"request": {
+				"method": "PUT",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n    \"email\": \"testuser@myclassroom.com\",\n    \"passwordResetCode\": \"123456\",\n    \"rawPassword\": \"mynewtestuserpass\",\n    \"confirmedPassword\": \"mynewtestuserpass\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{domainName}}/users",
+					"host": [
+						"{{domainName}}"
+					],
+					"path": [
+						"users"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{token1}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	]
+}
