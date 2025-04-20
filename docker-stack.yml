@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  frontend:
+    image: openresponse_frontend
+    ports:
+      - "3000:80"
+    environment:
+      VITE_API_URL: "http://backend:3001"
+    networks:
+      - openresponse_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  backend:
+    image: openresponse_backend
+    dns:
+      - 8.8.8.8
+      - 8.8.4.4
+    depends_on:
+      - db
+    environment:
+      DEV_DB_HOST: db
+      DEV_DB_PORT: 3306
+      DEV_DB_PASS: password
+      TEST_DB_HOST: db
+      TEST_DB_PORT: 3306
+      TEST_DB_PASS: password
+    entrypoint: ["./entrypoint.sh"]
+    ports:
+      - "3001:3001"
+    networks:
+      - openresponse_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+  db:
+    image: mysql:latest
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+    ports:
+      - "3306:3306"
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./core/db/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -prootpassword || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - openresponse_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+
+volumes:
+  db_data:
+
+networks:
+  openresponse_network:
+    external: true

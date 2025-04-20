@@ -7,8 +7,8 @@ db.sequelize
 	.authenticate()
 	.then(function () {
 		//sync will automatically create the table, but it will never alter a table (migrations must be run for alterations)
-		app.listen(port, function () {
-			logger.info(`Server is listening on port: ${port}`);
+		app.listen(port, "0.0.0.0", function () {
+			logger.info(`Core is listening on port: ${port}`);
 		});
 	})
 	.catch((error) => {

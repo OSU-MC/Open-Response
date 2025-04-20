@@ -1,7 +1,8 @@
 :root {
     --primary: #fff;
-    --splash: #D2DFD3;
+    --splash: #C5EFAA;
     --splash2: #93c48f;
+    --splash3: #456731;
     --accent: lightgrey;
     --accent2: #f3f3f3;
 }
@@ -114,6 +115,8 @@ body {
     min-height: 150px;
     max-width: 500px;
     max-height: 150px;
+    width: 500px;
+    height: 250px;
     margin: 5px;
     width: 29%;
 }
@@ -121,6 +124,41 @@ body {
 .viewLectureBtn {
     padding: 5px;
 }
+.create-lecture-btn {
+    position: absolute;
+    top: 100px;
+    right: 100px;
+    background-color: #d9e7d4;
+    color: #000;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+}   
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
+
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
+
 
 .deleteLectureBtn {
     padding: 5px;

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TailSpin } from  'react-loader-spinner'
 import useLectures from '../hooks/useLectures';
@@ -10,8 +10,11 @@ import Tabs from "../components/nav/Tabs.jsx";
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import { useSelector} from 'react-redux'
 import { getUserState } from '../redux/selectors'
+import Popup from '../components/Popup';
+import AddLecture from '../components/AddLecture';
 
 // URL: courses/:courseId/lectures
+
 
 function Lectures(props){
     //get the lectures for the current course & section
@@ -20,12 +23,23 @@ function Lectures(props){
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
+    
     const tabs_o = [
         ["Sections", "sections"],
         ["Lecture Templates", "lectures"], 
         ["Roster", "roster"], 
         ["Settings", "settings"]
     ];
+
+    const [showCreateModal, setShowCreateModal] = useState(false);
+    
+    const closeCreateModal = () => {
+        setShowCreateModal(false);
+    };
+
+    const openCreateModal = () => {
+        setShowCreateModal(true);
+    };
 
     return (
         <div className='lectures'>
@@ -53,6 +67,12 @@ function Lectures(props){
                     return <LectureCard key={lecture.id} lecture={lecture} view={role} course={courseId} />;
                 })}
             </div>
+            <Button 
+                className="create-lecture-btn"
+                onClick={openCreateModal}
+            >
+                + Create Lecture
+            </Button>
         </div>
     )
 }

@@ -97,7 +97,7 @@ class LoginForm extends React.Component {
                 <Link className="changePasswordLink" to="/reset">Forgot your password?</Link>
                 {message != "" && error && <Notice message={message} error={error ? "error" : ""}/>}
                 <input type="submit" value="Log in" className= "submitButton" />
-                <p className='orSSOText'> or </p>
+                <p className='orSSOText'>or</p>
                 <input type="submit" value="Continue with SSO" className= "ssoButton" />
             </form>
         )

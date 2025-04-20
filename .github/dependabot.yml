@@ -16,7 +16,7 @@ updates:
       - "OSU-MC/frontend-team"
       
   - package-ecosystem: "npm"
-    directory: "/server"
+    directory: "/core"
     schedule:
       interval: "weekly"
     target-branch: "dev"

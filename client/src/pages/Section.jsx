@@ -2,12 +2,14 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { TailSpin } from 'react-loader-spinner';
 import useLecturesInSection from '../hooks/useLecturesInSection';
-import useCourse from '../hooks/useCourse';
+import useCourse from '../hooks/useCourse'; // Use the new hook
 import Notice from '../components/Notice';
 import LectureCard from '../components/LectureCard';
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
 import AddLectureToSection from '../components/AddLectureToSection';
+import "../styles/Section.css";
+
 
 /*
 TODO: make it so that on the delete or add of a lecture, the page refreshes

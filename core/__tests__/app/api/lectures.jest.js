@@ -47,7 +47,7 @@ describe('Test api/lecture.js request handlers', () => {
         teacher_resp = await request(app).post('/users').send({
             firstName: 'Dan',
             lastName: 'Smith',
-            email: 'danSmith2@myclassroom.com',
+            email: 'danSmith2@open-response.org',
             rawPassword: 'Danny-o123!',
             isTeacher: true,
             confirmedPassword: 'Danny-o123!'
@@ -57,12 +57,12 @@ describe('Test api/lecture.js request handlers', () => {
             sub: teacher.id
         })
         const teacherSession = await generateUserSession(teacher)
-        teacherCookies = [`_myclassroom_session=${teacherToken}`, `xsrf-token=${teacherSession.csrfToken}`]
+        teacherCookies = [`_openresponse_session=${teacherToken}`, `xsrf-token=${teacherSession.csrfToken}`]
 
         student_resp = await request(app).post('/users').send({
             firstName: 'John',
             lastName: 'Doe',
-            email: 'johndoe@myclassroom.com',
+            email: 'johndoe@open-response.org',
             rawPassword: 'superdupersecret',
             isTeacher: true,
             confirmedPassword: 'superdupersecret'
@@ -72,12 +72,12 @@ describe('Test api/lecture.js request handlers', () => {
             sub: student.id
         })
         const studentSession = await generateUserSession(student)
-        studentCookies = [`_myclassroom_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
+        studentCookies = [`_openresponse_session=${studentToken}`, `xsrf-token=${studentSession.csrfToken}`]
 
         unrelated_resp = await request(app).post('/users').send({
             firstName: 'Software',
             lastName: 'Engineer',
-            email: 'swe@myclassroom.com',
+            email: 'swe@open-response.org',
             rawPassword: 'secretpassword45',
             isTeacher: true,
             confirmedPassword: 'secretpassword45'
@@ -87,7 +87,7 @@ describe('Test api/lecture.js request handlers', () => {
             sub: unrelated.id
         })
         const unrelatedSession = await generateUserSession(unrelated)
-        unrelatedCookies = [`_myclassroom_session=${unrelatedToken}`, `xsrf-token=${unrelatedSession.csrfToken}`]
+        unrelatedCookies = [`_openresponse_session=${unrelatedToken}`, `xsrf-token=${unrelatedSession.csrfToken}`]
 
         enrollment1 = await db.Enrollment.create({
             role: "teacher",

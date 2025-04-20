@@ -1,37 +1,3 @@
-import React from "react";
-import { Link, useLocation } from "react-router-dom";
-import "../../styles/Tabs.css";
-
-const Tabs = ({ courseId, tabs }) => {
-    const location = useLocation(); // Get current URL path
-
-    // Normalize the path by removing trailing slashes
-    const normalizePath = (path) => path.replace(/\/+$/, '');
-
-    // Determine the active tab dynamically
-    const getActiveTab = () => {
-        const currentPath = normalizePath(location.pathname);
-        return tabs.find(([_, path]) => currentPath.endsWith(normalizePath(path)))?.[1] || "";
-    };
-
-    return (
-        <>
-            <div className="tabs">
-                {tabs.map(([displayName, pageToLinkTo]) => (
-                    <Link key={pageToLinkTo} to={`/${courseId}/${pageToLinkTo}`}>
-                        <span className={getActiveTab() === pageToLinkTo ? "active-tab" : "no-link-style"}>
-                            {displayName}
-                        </span>
-                    </Link>
-                ))}
-            </div>
-            <hr />
-        </>
-    );
-};
-
-export default Tabs;
-
 /**
  * Tabs Component
  *
@@ -59,3 +25,35 @@ export default Tabs;
  *
  * The component does not apply role-based filtering; ensure tabs are pre-filtered before passing them in.
  */
+
+import React from "react";
+import { Link, useLocation } from "react-router-dom";
+import "../../styles/Tabs.css";
+
+const Tabs = ({ courseId, tabs }) => {
+    const location = useLocation(); // Get current URL path
+
+    // Determine the active tab dynamically
+    const getActiveTab = () => {
+        return tabs.find(([_, path]) => location.pathname.includes(path))?.[1] || "";
+    };
+
+    return (
+        <>
+            <div className="tabs">
+                {tabs.map(([displayName, pageToLinkTo]) => (
+                    <Link key={pageToLinkTo} to={`/${courseId}/${pageToLinkTo}`}>
+                        <span className={getActiveTab() === pageToLinkTo ? "active-tab" : "no-link-style"}>
+                            {displayName}
+                        </span>
+                    </Link>
+                ))}
+            </div>
+            <hr />
+        </>
+    );
+};
+
+
+export default Tabs;
+

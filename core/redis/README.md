@@ -30,7 +30,7 @@ The Redis server should now be running.
 To verify the Redis server setup, open another WSL console and navigate to your project directory:
 
 ```
-cd MyClassroom/server
+cd Open-Response/core
 ```
 
 Install all redis dependencies:

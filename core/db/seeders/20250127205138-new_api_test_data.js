@@ -10,74 +10,55 @@ module.exports = {
 	  CREATE USERS
 	*/
 
-		const teacherOnlyUser = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "Teacher",
-						lastName: "User",
-						email: "teacheruser@myclassroom.com",
-						password: await bcrypt.hash("teacherteacher", saltRounds),
-						isTeacher: true,
-						admin: false,
-					},
-				],
-			)
+		let teacherOnlyUser = await queryInterface.bulkInsert(
+			"Users",
+			[
+				{
+					firstName: "Teacher",
+					lastName: "User",
+					email: "teacheruser@open-response.org",
+					password: await bcrypt.hash("teacherteacher", saltRounds),
+					isTeacher: true,
+					admin: false,
+				},
+			],
+			{}
 		);
 
-		const studentOnlyUser = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "S222tudent",
-						lastName: "User",
-						email: "studentuser@myclassroom.com",
-						password: await bcrypt.hash("studentstudent", saltRounds),
-						isTeacher: false,
-						admin: false,
-					},
-				],
-			)
+		let studentOnlyUser = await queryInterface.bulkInsert(
+			"Users",
+			[
+				{
+					firstName: "Student",
+					lastName: "User",
+					email: "studentuser@open-response.org",
+					password: await bcrypt.hash("studentstudent", saltRounds),
+					isTeacher: false,
+					admin: false,
+				},
+			],
+			{}
 		);
 
-		const studentUserNoCourses = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "No",
-						lastName: "Courses",
-						email: "nocourses@myclassroom.com",
-						password: await bcrypt.hash("nocourses", saltRounds),
-						isTeacher: false,
-						admin: false,
-					},
-				],
-			)
-		);
-
-		const student2 = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "Student",
-						lastName: "2",
-						email: "student2@myclassroom.com",
-						password: await bcrypt.hash("student2password", saltRounds),
-						isTeacher: false,
-						admin: false,
-					},
-				],
-			)
+		let studentUserNoCourses = await queryInterface.bulkInsert(
+			"Users",
+			[
+				{
+					firstName: "No",
+					lastName: "Courses",
+					email: "nocourses@open-response.org",
+					password: await bcrypt.hash("nocourses", saltRounds),
+					isTeacher: false,
+					admin: false,
+				},
+			],
+			{}
 		);
 
 		//let comboUser = await queryInterface.bulkInsert('Users', [{
 		//  firstName: 'Combo',
 		//  lastName: 'User',
-		//  email: 'combouser@myclassroom.com',
+		//  email: 'combouser@open-response.org',
 		//  password: await bcrypt.hash('combocombocombo', saltRounds),
 		//  admin: false
 		//}], {});
@@ -407,28 +388,28 @@ module.exports = {
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "teacheruser@myclassroom.com",
+				email: "teacheruser@open-response.org",
 			},
 			{}
 		);
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "studentuser@myclassroom.com",
+				email: "studentuser@open-response.org",
 			},
 			{}
 		);
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "combouser@myclassroom.com",
+				email: "combouser@open-response.org",
 			},
 			{}
 		);
 		await queryInterface.bulkDelete(
 			"Users",
 			{
-				email: "nocourses@myclassroom.com",
+				email: "nocourses@open-response.org",
 			},
 			{}
 		);
