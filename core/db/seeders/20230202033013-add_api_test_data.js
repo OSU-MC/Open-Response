@@ -10,70 +10,6 @@ module.exports = {
 	  CREATE USERS
 	*/
 
-<<<<<<<< HEAD:core/db/seeders/20250127205138-new_api_test_data.js
-		const teacherOnlyUser = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "Teacher",
-						lastName: "User",
-						email: "teacheruser@myclassroom.com",
-						password: await bcrypt.hash("teacherteacher", saltRounds),
-						isTeacher: true,
-						admin: false,
-					},
-				],
-			)
-		);
-
-		const studentOnlyUser = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "S222tudent",
-						lastName: "User",
-						email: "studentuser@myclassroom.com",
-						password: await bcrypt.hash("studentstudent", saltRounds),
-						isTeacher: false,
-						admin: false,
-					},
-				],
-			)
-		);
-
-		const studentUserNoCourses = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "No",
-						lastName: "Courses",
-						email: "nocourses@myclassroom.com",
-						password: await bcrypt.hash("nocourses", saltRounds),
-						isTeacher: false,
-						admin: false,
-					},
-				],
-			)
-		);
-
-		const student2 = (
-			await queryInterface.bulkInsert(
-				"Users",
-				[
-					{
-						firstName: "Student",
-						lastName: "2",
-						email: "student2@myclassroom.com",
-						password: await bcrypt.hash("student2password", saltRounds),
-						isTeacher: false,
-						admin: false,
-					},
-				],
-			)
-========
 		let teacherOnlyUser = await queryInterface.bulkInsert(
 			"Users",
 			[
@@ -117,7 +53,6 @@ module.exports = {
 				},
 			],
 			{}
->>>>>>>> development:core/db/seeders/20230202033013-add_api_test_data.js
 		);
 
 		//let comboUser = await queryInterface.bulkInsert('Users', [{
