@@ -23,6 +23,12 @@
     "author": "",
     "license": "GPL-3.0-or-later",
     "dependencies": {
+        "axe-core": "^4.10.3",
         "forever": "^4.0.3"
+    },
+    "devDependencies": {
+        "@axe-core/playwright": "^4.10.1",
+        "@playwright/test": "^1.52.0",
+        "playwright": "^1.52.0"
     }
 }
