@@ -57,3 +57,6 @@ yarn-error.log*
 *.seed
 *.pid.lock
 
+# Accessibility Test Results
+test-results/
+a11y-results/
