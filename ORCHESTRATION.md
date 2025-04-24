@@ -17,7 +17,7 @@ docker network create --driver overlay openresponse_network
 ```
 This command sets up the current machine as a manager node in the Swarm.
 
-If deploying across multiple nodes, additional worker nodes can join using:
+If deploying across multiple nodes (multiple different machines), additional worker nodes can join using:
 ```sh
 docker swarm join --token <TOKEN> <MANAGER-IP>:2377
 ```
