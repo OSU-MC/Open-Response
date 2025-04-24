@@ -132,16 +132,6 @@ router.post("/login", async function (req, res, next) {
 	const missingFields = UserService.validateUserLoginRequest(req.body);
 	if (missingFields.length == 0) {
 
-		// Debugging: Log all users in the database
-		try {
-			const allUsers = await db.sequelize.query("SELECT * FROM Users", {
-				type: db.Sequelize.QueryTypes.SELECT,
-			});
-			// console.log("All Users:", allUsers);
-		} catch (queryError) {
-			console.error("Error querying all users:", queryError);
-		}
-
 		const user = await db.User.findOne({ where: { email: req.body.email } });
 		if (user == null) {
 			res
