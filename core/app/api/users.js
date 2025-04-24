@@ -137,7 +137,7 @@ router.post("/login", async function (req, res, next) {
 			const allUsers = await db.sequelize.query("SELECT * FROM Users", {
 				type: db.Sequelize.QueryTypes.SELECT,
 			});
-			console.log("All Users:", allUsers);
+			// console.log("All Users:", allUsers);
 		} catch (queryError) {
 			console.error("Error querying all users:", queryError);
 		}
