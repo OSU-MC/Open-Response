@@ -35,7 +35,7 @@ describe("/responses endpoints", () => {
 			user = await db.User.create({
 				firstName: "Dan",
 				lastName: "Smith",
-				email: "dannySmith@openresponse.com",
+				email: "dannySmith@open-response.org",
 				rawPassword: "Danny-o123!",
 			});
 			userToken = jwtUtils.encode({
@@ -51,7 +51,7 @@ describe("/responses endpoints", () => {
 			user2 = await db.User.create({
 				firstName: "Mitchell",
 				lastName: "DaGoat",
-				email: "mitchdagoat@openresponse.com",
+				email: "mitchdagoat@open-response.org",
 				rawPassword: "mitchell123!!",
 			});
 			user2Token = jwtUtils.encode({
@@ -67,7 +67,7 @@ describe("/responses endpoints", () => {
 			user3 = await db.User.create({
 				firstName: "Tester",
 				lastName: "TheTest",
-				email: "testingtesting123@openresponse.com",
+				email: "testingtesting123@open-response.org",
 				rawPassword: "mitchelltest16!!",
 			});
 			user3Token = jwtUtils.encode({

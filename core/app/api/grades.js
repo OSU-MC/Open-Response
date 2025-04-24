@@ -175,7 +175,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				studentGradeObj.totalQuestions = totalQuestionsAsked;
 				studentGradeObj.totalAnswered = totalQuestionsAnswered;
 				studentGradeObj.totalScore = totalScore;
-				console.log("studentGradeObj", studentGradeObj);
+				// console.log("studentGradeObj", studentGradeObj);
 				resp.push(studentGradeObj);
 			}
 

@@ -128,18 +128,6 @@ module.exports = {
 			{}
 		);
 
-		let student2enrollmentsection1course1 = await queryInterface.bulkInsert(
-			"Enrollments",
-			[
-				{
-					userId: student2,
-					sectionId: section1course1,
-					role: "student",
-				},
-			],
-			{}
-		);
-
 		let lecture1course1 = await queryInterface.bulkInsert("Lectures", [
 			{
 				courseId: course1,
