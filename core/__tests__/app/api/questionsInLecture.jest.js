@@ -151,14 +151,73 @@ describe('Test api/questionsInLecture', () => {
             expect(resp.statusCode).toEqual(400)
         })
 
+        it('should respond with 400 for getting a question not in a lecture', async () => {
+            lecture1 = await db.Lecture.create({
+                title: 'question set 2',
+                order: 2,
+                description: 'intro qs',
+                courseId: course1.id
+            })
+            
+            qsNotInLec = await db.Question.create({
+                courseId: course1.id,   // in course1, but just not in lecture1
+                lectureId: lecture.id,
+                type: "multiple choice",
+                stem: "was this in lecture",
+            })            
+            const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies)
+
+            expect(resp.statusCode).toEqual(400)
+        })
+        // TODO: CURRENTLY DOES REQURIES A LOT OF THOUGHT COMING BACK TO THIS
+
+        // it('should respond with 404 for getting a question that does not exist in this course', async () => {
+        //     const tempCourse = await db.Course.create({
+        //         name: 'Temp Course',
+        //         description: 'tamp'
+        //     })
+        //     const tempSection = await db.Section.create({
+        //         number: 1,
+        //         joinCode: "xyz123",
+        //         courseId: tempCourse.id
+        //     });
+        //     const tempLecForSections = await db.LectureForSection.create({
+        //         sectionId: tempSection.id,
+        //         attendanceMethod: 'join',
+        //         lectureId: lecture.id,
+        //         published: true,
+        //     });
+        //     lecture1 = await db.Lecture.create({
+        //         title: 'question set 2',
+        //         order: 2,
+        //         description: 'intro qs',
+        //         courseId: tempCourse.id
+        //     })
+        //     // create question that is not in course1
+        //     const qsNotInCourse = await db.Question.create({
+        //         courseId: tempCourse.id,
+        //         type: "multiple choice",
+        //         stem: "was this in the course",
+        //         lectureId: lecture1.id,
+        //     })
+        //     // put qsNotInCourse in this lecture1 (to not trigger any other error)
+        //     await db.QuestionInLecture.create({
+        //         questionId: qsNotInCourse.id,
+        //         lectureForSectionId: tempLecForSections.id,
+        //         published: true
+        //     })
+
+        //     const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture.id}/questions/${qsNotInCourse.id}`).set('Cookie', teachCookies)
+
+        //     expect(resp.statusCode).toEqual(404)
+        // })
+
         it('should respond with 200 for successfully getting a question', async () => {                           
             
             const resp = await request(app).get(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture.id}/questions/${question1.id}`).set('Cookie', teachCookies)
 
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.id).toEqual(question1.id)
-            // question no longer has this relationship to course            
-            // expect(resp.body.courseId).toEqual(course1.id) 
             expect(resp.body.type).toEqual(question1.type)
             expect(resp.body.stem).toEqual(question1.stem)
             expect(resp.body.lectureId).toEqual(lecture.id)
