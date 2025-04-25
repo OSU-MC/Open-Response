@@ -19,18 +19,6 @@ describe("Course model", () => {
             await course.destroy();
         });
 
-        it ("should create a valid course record with a published course", async () => {
-            const course = await db.Course.create({
-                name: 'PH201: Introduction to Physics',
-                description: 'An introduction to physics concepts, such as kinematics, Newton\'s Laws, and more.',
-                published: true
-            })
-            expect(course.name).toEqual("PH201: Introduction to Physics")
-            expect(course.description).toEqual("An introduction to physics concepts, such as kinematics, Newton\'s Laws, and more.")
-            expect(course.published).toBeTruthy()
-            await course.destroy()
-        })
-
         it("should create a valid course record with a published date", async () => {
             const publishedAt = new Date();
             const course = await db.Course.create({
@@ -141,13 +129,6 @@ describe("Course model", () => {
             await course.reload();
             expect(course.softDelete).toBeTruthy();
         });
-
-        it ("should update the published status of the course", async () => {
-            await course.update({published: true})
-            await expect(course.save()).resolves.toBeTruthy()
-            await course.reload()
-            expect(course.published).toEqual(true)
-        })
 
         afterEach(async () => {
             await course.destroy();

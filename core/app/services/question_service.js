@@ -153,7 +153,7 @@ exports.getQuestionInLecture = async function (questionId, lectureForSectionId) 
         return await db.QuestionInLecture.findOne({
             where: {
                 questionId: questionId,
-                lectureForSectionId: lectureForSectionId 
+                lectureForSectionId: lectureForSectionId // Ensure the correct column name is used
             },
 			attributes: { exclude: ['LectureId'] },
         });
