@@ -10,49 +10,52 @@ module.exports = {
 	  CREATE USERS
 	*/
 
-		let teacherOnlyUser = await queryInterface.bulkInsert(
-			"Users",
-			[
-				{
-					firstName: "Teacher",
-					lastName: "User",
-					email: "teacheruser@open-response.org",
-					password: await bcrypt.hash("teacherteacher", saltRounds),
-					isTeacher: true,
-					admin: false,
-				},
-			],
-			{}
+		const teacherOnlyUser = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "Teacher",
+						lastName: "User",
+						email: "teacheruser@open-response.org",
+						password: await bcrypt.hash("teacherteacher", saltRounds),
+						isTeacher: true,
+						admin: false,
+					},
+				],
+			)
 		);
 
-		let studentOnlyUser = await queryInterface.bulkInsert(
-			"Users",
-			[
-				{
-					firstName: "Student",
-					lastName: "User",
-					email: "studentuser@open-response.org",
-					password: await bcrypt.hash("studentstudent", saltRounds),
-					isTeacher: false,
-					admin: false,
-				},
-			],
-			{}
+		const studentOnlyUser = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "Student",
+						lastName: "User",
+						email: "studentuser@open-response.org",
+						password: await bcrypt.hash("studentstudent", saltRounds),
+						isTeacher: false,
+						admin: false,
+					},
+				],
+			)
 		);
 
-		let studentUserNoCourses = await queryInterface.bulkInsert(
-			"Users",
-			[
-				{
-					firstName: "No",
-					lastName: "Courses",
-					email: "nocourses@open-response.org",
-					password: await bcrypt.hash("nocourses", saltRounds),
-					isTeacher: false,
-					admin: false,
-				},
-			],
-			{}
+		const studentUserNoCourses = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "No",
+						lastName: "Courses",
+						email: "nocourses@open-response.org",
+						password: await bcrypt.hash("nocourses", saltRounds),
+						isTeacher: false,
+						admin: false,
+					},
+				],
+			)
 		);
 
 		//let comboUser = await queryInterface.bulkInsert('Users', [{

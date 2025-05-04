@@ -52,12 +52,18 @@ function Lectures(props){
                 
 
 
-            {/*Add Lecture Button - ONLY if enrollment == teacher*/}
-            {role == "teacher" && 
+             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
+            {/* {role == "teacher" && 
                 <Link to={`/${courseId}/createlecture`}>
                     <Button className="create-lecture-btn"> + Create Lecture</Button>
-                </Link>}
+                </Link>} */}
             </div>
+
+            {showCreateModal && (
+                <Popup close={closeCreateModal}>
+                    <AddLecture closeFunction={closeCreateModal} />
+                </Popup>
+            )}
 
             {/*No Lectures*/}
             { message ? <Notice error={error ? "error" : ""} message={message}/> : (!lectures) ? <Notice message={"You Do Not Have Any Lectures Yet"}/> : <></>}
