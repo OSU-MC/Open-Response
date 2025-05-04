@@ -40,7 +40,7 @@ function Lecture() {
                         <div id="back-btn-image"/>
                     </Button>
                 </Link>
-                <p className="lecture-subtitle">{lecture.title} Lecture Questions</p>
+                <p className="lecture-subtitle">{lecture.title} Lecture dog log pog Questions</p>
             </div>
 
             { Cmessage ? <Notice error={Cerror ? "error" : ""} message={Cmessage}/> : <></>}
@@ -63,7 +63,7 @@ function Lecture() {
                 <div className='lecture-container'>
                     <div className="lecture-header-btns">
                         <Link to={`questions/add`}>
-                            <Button className="btn-add" variant="secondary">Add  frog frog frog Questions</Button>
+                            <Button className="btn-add" variant="secondary">Add Questions</Button>
                         </Link>
                     </div>
 

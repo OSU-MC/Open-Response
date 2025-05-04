@@ -210,9 +210,7 @@ router.put('/:section_id', requireAuthentication, async function (req, res, next
 })
 
 // Mount lectureForSection routes
-const lectureForSectionRouter = require('./lectureForSection');
-router.use('/:section_id/lectures', lectureForSectionRouter);
-
+router.use('/:section_id/lectures', require('./lectureForSection'));
 router.use('/:section_id/lectures/:lecture_id/questions', require('./questionsInLecture'))
 
 module.exports = router

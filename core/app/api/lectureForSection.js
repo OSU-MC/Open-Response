@@ -48,14 +48,84 @@ router.put('/:lecture_id', requireAuthentication, async function (req, res, next
     }
 })
 
+// Get all of the questions from a lectureForSection
+router.get('/:lecture_id/questions', requireAuthentication, async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
+    const courseId = parseInt(req.params['course_id']);
+    const sectionId = parseInt(req.params['section_id']);
+    const lectureId = parseInt(req.params['lecture_id']);
+    try {
+        console.log("User ID:", user.id);
+        console.log("Course ID:", courseId, "Section ID:", sectionId, "Lecture ID:", lectureId);
+
+        // Check if the user is a teacher for the course
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        console.log("Is user a teacher:", isTeacher);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Must be a teacher of this course to get questions from a lecture" });
+        }
+
+        // Validate the section exists and belongs to the course
+        const section = await db.Section.findOne({
+            where: { id: sectionId, courseId: courseId },
+        });
+        console.log("Section found:", section);
+        if (!section) {
+            return res.status(404).send({ error: "Section not found or does not belong to the course" });
+        }
+
+        // Validate the lecture exists and belongs to the course
+        const lecture = await db.Lecture.findOne({
+            where: { id: lectureId, courseId: courseId },
+        });
+        console.log("Lecture found:", lecture);
+        if (!lecture) {
+            return res.status(404).send({ error: "Lecture not found or does not belong to the course" });
+        }
+
+        // Find the LectureForSection object
+        const lectureForSection = await db.LectureForSection.findOne({
+            where: { sectionId: sectionId, lectureId: lectureId },
+        });
+        console.log("LectureForSection found:", lectureForSection);
+        if (!lectureForSection) {
+            return res.status(404).send({ error: "LectureForSection not found" });
+        }
+
+        // Find all the questions associated with the lectureForSectionId
+        const questionInLectureRecords = await db.QuestionInLecture.findAll({
+            where: { lectureForSectionId: lectureForSection.id },
+            attributes: ['questionId'], // Only fetch the questionId
+        });
+        console.log("QuestionInLecture records:", questionInLectureRecords);
+
+        // Extract the questionIds from the results
+        const questionIds = questionInLectureRecords.map(record => record.questionId);
+        console.log("Extracted question IDs:", questionIds);
+
+        // Fetch the actual Question objects using the extracted questionIds
+        const questions = await db.Question.findAll({
+            where: {
+                id: questionIds,
+            },
+            attributes: { exclude: ['LectureId'] },
+        });
+        console.log("Questions fetched:", questions);
+
+        res.status(200).send({ questions });
+    } catch (error) {
+        console.error("Error getting questions from lectureForSection:", error);
+        return res.status(500).send({ error: "Internal server error" });
+    }
+});
+
+
 // Add a lecture to a section
 router.post('/', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id']);
     const sectionId = parseInt(req.params['section_id']);
-    const { lectureId: selectedLectureId, attendanceMethod: selectedAttendanceMethod } = req.body; // Extract lectureId and attendanceMethod from the request body
-
-    console.log("courseId:", courseId, "sectionId:", sectionId, "selectedLectureId:", selectedLectureId, "selectedAttendanceMethod:", selectedAttendanceMethod);
+    const { lectureId: selectedLectureId, attendanceMethod: selectedAttendanceMethod } = req.body;
 
     // Validate the parameters
     if (!courseId || !sectionId || !selectedLectureId || !selectedAttendanceMethod) {
@@ -84,7 +154,7 @@ router.post('/', requireAuthentication, async function (req, res, next) {
         if (!lecture) {
             return res.status(404).send({ error: "Lecture not found or does not belong to the course" });
         }
-        
+
         const existingLectureForSection = await db.LectureForSection.findOne({
             where: { sectionId: sectionId, lectureId: selectedLectureId },
         });
@@ -99,6 +169,20 @@ router.post('/', requireAuthentication, async function (req, res, next) {
             attendanceMethod: selectedAttendanceMethod,
             published: false,
         });
+
+        // Find all the questions associated with the lectureId
+        const questionsInLecture = await db.Question.findAll({
+            where: { lectureId: selectedLectureId },
+        });
+
+        // Create questionsInLecture with lectureForSectionId
+        for (const question of questionsInLecture) {
+            await db.QuestionInLecture.create({
+                lectureForSectionId: lectureForSection.id,
+                questionId: question.id,
+                published: false,
+            });
+        }
 
         res.status(200).send(lectureForSection);
     } catch (error) {
