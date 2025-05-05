@@ -89,6 +89,19 @@ describe('QuestionInLecture model', () => {
             await qil.destroy()
         })
 
+        it("should properly update the publication status of the Question in the Lecture", async () => {
+            const qil = await db.QuestionInLecture.create({
+                lectureForSectionId: lectureForSection.id,
+                questionId: question1.id
+            })
+            
+            qil.published = true
+            await expect(qil.save()).resolves.toBeTruthy()
+            await qil.reload()
+            expect(qil.published).toEqual(true)
+            await qil.destroy()
+        })
+
         it("should invalidate a missing lectureForSectionId", async () => {
             await expect(db.QuestionInLecture.create({
                 questionId: question1.id

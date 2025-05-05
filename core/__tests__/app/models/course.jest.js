@@ -19,6 +19,19 @@ describe("Course model", () => {
             await course.destroy();
         });
 
+        //TODO: fix api
+        it ("should create a valid course record with a published course", async () => {
+            const course = await db.Course.create({
+                name: 'PH201: Introduction to Physics',
+                description: 'An introduction to physics concepts, such as kinematics, Newton\'s Laws, and more.',
+                published: true
+            })
+            expect(course.name).toEqual("PH201: Introduction to Physics")
+            expect(course.description).toEqual("An introduction to physics concepts, such as kinematics, Newton\'s Laws, and more.")
+            expect(course.published).toBeTruthy()
+            await course.destroy()
+        })
+        
         it("should create a valid course record with a published date", async () => {
             const publishedAt = new Date();
             const course = await db.Course.create({

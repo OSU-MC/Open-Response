@@ -518,6 +518,51 @@ describe('Test api/questionsInLecture', () => {
             expect(resp.statusCode).toEqual(400)
         })
 
+        it('should respond with 400 for updating when one of the questions is not in this course', async () => {
+            // create question that is not in course1
+            const tempCourse  = await db.Course.create({
+                name: 'Temp Course',
+                description: 'tamp'
+            })
+            const lecture1 = await db.Lecture.create({
+                title: 'not in course',
+                order: 1,
+                description: 'abc',
+                courseId: tempCourse.id
+            })
+            const tempSection = await db.Section.create({
+                number: 1,
+                joinCode: "xyz123",
+                courseId: tempCourse.id
+            });
+            const tempLecForSections = await db.LectureForSection.create({
+                sectionId: tempSection.id,
+                attendanceMethod: 'join',
+                lectureId: lecture1.id,
+                published: true,
+                softdelete: false
+            });
+            
+            const qsNotInCourse = await db.Question.create({
+                lectureId: lecture1.id,
+                type: "multiple choice",
+                stem: "was this in the course",
+            
+            })
+            // put qsNotInCourse in this lecture1 (to not trigger any other error)
+            await db.QuestionInLecture.create({
+                questionId: qsNotInCourse.id,
+                lectureForSectionId: tempLecForSections.id,
+                published: true
+            })
+
+            const resp = await request(app).put(`/courses/${course1.id}/lectures/${lecture1.id}/questions`).send({
+                questionIdOne: question1.id,
+                questionIdTwo: qsNotInCourse.id     // not in course1
+            }).set('Cookie', teachCookies)
+
+            expect(resp.statusCode).toEqual(400)
+        })
         
         it('should respond with 200 for swapping the ordering of two questions', async () => {
             // create question that will swap order with question1
