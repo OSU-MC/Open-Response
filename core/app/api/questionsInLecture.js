@@ -39,7 +39,6 @@ router.get('/:question_id', requireAuthentication, async function (req, res, nex
 
         const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureForSection.id);
         if (!questionInLecture) {
-            console.error("The given question ID does not belong to this lecture");
             return res.status(404).send({ error: "The given question ID does not belong to this lecture" });
         }
 
@@ -77,7 +76,7 @@ router.put('/:question_id', requireAuthentication, async function (req, res, nex
 
         const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId);
         if (!isLecInCourse) {
-            return res.status(400).send({ error: "The given lecture ID does not belong to this course" });
+            return res.status(404).send({ error: "The given lecture ID does not belong to this course" });
         }
 
         const isLecInSection = await lectureService.getLectureForSection(sectionId, lectureId);
@@ -87,12 +86,7 @@ router.put('/:question_id', requireAuthentication, async function (req, res, nex
 
         const questionInLecture = await questionService.getQuestionInLecture(questionId, isLecInSection.id);
         if (!questionInLecture) {
-            return res.status(400).send({ error: "The given question ID does not belong to this lecture" });
-        }
-
-        const question = await questionService.getQuestionFromLecture(questionId, lectureId);
-        if (!question) {
-            return res.status(404).send({ error: "The given question ID not found in this course" });
+            return res.status(404).send({ error: "The given question ID does not belong to this lecture" });
         }
 
         const updatePublishedTo = !questionInLecture.published;

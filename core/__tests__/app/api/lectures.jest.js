@@ -186,8 +186,7 @@ describe('Test api/lecture.js request handlers', () => {
 
         it('should respond with 200 and lecture details for teacher', async () => {
             const resp = await request(app).get(`/courses/${course.id}/lectures`).set('Cookie', teacherCookies)
-            console.log(resp.body)
-            
+                        
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.lectures.length).toEqual(1)
             expect(resp.body.lectures[0].title).toEqual('question set 1')
@@ -198,7 +197,7 @@ describe('Test api/lecture.js request handlers', () => {
 
         it('should respond with 200 and lecture details for student in published course', async () => {
             const resp = await request(app).get(`/courses/${course_published.id}/lectures`).set('Cookie', studentCookies)
-            console.log(resp.body)
+            
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.lectures.length).toEqual(1)
             expect(resp.body.lectures[0].title).toEqual('question set 2')
