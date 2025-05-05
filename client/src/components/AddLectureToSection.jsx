@@ -19,7 +19,6 @@ function AddLectureToSection({ show, handleClose, courseId, sectionId }) {
         async function fetchLectures() {
             try {
                 const response = await apiUtil("get", `courses/${courseId}/lectures`);
-                console.log("API Response for lectures:", response); // Log the response for debugging
                 if (response.status === 200 && Array.isArray(response.data.lectures)) {
                     setLectures(response.data.lectures); // Ensure we are setting an array
                 } else {

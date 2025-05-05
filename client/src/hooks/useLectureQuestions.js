@@ -20,7 +20,6 @@ function useLectureQuestions() {
             const response = await apiUtil("get", `courses/${courseId}/lectures/${lectureId}`, { dispatch: dispatch, navigate: navigate} );
             setMessage(response.message)
             setError(response.error)
-            console.log("useLectureQuestions response", response);
             if (response.status === 200) {
                 dispatch(addLectureQuestions(lectureId, response.data.questions))
             }

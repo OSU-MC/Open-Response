@@ -34,10 +34,6 @@ function Grades(props) {
     // };
 
 
-    useEffect(() => {
-        console.log('Grades:', grades);
-    }, [grades]);
-
     const breadcrumbs_object = [['Courses', '/'], [courseName, `/${courseId}/sections`], [`Section ${sectionId}`, null]];
     const tabs_o = [
         ["Lectures", `sections/${sectionId}`], 

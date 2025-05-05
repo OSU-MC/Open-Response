@@ -43,9 +43,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				attributes: ['id', 'lectureId', 'type', 'stem', 'content', 'answers'] // Ensure lectureId is included
 			});
 			
-			// For debugging purposes
-			// console.log("questions", questions);
-			// console.log("Processed questions:", questionService.extractArrayQuestionFields(questions));
 			
 			// get the total questions for the course so that page number calculations can be made
 			const totalQuestions = await db.Question.findAll({

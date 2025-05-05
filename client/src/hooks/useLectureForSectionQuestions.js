@@ -30,7 +30,6 @@ function useLectureForSectionQuestions() {
         `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions`,
         { dispatch, navigate }
       );
-      console.log('useLectureForSectionQuestions response', response);
       if (response.status === 200) {
         setQuestions(response.data.questions);
         dispatch(addLectureQuestions(lectureId, response.data.questions));

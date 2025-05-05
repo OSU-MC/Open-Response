@@ -209,7 +209,6 @@ describe("/questions endpoints", () => {
 		const resp = await request(app)
 			.get(`/courses/${course.id}/questions?page=0&perPage=2`)
 			.set("Cookie", userCookies);
-		// console.log(resp.body.questions);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(2);
 		expect(resp.body.questions[0].lectureId).toEqual(lecture.id); // Check for lectureId

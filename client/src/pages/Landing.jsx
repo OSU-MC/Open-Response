@@ -10,8 +10,6 @@ function Landing(props) {
     //const { user } = useAuth(); // Assuming you have access to the user's role through an authentication context
     //const user = await apiUtil('post', 'users/login', { dispatch: dispatch, navigate: navigate }, user)
     const user = useSelector(getUserState)
-    console.log(user )
-    console.log(user.user.isTeacher)
     return (
         <div className="landing-page">
             {user && user.user.isTeacher ? <TeacherLanding /> : <StudentLanding />}

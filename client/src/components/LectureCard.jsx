@@ -13,7 +13,6 @@ function LectureCard (props) {
             if(props.section) {
             const response = await apiUtil("delete", `courses/${props.course}/sections/${props.section}/lectures/${props.lecture.id}`);
             if (response.status === 200) {
-                console.log("LectureForSection deleted successfully");
                 props.onDelete && props.onDelete();
             } else {
                 console.error("Error deleting LectureForSection:", response.message);

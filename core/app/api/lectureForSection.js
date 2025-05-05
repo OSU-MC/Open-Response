@@ -55,12 +55,10 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
     const sectionId = parseInt(req.params['section_id']);
     const lectureId = parseInt(req.params['lecture_id']);
     try {
-        console.log("User ID:", user.id);
-        console.log("Course ID:", courseId, "Section ID:", sectionId, "Lecture ID:", lectureId);
-
+       
         // Check if the user is a teacher for the course
         const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
-        console.log("Is user a teacher:", isTeacher);
+
         if (!isTeacher) {
             return res.status(403).send({ error: "Must be a teacher of this course to get questions from a lecture" });
         }
@@ -69,7 +67,7 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
         const section = await db.Section.findOne({
             where: { id: sectionId, courseId: courseId },
         });
-        console.log("Section found:", section);
+
         if (!section) {
             return res.status(404).send({ error: "Section not found or does not belong to the course" });
         }
@@ -78,7 +76,7 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
         const lecture = await db.Lecture.findOne({
             where: { id: lectureId, courseId: courseId },
         });
-        console.log("Lecture found:", lecture);
+
         if (!lecture) {
             return res.status(404).send({ error: "Lecture not found or does not belong to the course" });
         }
@@ -87,7 +85,7 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
         const lectureForSection = await db.LectureForSection.findOne({
             where: { sectionId: sectionId, lectureId: lectureId },
         });
-        console.log("LectureForSection found:", lectureForSection);
+
         if (!lectureForSection) {
             return res.status(404).send({ error: "LectureForSection not found" });
         }
@@ -97,11 +95,11 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
             where: { lectureForSectionId: lectureForSection.id },
             attributes: ['questionId'], // Only fetch the questionId
         });
-        console.log("QuestionInLecture records:", questionInLectureRecords);
+
 
         // Extract the questionIds from the results
         const questionIds = questionInLectureRecords.map(record => record.questionId);
-        console.log("Extracted question IDs:", questionIds);
+
 
         // Fetch the actual Question objects using the extracted questionIds
         const questions = await db.Question.findAll({
@@ -110,7 +108,6 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
             },
             attributes: { exclude: ['LectureId'] },
         });
-        console.log("Questions fetched:", questions);
 
         res.status(200).send({ questions });
     } catch (error) {
