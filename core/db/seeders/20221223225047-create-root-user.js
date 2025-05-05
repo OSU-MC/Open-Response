@@ -15,6 +15,6 @@ module.exports = {
 
   async down (queryInterface, Sequelize) {
       // second argument passed is the where clause. So we only delete this seed-generated admin user, in case others exist
-      await queryInterface.bulkDelete('Users', { email: 'admin@myclassroom.com' }, {});
+      await queryInterface.bulkDelete('Users', { email: 'admin@open-response.org' }, {});
   }
 };

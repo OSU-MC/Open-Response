@@ -121,6 +121,14 @@ describe("Course model", () => {
         
             expect(moment(course.publishedAt).utc().isSame(publishedAt, 'second')).toBe(true);
         });
+
+        it("should update the published status", async () => {
+            await course.update({ published:true });
+            await expect(course.save()).resolves.toBeTruthy();
+            await course.reload();
+        
+            expect(course.published).toBe(true);
+        });
         
 
         it("should soft delete a course", async () => {
