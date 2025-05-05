@@ -151,17 +151,12 @@ describe('Test api/questionsInLecture', () => {
             expect(resp.statusCode).toEqual(400)
         })
 
-        // TODO need to correct // can this be removed, a question can not be created without a lecture.
-        // it('should respond with 400 for getting a question not in a lecture', async () => {
-        //     qsNotInLec = await db.Question.create({
-        //         courseId: course1.id,   // in course1, but just not in lecture1
-        //         type: "multiple choice",
-        //         stem: "was this in lecture",
-        //     })            
-        //     const resp = await request(app).get(`/courses/${course1.id}/lectures/${lecture1.id}/questions/${qsNotInLec.id}`).set('Cookie', teachCookies)
+        it('should respond with 400 for getting a question not in a lecture', async () => {
+            qsNotInLec = null        
+            const resp = await request(app).get(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture.id}/questions/${qsNotInLec}`).set('Cookie', teachCookies)
 
-        //     expect(resp.statusCode).toEqual(400)
-        // })
+            expect(resp.statusCode).toEqual(400)
+        })
 
         // TODO need to correct
         it('should respond with 404 for getting a question that does not exist in this course', async () => {
