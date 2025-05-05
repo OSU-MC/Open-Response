@@ -19,7 +19,7 @@ describe('Test api/lecture.js request handlers', () => {
     student, studentToken, unrelated_resp, unrelated,
     unrelatedToken, enrollment1, enrollment2, 
     lecture1, lecture2, lec1_sec1, lec1_sec2, lec2_sec1, 
-    lec2_sec2, question1, q1_lec1, question2, q2_lec2,
+    lec2_sec2, question1, q1_lec1, question2,
     q1_lec2, enrollment3, studentXsrfCookie, teacherXsrfCookie,
     studentCookies, teacherCookies
     
@@ -134,12 +134,12 @@ describe('Test api/lecture.js request handlers', () => {
             sectionId: section1.id,
             published: false
         })
-        lec1_sec2 = await db.LectureForSection.create({
-            attendanceMethod: 'join',
-            lectureId: lecture1.id,
-            sectionId: section2.id,
-            published: true
-        })
+        // lec1_sec2 = await db.LectureForSection.create({
+        //     attendanceMethod: 'join',
+        //     lectureId: lecture1.id,
+        //     sectionId: section2.id,
+        //     published: true
+        // })
         lec2_sec1 = await db.LectureForSection.create({
             attendanceMethod: 'join',
             lectureId: lecture2.id,
@@ -157,16 +157,11 @@ describe('Test api/lecture.js request handlers', () => {
             lectureForSectionId: lec1_sec1.id,
             published: false
         })
-        q1_lec2 = await db.QuestionInLecture.create({
-            questionId: question1.id,
-            lectureForSectionId: lec1_sec2.id,
-            published: false
-        })
-        q2_lec2 = await db.QuestionInLecture.create({
-            questionId: question1.id,
-            lectureForSectionId: lec2_sec2.id,
-            published: true
-        })
+        // q1_lec2 = await db.QuestionInLecture.create({
+        //     questionId: question1.id,
+        //     lectureForSectionId: lec1_sec2.id,
+        //     published: false
+        // })
     })
 
     describe('GET /courses/:course_id/lectures', () => {
@@ -191,7 +186,8 @@ describe('Test api/lecture.js request handlers', () => {
 
         it('should respond with 200 and lecture details for teacher', async () => {
             const resp = await request(app).get(`/courses/${course.id}/lectures`).set('Cookie', teacherCookies)
-        
+            console.log(resp.body)
+            
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.lectures.length).toEqual(1)
             expect(resp.body.lectures[0].title).toEqual('question set 1')
@@ -202,7 +198,7 @@ describe('Test api/lecture.js request handlers', () => {
 
         it('should respond with 200 and lecture details for student in published course', async () => {
             const resp = await request(app).get(`/courses/${course_published.id}/lectures`).set('Cookie', studentCookies)
-        
+            console.log(resp.body)
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.lectures.length).toEqual(1)
             expect(resp.body.lectures[0].title).toEqual('question set 2')
@@ -290,18 +286,32 @@ describe('Test api/lecture.js request handlers', () => {
         })
 
         it('should respond with 200, lecture info, and ONE question info for student in published lecture with one published question', async () => {
+            const q2_lec2 = await db.QuestionInLecture.create({
+                questionId: question1.id,
+                lectureForSectionId: lec2_sec2.id,
+                published: true
+            })
+            
             const resp = await request(app).get(`/courses/${course_published.id}/lectures/${lecture2.id}`).set('Cookie', studentCookies)
             
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.questions.length).toEqual(1)   // only 1 published question in this lecture
             expect(resp.body.questions[0].id).toEqual(question1.id)
+            await q2_lec2.destroy()
+
         })
 
         it('should respond with 200, lecture info, and ZERO questions for student in published lecture but no published questions', async () => {
-            const resp = await request(app).get(`/courses/${course_published.id}/lectures/${lecture1.id}`).set('Cookie', studentCookies)
+            const q2_lec2 = await db.QuestionInLecture.create({
+                questionId: question1.id,
+                lectureForSectionId: lec2_sec2.id,
+                published: false
+            })
+            const resp = await request(app).get(`/courses/${course_published.id}/lectures/${lecture2.id}`).set('Cookie', studentCookies)
             
             expect(resp.statusCode).toEqual(200)
             expect(resp.body.questions.length).toEqual(0)   // 0 published question in this lecture
+            await q2_lec2.destroy()
         })
 
         it('should respond with 404 if lecture does not exist', async () => {
@@ -452,13 +462,13 @@ describe('Test api/lecture.js request handlers', () => {
         await lecture1.destroy()
         await lecture2.destroy()
         await lec1_sec1.destroy()
-        await lec1_sec2.destroy()
+        // await lec1_sec2.destroy()
         await lec2_sec1.destroy()
         await lec2_sec2.destroy()
         await question1.destroy()
         await question2.destroy()
         await q1_lec1.destroy()
-        await q2_lec2.destroy()
-        await q1_lec2.destroy()
+        // await q2_lec2.destroy()
+        // await q1_lec2.destroy()
     })
 })

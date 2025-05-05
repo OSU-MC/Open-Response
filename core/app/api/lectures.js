@@ -91,7 +91,7 @@ router.get('/', requireAuthentication, async function (req, res) {
             },
             include: {
             model: db.Lecture,
-            attributes: ['id', 'title', 'description', 'order']
+            attributes: ['id', 'title', 'description', 'order', 'courseId'],
             }
         });
 
@@ -99,7 +99,7 @@ router.get('/', requireAuthentication, async function (req, res) {
             res.status(204).send();
         } else {
             res.status(200).json({
-            "lectures": lecturesForSection.map(lfs => lfs.Lecture)
+                "lectures": lecturesForSection.map(lfs => lfs.Lecture)
             });
         }
     }
@@ -159,30 +159,6 @@ router.post('/', requireAuthentication, async function (req, res) {
             return res.status(400).send({error: `Missing required lecture fields: ${missingFields}`})
         }
 
-        // create lecture-section association for all sections in course
-        // NOTE: this has been removed, now lectures are added to sections manually.
-
-        // const sectionIds = await getSectionsIdsFromCourse(courseId);
-        // try {
-        //     // iterate through each section in this course and add relationship
-        //     for (let i = 0; i < sectionIds.length; i++) {
-        //         await db.LectureForSection.create({
-        //             lectureId: lecture.id,
-        //             sectionId: sectionIds[i],
-        //             published: false,
-        //             softDelete: false,
-        //             attendanceMethod: 'join'
-        //         })
-        //     }
-        // }
-        // catch (e) {
-        //     if (e instanceof ValidationError) {
-        //         return res.status(400).send({error: serializeSequelizeErrors(e)})
-        //     }
-        //     else {
-        //         return res.status(400).send({error: "Unable to create association between lecture & this course' sections"})
-        //     }
-        // }
         res.status(201).json(lecture)   // all good, return lecture object
     }
     else {      // if user is not a teacher
@@ -260,7 +236,7 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
                 });
 
                 if (!lectureForSection) {
-                    return res.status(403).send(); // Lecture is not published for this section
+                    return res.status(404).send(); // Lecture is not published for this section
                 }
 
                 // find the questionInLectures objects using lectureForSection that are published
@@ -297,7 +273,6 @@ router.get('/:lecture_id', requireAuthentication, async function (req, res) {
                 }
             }
         }
-
         try {
             full_response['lecture'] = lecture;  // full_response will hold wanted lecture along with its related questions
             
