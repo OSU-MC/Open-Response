@@ -57,6 +57,7 @@ describe('Test api/lecturesForSection', () => {
 
         sec1_lec1 = await db.LectureForSection.create({
             sectionId: section1.id,
+            attendanceMethod: 'join',
             lectureId: lecture1.id
         })
 
@@ -134,6 +135,106 @@ describe('Test api/lecturesForSection', () => {
             check_relation = await db.LectureForSection.findByPk(sec1_lec1.id)
             expect(check_relation.published).toEqual(origPublishedStatus)
         })
+    })
+
+    describe('GET /courses/:course_id/sections/:section_id/lectures/:lecture_id/questions', () => {
+        it('should respond with 403 for fetching questions as a student', async () => {
+            const resp = await request(app)
+                .get(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}/questions`)
+                .set('Cookie', studentCookies);
+
+            expect(resp.statusCode).toEqual(403);
+        });
+
+        it('should respond with 404 for fetching questions from a non-existent section', async () => {
+            const resp = await request(app)
+                .get(`/courses/${course1.id}/sections/-1/lectures/${lecture1.id}/questions`)
+                .set('Cookie', teachCookies);
+
+            expect(resp.statusCode).toEqual(404);
+        });
+
+        it('should respond with 404 for fetching questions from a lecture not in the course', async () => {
+            const tempLecture = await db.Lecture.create({
+                title: 'Temp Lecture',
+                order: 3,
+                description: 'Temporary lecture',
+                courseId: course1.id,
+            });
+
+            const resp = await request(app)
+                .get(`/courses/${course1.id}/sections/${section1.id}/lectures/${tempLecture.id}/questions`)
+                .set('Cookie', teachCookies);
+
+            expect(resp.statusCode).toEqual(404);
+
+            await tempLecture.destroy();
+        });
+
+        it('should respond with 404 for fetching questions when LectureForSection does not exist', async () => {
+            const tempLecture = await db.Lecture.create({
+                title: 'Temp Lecture',
+                order: 4,
+                description: 'Temporary lecture',
+                courseId: course1.id,
+            });
+
+            const resp = await request(app)
+                .get(`/courses/${course1.id}/sections/${section1.id}/lectures/${tempLecture.id}/questions`)
+                .set('Cookie', teachCookies);
+
+            expect(resp.statusCode).toEqual(404);
+
+            await tempLecture.destroy();
+        });
+
+        it('should respond with 200 and return questions for a valid request', async () => {
+            const question1 = await db.Question.create({
+                lectureId: lecture1.id,
+                totalPoints: 1,
+                order: 5,
+                softdelete: false, 
+                type: "multiple choice",
+                stem: "what is the answer",
+            })
+
+            const question2 = await db.Question.create({
+                lectureId: lecture1.id,
+                totalPoints: 1,
+                order: 4,
+                softdelete: false, 
+                type: "multiple choice",
+                stem: "dog frog",
+            })
+
+            await db.QuestionInLecture.create({
+                lectureForSectionId: sec1_lec1.id,
+                questionId: question1.id,
+                published: true,
+            });
+
+            await db.QuestionInLecture.create({
+                lectureForSectionId: sec1_lec1.id,
+                questionId: question2.id,
+                published: true,
+            });
+
+            const resp = await request(app)
+                .get(`/courses/${course1.id}/sections/${section1.id}/lectures/${lecture1.id}/questions`)
+                .set('Cookie', teachCookies);
+
+            expect(resp.statusCode).toEqual(200);
+            expect(resp.body.questions).toHaveLength(2);
+            expect(resp.body.questions).toEqual(
+                expect.arrayContaining([
+                    expect.objectContaining({ stem: 'what is the answer' }),
+                    expect.objectContaining({ stem: 'dog frog' }),
+                ])
+            );
+
+            await question1.destroy();
+            await question2.destroy();
+        });
     })
 
     afterAll(async () => {

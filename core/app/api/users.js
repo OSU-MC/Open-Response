@@ -131,6 +131,7 @@ router.put("/password", async function (req, res, next) {
 router.post("/login", async function (req, res, next) {
 	const missingFields = UserService.validateUserLoginRequest(req.body);
 	if (missingFields.length == 0) {
+
 		const user = await db.User.findOne({ where: { email: req.body.email } });
 		if (user == null) {
 			res

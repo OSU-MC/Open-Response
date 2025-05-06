@@ -78,6 +78,31 @@ router.get('/', requireAuthentication, async function (req, res) {
     else if (enrollment.role == 'student' && !course.published) {   // if user is a student, and course isn't published, return 'No Content'
         res.status(204).send()
     }
+    // if student and published get all lectures that are published their section
+    else if (enrollment.role == 'student' && course.published) {   // if user is a student, and course is published
+        // find the section that user is enrolled in
+        const sectionId = enrollment.sectionId;
+
+        // get lectures from LectureForSection using sectionId and published = true
+        const lecturesForSection = await db.LectureForSection.findAll({
+            where: {
+            sectionId: sectionId,
+            published: true
+            },
+            include: {
+            model: db.Lecture,
+            attributes: ['id', 'title', 'description', 'order', 'courseId'],
+            }
+        });
+
+        if (lecturesForSection.length === 0) {   // if no lectures are published for this section
+            res.status(204).send();
+        } else {
+            res.status(200).json({
+                "lectures": lecturesForSection.map(lfs => lfs.Lecture)
+            });
+        }
+    }
     else {  // if teacher, OR student in published course
         const lectures = await db.Lecture.findAll({
             where: { courseId: courseId },
@@ -134,25 +159,6 @@ router.post('/', requireAuthentication, async function (req, res) {
             return res.status(400).send({error: `Missing required lecture fields: ${missingFields}`})
         }
 
-        // create lecture-section association for all sections in course
-        const sectionIds = await getSectionsIdsFromCourse(courseId);
-        try {
-            // iterate through each section in this course and add relationship
-            for (let i = 0; i < sectionIds.length; i++) {
-                await db.LectureForSection.create({
-                    lectureId: lecture.id,
-                    sectionId: sectionIds[i]
-                })
-            }
-        }
-        catch (e) {
-            if (e instanceof ValidationError) {
-                return res.status(400).send({error: serializeSequelizeErrors(e)})
-            }
-            else {
-                return res.status(400).send({error: "Unable to create association between lecture & this course' sections"})
-            }
-        }
         res.status(201).json(lecture)   // all good, return lecture object
     }
     else {      // if user is not a teacher
@@ -199,77 +205,96 @@ router.put('/:lecture_id', requireAuthentication, async function (req, res) {
     }
 })
 
-// get a specific lecture usign lectureId
+// get a specific lecture using lectureId
 router.get('/:lecture_id', requireAuthentication, async function (req, res) {
-    const user = await db.User.findByPk(req.payload.sub)
-    const lectureId = parseInt(req.params['lecture_id'])
-    const courseId = parseInt(req.params['course_id'])
-    const enrollment = await getEnrollmentFromCourse(user.id, courseId) || await getEnrollmentFromSectionInCourse(user.id, courseId)
-    const lecture = await getLecture(lectureId)
-    var full_response = {}  // will hold response with lecture info and related questions
+    try {
+        const user = await db.User.findByPk(req.payload.sub);
+        const lectureId = parseInt(req.params['lecture_id']);
+        const courseId = parseInt(req.params['course_id']);
+        const enrollment = await getEnrollmentFromCourse(user.id, courseId) || await getEnrollmentFromSectionInCourse(user.id, courseId);
+        const lecture = await getLecture(lectureId);
+        var full_response = {}; // will hold response with lecture info and related questions
 
-    if (enrollment == null) {   // if user is not enrolled in this course
-        return res.status(403).send()
-    }
-    else if (lecture == null) {      // if passed in lectureId does not exist
-        return res.status(404).send({error: "Lecture of this id does not exist"})
-    }
-    else if (enrollment.role == 'teacher') {     // if teacher, send lecture info & all related questions
-        try {
-            full_response['lecture'] = lecture  // full_response will hold wanted lecture along with its related questions in the end
-            const questions_in_lec = await db.sequelize.query(  // raw sql query to get all questions in this lecture using `QuestionInLecture`
-                'SELECT q.*, ql.order, ql.published FROM Questions q INNER JOIN QuestionInLectures ql ON q.id = ql.questionId INNER JOIN Lectures l ON ql.lectureId = l.id WHERE l.id = $lectureId ORDER BY ql.order',
-                {
-                    bind: { lectureId: lectureId },
-                    type: db.sequelize.QueryTypes.SELECT
-                }
-            )
-            full_response['questions'] = questions_in_lec
+        if (enrollment == null) {   // if user is not enrolled in this course
+            return res.status(403).send();
+        } else if (lecture == null) {      // if passed in lectureId does not exist
+            return res.status(404).send({ error: "Lecture of this id does not exist" });
         }
-        catch (e) {
-            if (e instanceof ValidationError) {
-                return res.status(400).send({error: serializeSequelizeErrors(e)})
-            }
-            else {
-                return res.status(400).send({error: "Unable to get lecture or questions"})
-            }
-        }
-        res.status(200).send(full_response)
-    }
-    else {  // if student, only send published info
-        let sectionLectureRelation = await getSectionLectureRelation(lectureId, enrollment.sectionId)
-        if (sectionLectureRelation == null) {
-            res.status(404).send({error: "This lecture does not exist in your section"})
-        }
-        else if (!sectionLectureRelation.published) {    // if this lecture (from user's section) isn't published
-            res.status(404).send({error: "This lecture is not yet published"})
-        }
-        else {  // if this lecture (from user's section) is published
+
+        if (enrollment.role === 'student') {
             try {
-                const lecture = await getLecture(lectureId)
-                full_response['lecture'] = lecture
-    
-                const questions_in_lec = await db.sequelize.query(  // raw sql query to get all published questions in this lecture using `QuestionInLecture`
-                    'SELECT q.* FROM Questions q INNER JOIN QuestionInLectures ql ON q.id = ql.questionId INNER JOIN Lectures l ON ql.lectureId = l.id WHERE ql.published = 1 AND l.id = $lectureId',
-                    {
-                        bind: { lectureId: lectureId },
-                        type: db.sequelize.QueryTypes.SELECT
+                // Get the section of courseId that this student is enrolled in
+                const sectionId = enrollment.sectionId;
+
+                // Get the lecture for section using sectionId and lectureId
+                const lectureForSection = await db.LectureForSection.findOne({
+                    where: {
+                        sectionId: sectionId,
+                        lectureId: lectureId,
+                        published: true
                     }
-                )
-                full_response['questions'] = questions_in_lec
-            }
-            catch (e) {
+                });
+
+                if (!lectureForSection) {
+                    return res.status(404).send(); // Lecture is not published for this section
+                }
+
+                // find the questionInLectures objects using lectureForSection that are published
+                // First, find all QuestionInLecture entries for the given lectureForSectionId
+                const questionInLectureIds = await db.QuestionInLecture.findAll({
+                    where: {
+                        lectureForSectionId: lectureForSection.id,
+                        published: true
+                    },
+                    attributes: ['questionId'] // Only fetch the questionId
+                });
+
+                // Extract the questionIds from the results
+                const questionIds = questionInLectureIds.map(qil => qil.questionId);
+
+                // Then, fetch the actual Question objects using the extracted questionIds
+                const questions = await db.Question.findAll({
+                    where: {
+                        id: questionIds
+                    },
+                    attributes: { exclude: ['LectureId'] }
+                });
+
+                // extract the published questions
+                full_response['lecture'] = lecture; // include lecture details         
+                full_response['questions'] = questions; // Use the fetched questions
+                return res.status(200).send(full_response);
+            } catch (e) {
+                console.error("Error fetching lecture or questions for student:", e);
                 if (e instanceof ValidationError) {
-                    return res.status(400).send({error: serializeSequelizeErrors(e)})
-                }
-                else {
-                    return res.status(400).send({error: "Unable to get lecture or questions"})
+                    return res.status(400).send({ error: serializeSequelizeErrors(e) });
+                } else {
+                    return res.status(500).send({ error: "Unable to fetch lecture or questions for student" });
                 }
             }
-            res.status(200).json(full_response)   // all good, return updated lecture object
         }
+        try {
+            full_response['lecture'] = lecture;  // full_response will hold wanted lecture along with its related questions
+            
+            // Fetch all questions where lectureId matches the provided lecture_id
+            const questions = await db.Question.findAll({
+                where: { lectureId },
+            });
+            full_response['questions'] = questions;
+        } catch (e) {
+            console.error("Error fetching lecture or questions:", e);
+            if (e instanceof ValidationError) {
+                return res.status(400).send({ error: serializeSequelizeErrors(e) });
+            } else {
+                return res.status(500).send({ error: "Unable to fetch lecture or questions" });
+            }
+        }
+        res.status(200).send(full_response);
+    } catch (error) {
+        console.error("Unexpected error:", error);
+        res.status(500).send({ error: "An unexpected error occurred" });
     }
-})
+});
 
 // delete lecture and ALL relations to this lecture
 router.delete('/:lecture_id', requireAuthentication, async function (req, res) {

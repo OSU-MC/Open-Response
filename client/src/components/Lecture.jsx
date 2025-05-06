@@ -18,7 +18,7 @@ function Lecture(props){
     const navigate = useNavigate()
     const dispatch = useDispatch()
 
-    console.log(props.sectionId)
+
 
     async function changePublishState(){
         if(sectionId != -1){
@@ -27,7 +27,6 @@ function Lecture(props){
             setLoading(false)
             setError(response.error)
             setMessage(response.message)
-            console.log("after press: ", response)
 
             //update the published state in lecture
             if(response.status === 200){

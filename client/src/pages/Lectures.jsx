@@ -13,6 +13,8 @@ import { getUserState } from '../redux/selectors'
 import Popup from '../components/Popup';
 import AddLecture from '../components/AddLecture';
 
+// URL: courses/:courseId/lectures
+
 
 function Lectures(props){
     //get the lectures for the current course & section
@@ -21,12 +23,14 @@ function Lectures(props){
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
-
+    
     const tabs_o = [
-        ["Lectures", "lectures"], 
-        ["Gradebook", "grades"], 
+        ["Sections", "sections"],
+        ["Lecture Templates", "lectures"], 
+        ["Roster", "roster"], 
         ["Settings", "settings"]
     ];
+
     const [showCreateModal, setShowCreateModal] = useState(false);
     
     const closeCreateModal = () => {
@@ -45,10 +49,16 @@ function Lectures(props){
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
             <Tabs courseId={courseId} tabs={tabs_o} />
-            </div>
                 
-               
-            {/*Add Lecture Button - ONLY if enrollment == teacher*/}
+
+
+             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
+            {/* {role == "teacher" && 
+                <Link to={`/${courseId}/createlecture`}>
+                    <Button className="create-lecture-btn"> + Create Lecture</Button>
+                </Link>} */}
+            </div>
+
             {showCreateModal && (
                 <Popup close={closeCreateModal}>
                     <AddLecture closeFunction={closeCreateModal} />
@@ -60,7 +70,7 @@ function Lectures(props){
 
             <div className="lectures-container">
                 {lectures[courseId] && lectures[courseId].map((lecture) => {
-                    return <LectureCard key={lecture.id} lecture={lecture} view={role} />;
+                    return <LectureCard key={lecture.id} lecture={lecture} view={role} course={courseId} />;
                 })}
             </div>
             <Button 

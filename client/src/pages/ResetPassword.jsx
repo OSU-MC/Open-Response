@@ -21,17 +21,11 @@ const confirmationCodeInput = useRef(null)
 const emailInput = useRef(null)
 const navigate = useNavigate()
 
- console.log(email)
- console.log(confirmationCode)
- console.log(newPassword)
- console.log(confirmNewPassword)
- console.log(error)
 
     async function resetPasswordRequest(passwordPayload){
         let response = {}
 
         response = await apiUtil('put', '/users', {}, passwordPayload)
-        console.log(response)
 
         setError(response.error)
         setMessage(response.message)

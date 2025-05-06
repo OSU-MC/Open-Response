@@ -36,16 +36,23 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					stem: {
 						[Op.like]: "%" + search + "%",
 					},
-					courseId: courseId,
+					lectureId: {
+						[Op.in]: db.Sequelize.literal(`(SELECT id FROM Lectures WHERE courseId = ${courseId})`)
+					}
 				},
+				attributes: ['id', 'lectureId', 'type', 'stem', 'content', 'answers'] // Ensure lectureId is included
 			});
+			
+			
 			// get the total questions for the course so that page number calculations can be made
 			const totalQuestions = await db.Question.findAll({
 				where: {
 					stem: {
 						[Op.like]: "%" + search + "%",
 					},
-					courseId: courseId,
+					lectureId: {
+						[Op.in]: db.Sequelize.literal(`(SELECT id FROM Lectures WHERE courseId = ${courseId})`)
+					}
 				},
 			});
 			if (page * perPage <= totalQuestions.length) {
@@ -76,6 +83,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				});
 			}
 		} catch (e) {
+			console.error("Error fetching questions:", e);
 			next(e); // catch anything weird that might happen
 		}
 	} else {
@@ -129,6 +137,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 			question: questionService.extractQuestionFields(question),
 		});
 	} catch (e) {
+		// console.error("Error creating question:", e);
 		if (e instanceof ValidationError) {
 			res.status(400).send({
 				error: string_helpers.serializeSequelizeErrors(e),

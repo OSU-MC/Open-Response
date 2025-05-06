@@ -21,6 +21,7 @@ const responseInsertSchema = {
 	grade: { required: true },
 	points: { required: true },
 	totalPoints: { required: true },
+	lectureForSectionId: { required: true },
 };
 
 exports.extractResponseInsertFields = (body) => {

@@ -1,5 +1,6 @@
 const questionInsertSchema = {
 	courseId: { required: true },
+	lectureId: { required: true },
 	type: { required: true },
 	stem: { required: true },
 	content: { required: true },
@@ -39,7 +40,7 @@ const db = require("../models/index");
 
 const questionInformationSchema = {
 	id: { required: true },
-	courseId: { required: true },
+	lectureId: { required: true },
 	type: { required: true },
 	stem: { required: true },
 	weights: { required: false },
@@ -138,20 +139,26 @@ const getMatchResults = function (question, answers) {
 exports.getQuestionScore = getQuestionScore;
 
 // just as if 'getQuestion', but checks against given course as well
-exports.getQuestionInCourse = async (questionId, courseId) => {
+exports.getQuestionFromLecture = async (questionId, lectureId) => {
 	return await db.Question.findOne({
 		where: {
 			id: questionId,
-			courseId: courseId,
+			lectureId: lectureId,
 		},
 	});
 };
 
-exports.getQuestionInLecture = async (questionId, lectureId) => {
-	return await db.QuestionInLecture.findOne({
-		where: {
-			questionId: questionId,
-			lectureId: lectureId,
-		},
-	});
+exports.getQuestionInLecture = async function (questionId, lectureForSectionId) {
+    try {
+        return await db.QuestionInLecture.findOne({
+            where: {
+                questionId: questionId,
+                lectureForSectionId: lectureForSectionId // Ensure the correct column name is used
+            },
+			attributes: { exclude: ['LectureId'] },
+        });
+    } catch (error) {
+        console.error("Error in getQuestionInLecture:", error);
+        throw error;
+    }
 };

@@ -9,6 +9,7 @@ describe("/questions endpoints", () => {
 	let user2;
 	let course;
 	let section;
+	let lecture;
 	let enrollment;
 	let enrollment2;
 	let userXsrfCookie;
@@ -76,9 +77,20 @@ describe("/questions endpoints", () => {
 			userId: user2.id,
 		});
 
+		lecture = await db.Lecture.create({
+			title: "Testing in jest",
+			courseId: course.id,
+			archived: false,
+			softdelete: false
+		});
+
 		question = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is 1 + 2?",
+			lectureId: lecture.id,
+			totalPoints: 1,
+			order: 1,
+			softdelete: false, 
 			content: {
 				options: {
 					0: 2,
@@ -99,6 +111,10 @@ describe("/questions endpoints", () => {
 		question2 = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is the capital of Oregon?",
+			lectureId: lecture.id,
+			totalPoints: 1,
+			order: 2,
+			softdelete: false, 
 			content: {
 				options: {
 					0: "Portland",
@@ -119,6 +135,10 @@ describe("/questions endpoints", () => {
 		question3 = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is gravity on earth in m/s?",
+			lectureId: lecture.id,
+			totalPoints: 1,
+			order: 3,
+			softdelete: false, 
 			content: {
 				options: {
 					0: 9.8,
@@ -139,6 +159,10 @@ describe("/questions endpoints", () => {
 		question4 = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is 3 + 4?",
+			lectureId: lecture.id,
+			totalPoints: 1,
+			order: 4,
+			softdelete: false, 
 			content: {
 				options: {
 					0: 6,
@@ -159,6 +183,10 @@ describe("/questions endpoints", () => {
 		question5 = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is 3 + 5?",
+			lectureId: lecture.id,
+			totalPoints: 1,
+			order: 5,
+			softdelete: false, 
 			content: {
 				options: {
 					0: 6,
@@ -183,7 +211,7 @@ describe("/questions endpoints", () => {
 			.set("Cookie", userCookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(2);
-		expect(resp.body.questions[0].courseId).toEqual(course.id);
+		expect(resp.body.questions[0].lectureId).toEqual(lecture.id); // Check for lectureId
 		expect(resp.body.questions[0].type).toEqual("multiple choice");
 		expect(resp.body.questions[0].stem).toEqual("What is 1 + 2?");
 		expect(resp.body.questions[0].content.options).toEqual({
@@ -198,7 +226,7 @@ describe("/questions endpoints", () => {
 			2: false,
 			3: false,
 		});
-		expect(resp.body.questions[1].courseId).toEqual(course.id);
+		expect(resp.body.questions[1].lectureId).toEqual(lecture.id); // Check for lectureId
 		expect(resp.body.questions[1].type).toEqual("multiple choice");
 		expect(resp.body.questions[1].stem).toEqual(
 			"What is the capital of Oregon?"
@@ -228,7 +256,7 @@ describe("/questions endpoints", () => {
 			.set("Cookie", userCookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(1);
-		expect(resp.body.questions[0].courseId).toEqual(course.id);
+		expect(resp.body.questions[0].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[0].type).toEqual("multiple choice");
 		expect(resp.body.questions[0].stem).toEqual("What is 3 + 5?");
 		expect(resp.body.questions[0].content.options).toEqual({
@@ -255,7 +283,7 @@ describe("/questions endpoints", () => {
 			.set("Cookie", userCookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(2);
-		expect(resp.body.questions[0].courseId).toEqual(course.id);
+		expect(resp.body.questions[0].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[0].type).toEqual("multiple choice");
 		expect(resp.body.questions[0].stem).toEqual("What is 3 + 4?");
 		expect(resp.body.questions[0].content.options).toEqual({
@@ -270,7 +298,7 @@ describe("/questions endpoints", () => {
 			2: false,
 			3: false,
 		});
-		expect(resp.body.questions[1].courseId).toEqual(course.id);
+		expect(resp.body.questions[1].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[1].type).toEqual("multiple choice");
 		expect(resp.body.questions[1].stem).toEqual("What is 3 + 5?");
 		expect(resp.body.questions[1].content.options).toEqual({
@@ -293,7 +321,7 @@ describe("/questions endpoints", () => {
 			.set("Cookie", userCookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(2);
-		expect(resp.body.questions[0].courseId).toEqual(course.id);
+		expect(resp.body.questions[0].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[0].type).toEqual("multiple choice");
 		expect(resp.body.questions[0].stem).toEqual("What is 1 + 2?");
 		expect(resp.body.questions[0].content.options).toEqual({
@@ -308,7 +336,7 @@ describe("/questions endpoints", () => {
 			2: false,
 			3: false,
 		});
-		expect(resp.body.questions[1].courseId).toEqual(course.id);
+		expect(resp.body.questions[1].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[1].type).toEqual("multiple choice");
 		expect(resp.body.questions[1].stem).toEqual(
 			"What is the capital of Oregon?"
@@ -338,7 +366,7 @@ describe("/questions endpoints", () => {
 			.set("Cookie", userCookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(1);
-		expect(resp.body.questions[0].courseId).toEqual(course.id);
+		expect(resp.body.questions[0].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[0].type).toEqual("multiple choice");
 		expect(resp.body.questions[0].stem).toEqual("What is 3 + 5?");
 		expect(resp.body.questions[0].content.options).toEqual({
@@ -365,7 +393,7 @@ describe("/questions endpoints", () => {
 			.set("Cookie", userCookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body.questions.length).toEqual(2);
-		expect(resp.body.questions[0].courseId).toEqual(course.id);
+		expect(resp.body.questions[0].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[0].type).toEqual("multiple choice");
 		expect(resp.body.questions[0].stem).toEqual("What is 3 + 4?");
 		expect(resp.body.questions[0].content.options).toEqual({
@@ -380,7 +408,7 @@ describe("/questions endpoints", () => {
 			2: false,
 			3: false,
 		});
-		expect(resp.body.questions[1].courseId).toEqual(course.id);
+		expect(resp.body.questions[1].lectureId).toEqual(lecture.id);
 		expect(resp.body.questions[1].type).toEqual("multiple choice");
 		expect(resp.body.questions[1].stem).toEqual("What is 3 + 5?");
 		expect(resp.body.questions[1].content.options).toEqual({
@@ -452,6 +480,10 @@ describe("/questions endpoints", () => {
 			.send({
 				type: "multiple choice",
 				stem: "What is 2 + 2?",
+				lectureId: lecture.id,
+				totalPoints: 1,
+				order: 6,
+				softdelete: false, 
 				content: {
 					options: {
 						0: 2,
@@ -483,7 +515,7 @@ describe("/questions endpoints", () => {
 			2: true,
 			3: false,
 		});
-		expect(resp.body.question.courseId).toEqual(course.id);
+		expect(resp.body.question.lectureId).toEqual(lecture.id);
 	});
 
 	it("should respond with 400 when fields are missing", async () => {
