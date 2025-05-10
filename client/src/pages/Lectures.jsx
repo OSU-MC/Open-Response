@@ -41,6 +41,11 @@ function Lectures(props){
         setShowCreateModal(true);
     };
 
+    
+    
+
+    const liveLecture = lectures[courseId]?.[0]
+    const lectureId = liveLecture?.id;
     return (
         <div className='lectures'>
             <div className='lectures-top-bar'>
@@ -56,8 +61,19 @@ function Lectures(props){
             {/* {role == "teacher" && 
                 <Link to={`/${courseId}/createlecture`}>
                     <Button className="create-lecture-btn"> + Create Lecture</Button>
-                </Link>} */}
+                </Link>}
+            <hr></hr>
+            {/* && lectures[courseId]  */}
+            {/*Join Live Lecture Button - ONLY if enrollment != teacher and a live lecture exists*/}
+            {role !== "teacher" && lectureId && liveLecture?.isLive && 
+                <Link className="join-live-btn" to={`/${courseId}/live/${lectureId}`}>
+                    <Button variant="success" className="btn-add">Join Live Lecture</Button>
+                </Link>
+            }
             </div>
+            <hr></hr>
+
+
 
             {showCreateModal && (
                 <Popup close={closeCreateModal}>

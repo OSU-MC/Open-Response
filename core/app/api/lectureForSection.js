@@ -228,4 +228,30 @@ router.delete('/:lecture_id', requireAuthentication, async function (req, res, n
     }
 });
 
+router.put('/:lecture_id/live', requireAuthentication, async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub)
+    const courseId = parseInt(req.params['course_id'])
+    const sectionId = parseInt(req.params['section_id'])
+    const lectureId = parseInt(req.params['lecture_id'])
+
+    try {
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId)
+        if (isTeacher) {
+            const foundLecture = await db.Lecture.findByPk(lectureId)
+            if (foundLecture) {
+                const { isLive = false, published } = req.body
+                await foundLecture.update({ isLive, published })
+                res.status(200).send({ message: "Live status updated" })
+            } else { //no lecture
+                res.status(404).send({ error: "Lecture not found" })
+            }
+        } else { //user is not a teacher
+            res.status(403).send({ error: "User must be a teacher to update the lecture" })
+        }
+    } catch (e) {
+        next(e)
+    }
+})
+
+
 module.exports = router
