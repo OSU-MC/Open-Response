@@ -35,6 +35,17 @@ router.get('/', requireAuthentication, async function (req, res, next) {
         }
     })
 
+    const lectureForSection = await db.LectureForSection.findOne({
+        where: {
+            lectureId: lectureId,
+            sectionId: sectionId
+        }
+    });
+
+    if (!lectureForSection) {
+        return res.status(404).send({ error: "Lecture for section not found" });
+    }
+
     // if teacher makes request
     if (enrollmentTeacher) {
         try {
@@ -58,11 +69,13 @@ router.get('/', requireAuthentication, async function (req, res, next) {
                     ...
             ]}*/
 
+            
             let resp = []
             // get all the questionInLectures for the given lecture
             const questionsInLecture = await db.QuestionInLecture.findAll({
+                attributes: ['id', 'questionId', 'lectureForSectionId', 'published', 'softDelete', 'publishedAt'],
                 where: {
-                    lectureId: lectureId
+                    lectureForSectionId: lectureForSection.id // Ensure the correct column name is used
                 }
             })
             // for each questionInLecture, get the question asked as well as an array of responses to it
@@ -75,6 +88,7 @@ router.get('/', requireAuthentication, async function (req, res, next) {
                         questionInLectureId: questionsInLecture[i].id
                     }
                 })
+
                 let questionArrayObj = {
                     numberOfResponses: responses.length,
                     question: question,
@@ -111,6 +125,7 @@ router.get('/', requireAuthentication, async function (req, res, next) {
             res.status(200).send(resp)
 
         } catch (e) {
+            console.error("An error occurred:", e);
             next(e)
         }
     }
@@ -131,10 +146,12 @@ router.get('/', requireAuthentication, async function (req, res, next) {
             let resp = []
             // get all the questionInLectures for the given lecture
             const questionsInLecture = await db.QuestionInLecture.findAll({
+                attributes: ['id', 'questionId', 'lectureForSectionId', 'published', 'softDelete', 'publishedAt'],
                 where: {
-                    lectureId: lectureId
+                    lectureForSectionId: lectureForSection.id // Ensure the correct column name is used
                 }
             })
+
             // for each questionInLecture, get the question asked and the student response
             // complexity: roughly O(m) where m is the number of questions
             // this complexity calculation assumes database queries are roughly O(1), which may not be the case depending on database size
@@ -146,6 +163,7 @@ router.get('/', requireAuthentication, async function (req, res, next) {
                         enrollmentId: enrollmentStudent.id
                     }
                 })
+
                 // if the student answered this question
                 if (response) {
                     resp.push({
@@ -166,6 +184,7 @@ router.get('/', requireAuthentication, async function (req, res, next) {
             res.status(200).send(resp)
 
         } catch (e) {
+            console.error("An error occurred:", e);
             next(e)
         }
     }

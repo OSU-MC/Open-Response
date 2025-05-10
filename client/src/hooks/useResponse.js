@@ -17,9 +17,7 @@ function useResponse(course, role) {
     useEffect(() => {
         async function getResponses() {
             setLoading(true)
-            console.log("section: ", course.Sections)
             const response = await apiUtil("get", `courses/${courseId}/sections/${course.Sections[0].id}/lectures/${lectureId}/responses`, { dispatch: dispatch, navigate: navigate})
-            console.log("response:", response.data)
             setMessage(response.message)
             setError(response.error)
             if (response.status === 200) {
@@ -29,7 +27,6 @@ function useResponse(course, role) {
             }
             setLoading(false)
         }
-        console.log("course:", course)
         if (course && role === 'student') {
             getResponses()
         }

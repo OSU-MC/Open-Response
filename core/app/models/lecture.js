@@ -1,4 +1,4 @@
-'use strict'
+ 'use strict'
 
 module.exports = (sequelize, DataTypes) => {
     const Lecture = sequelize.define('Lecture', {
@@ -94,8 +94,10 @@ module.exports = (sequelize, DataTypes) => {
 
     Lecture.associate = (models) => {
         Lecture.belongsTo(models.Course)
-        Lecture.hasMany(models.QuestionInLecture)
+        Lecture.hasMany(models.Question)
         Lecture.hasMany(models.LectureForSection)
+        Lecture.hasMany(models.LectureGradeWeight)
+        Lecture.hasMany(models.RequiredQuestionsInLecture)
     }
 
     return Lecture;

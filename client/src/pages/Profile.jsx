@@ -48,7 +48,6 @@ function Profile(props) {
         let response = {};
 
             response = await apiUtil("put", `/users/${userState.user.id}`, {dispatch: dispatch, navigate: navigate}, accountPayload)
-            console.log(response);
             setError(response.error)
             setMessage(response.message)
         

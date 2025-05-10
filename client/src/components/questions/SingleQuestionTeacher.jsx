@@ -68,6 +68,7 @@ function SingleQuestionTeacher(props) {
             stem: stem,
             type: type,
             answers: answers,
+            lectureId: lectureId,
             content: {
                 options: options
             }

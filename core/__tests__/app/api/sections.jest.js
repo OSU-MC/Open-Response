@@ -188,6 +188,7 @@ describe('api/sections tests', () => {
             // associate lecture with section
             const relation = await db.LectureForSection.create({
                 lectureId: temp_lec.id,
+                attendanceMethod: 'join',
                 sectionId: section1.id,
             })
             

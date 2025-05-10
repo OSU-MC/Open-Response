@@ -92,9 +92,7 @@ export default function AddCourse(props){
     async function postCourse(newCoursePayload){
         //make a POST course api call
         setLoading(true)
-        console.log("course req body:", newCoursePayload)
         const response = await apiUtil("post", "/courses", { dispatch: dispatch, navigate: navigate}, newCoursePayload)
-        console.log("response course creation:", response.data)
         setLoading(false)
 
         //update the redux

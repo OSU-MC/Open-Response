@@ -61,7 +61,8 @@ function Sections() {
                 {/* Display the Breadcrumbs component */}
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />
             </div>
-                <h1 className="course-title">{courseName}</h1>                   
+                <h1 className="course-title">{courseName}</h1>
+                    
                 <Tabs courseId={courseId} tabs={tabs_o} />
                 
             </div>
@@ -84,9 +85,7 @@ function Sections() {
                 )}
             </div>
 
-
-
-           <Button 
+            <Button 
                 className="create-section-btn"
                 onClick={openCreateModal}
             >

@@ -12,6 +12,8 @@ import { addStagedQuestion } from '../redux/actions'
 import Popup from '../components/Popup'
 import SingleQuestionTeacher from '../components/questions/SingleQuestionTeacher'
 
+//URL : :courseId/lectures/:lectureId/questions
+
 function Questions(props) {
     const navigate = useNavigate()
     const dispatch = useDispatch()

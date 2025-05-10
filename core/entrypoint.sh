@@ -46,4 +46,4 @@ else
 fi
 
 # Start the application
-npm run start:dev
+npm run start
