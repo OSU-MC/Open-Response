@@ -1,4 +1,4 @@
-import { test, expect } from '@playwright/test';
+import { test } from './fixtures.js'
 import { analyzePage } from './shared/axeHelper.js';
 
 test.describe('Accessibility checks', () => {
