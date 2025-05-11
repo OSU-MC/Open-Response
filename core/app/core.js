@@ -4,7 +4,7 @@ const app = require("./app");
 const { logger } = require("../lib/logger");
 const http = require("http");
 const server = http.createServer(app);
-require("../../socket")(server);
+require("../socket")(server);
 
 db.sequelize
 	.authenticate()
