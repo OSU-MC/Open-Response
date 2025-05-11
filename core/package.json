@@ -10,12 +10,10 @@
         "sequelize-cli": "^6.6.2"
     },
     "scripts": {
-        "config": "cp .env.example .env && nano .env",
+        "config": "copy .env.example .env && nano .env",
         "test": "NODE_ENV=test jest --runInBand",
         "start": "node app/core.js --NODE_ENV=production",
         "start:dev": "nodemon app/core.js --NODE_ENV=development",
-        "start:docker": "docker compose up -d --build",
-        "stop:docker": "docker compose down",
         "seed": "npm exec -- sequelize-cli db:seed:all",
         "unseed": "npm exec -- sequelize-cli db:seed:undo:all",
         "redis:basics": "node redis/basics.js",
@@ -29,7 +27,9 @@
         "cookie": "^1.0.1",
         "cookie-parser": "^1.4.7",
         "cors": "^2.8.5",
+        "csv-parser": "^3.2.0",
         "express": "^4.21.2",
+        "json2csv": "^6.0.0-alpha.2",
         "jsonwebtoken": "^9.0.2",
         "memoizee": "^0.4.17",
         "moment": "^2.30.1",

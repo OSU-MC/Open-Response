@@ -11,130 +11,195 @@ const { log } = require("winston");
 // student is answering a question
 // Path is /courses/:course_id/lectures/:lecture_id/questions/:question_id/responses
 router.post("/", requireAuthentication, async function (req, res, next) {
-	const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
-	const courseId = parseInt(req.params["course_id"]);
-	const lectureId = parseInt(req.params["lecture_id"]);
-	const questionId = parseInt(req.params["question_id"]);
-	let points = 0,
-		totalPoints = 0;
-	// const points = parseInt(req.params["points"]) || 0;
-	// const totalPoints = parseInt(req.params["total_points"]) || 0;
-	// code to check if the req params are valid
-	if (!user || !courseId || !lectureId || !questionId) {
-		return res.status(400).send({
-			error: `Invalid request parameters`,
-		});
-	}
-
-	// for now, only multiple choice and multiple answer available
 	try {
-		const enrollmentStudent = await db.Enrollment.findOne({
-			// check to make sure the user is a student for the specified course
-			where: { role: "student", userId: user.id },
-			include: [
-				{
-					model: db.Section,
-					required: true,
-					where: { courseId: courseId },
-				},
-			],
-		});
-		const questionInLecture = await questionService.getQuestionInLecture(
-			questionId,
-			lectureId
-		);
-		if (!enrollmentStudent)
-			return res.status(403).send({
-				error: `Only a student in the course can submit a response to the question`,
-			});
-		if (!req.body.answers || !(Object.keys(req.body.answers).length > 1))
-			// request must have an answer and it must have at least two options to pick from
-			return res.status(400).send({
-				error: `Submission must be present and must contain at least two options`,
-			});
-		if (!questionInLecture)
-			return res.status(404).send({
-				error: `No question in lecture found for the given lecture and question`,
-			});
-		if (questionInLecture.published != true)
-			// question is no longer available
-			return res.status(400).send({ error: `The question is not published` });
-
-		// if the question in lecture exists, we know there is a question that we can check for scoring
-		const question = await questionService.getQuestionInCourse(
-			questionId,
-			courseId
-		);
-		const questionScore = questionService.getQuestionScore(question, req.body);
-		const responseToInsert = {
-			enrollmentId: enrollmentStudent.id,
-			questionInLectureId: questionInLecture.id,
-			score: questionScore,
-			submission: req.body.answers,
-		};
-
-		// question.data.Values.weights looks like: weights: { '0': 1, '1': 1, '2': 1, '3': 1 }
-		// Assign points equal to the sum of the weights of the true answers selected and totalPoints equal to the sum of all correct answers
-		for (let i = 0; i < Object.keys(question.dataValues.weights).length; i++) {
-			totalPoints += question.dataValues.weights[i];
-			if (req.body.answers[i] === true) {
-				points += question.dataValues.weights[i];
-			}
+	  // Parse route parameters
+	  const courseId = parseInt(req.params["course_id"], 10);
+	  const lectureId = parseInt(req.params["lecture_id"], 10);
+	  const questionId = parseInt(req.params["question_id"], 10);
+	  const user = await db.User.findByPk(req.payload.sub);
+	  if (!user || !courseId || !lectureId || !questionId) {
+		return res.status(400).send({ error: "Invalid request parameters" });
+	  }
+  
+	  // Ensure the user is enrolled as a student in the course
+	  const enrollmentStudent = await db.Enrollment.findOne({
+		where: { role: "student", userId: user.id },
+		include: [{
+		  model: db.Section,
+		  required: true,
+		  where: { courseId }
+		}]
+	  });
+	  if (!enrollmentStudent) {
+		return res.status(403).send({ error: "Only a student in the course can submit a response" });
+	  }
+  
+	  // Access the Section object
+	  const section = enrollmentStudent.Section || enrollmentStudent.section;
+	  if (!section) {
+		return res.status(404).send({ error: "Section not found" });
+	  }
+  
+	  // Find the LectureForSection record
+	  const lectureForSection = await db.LectureForSection.findOne({
+		where: {
+		  sectionId: section.id,
+		  lectureId: lectureId
 		}
-		if (points && totalPoints) {
-			responseToInsert.points = points;
-			responseToInsert.totalPoints = totalPoints;
-		}
-
-		const response = await db.Response.create(
-			responseService.extractResponseInsertFields(responseToInsert)
-		);
-
-		// pull the grade for the current student by enrollment id and user.id. If it doesn't exist, create it; If it does exist update the score, points and totalPoints.
-		const studentGrade = await db.Grades.findOne({
-			where: { enrollmentId: enrollmentStudent.id, userId: user.id },
-			include: [
-				{
-					model: db.Enrollment,
-					required: true,
-					where: { courseId: courseId },
-				},
-			],
+	  });
+	  if (!lectureForSection) {
+		return res.status(404).send({ error: "Lecture for section not found" });
+	  }
+  
+	  // Validate that answers are provided and include at least two options
+	  if (!req.body.answers || Object.keys(req.body.answers).length < 2) {
+		return res.status(400).send({
+		  error: "Submission must be present and must contain at least two options"
 		});
+	  }
+  
+	  // Find the question in lecture by joining LectureForSection filtering on lectureId.
+	  const questionInLecture = await db.QuestionInLecture.findOne({
+		attributes: [
+		  "id",
+		  "questionId",
+		  "lectureForSectionId",
+		  "published",
+		  "softDelete",
+		  "publishedAt",
+		  "createdAt",
+		  "updatedAt"
+		],
+		where: { questionId, lectureForSectionId: lectureForSection.id },
+		include: [{
+		  model: db.LectureForSection, 
+		  required: true,
+		  attributes: [
+			"id",
+			"sectionId",
+			"lectureId",
+			"published",
+			"closedAt",
+			"attendanceMethod",
+			"minAttendanceQuestions",
+			"createdAt",
+			"updatedAt"
+		  ],
+		  where: { lectureId } 
+		}]
+	  });
+	  if (!questionInLecture) {
+		return res.status(404).send({
+		  error: "No question in lecture found for the given lecture and question"
+		});
+	  }
+	  if (questionInLecture.published !== true) {
+		return res.status(400).send({ error: "The question is not published" });
+	  }
+  
+	  // Get the question from the course directly
+	  const question = await db.Question.findOne({
+		where: { id: questionId }
+	  });
+	  if (!question) {
+		return res.status(404).send({ error: "Question not found" });
+	  }
+  
+	  // Calculate points: totalPoints is the sum of all weights;
+	  // points is the sum of weights for each answer that is marked true.
+	  let totalCorrectWeight = 0;
+	  let correctPoints = 0;
+	  let extraPenalty = 0;
 
-		let newGrade = {};
-		newGrade.userId = user.id;
-		newGrade.enrollmentId = enrollmentStudent.id;
-		newGrade.sectionId = enrollmentStudent.sectionId;
-		if (!studentGrade) {
-			newGrade.points = points;
-			newGrade.totalPoints = totalPoints;
-			newGrade.grade = newGrade.points / newGrade.totalPoints;
-			if (isNaN(newGrade.grade)) newGrade.grade = 0;
+	  const weights = question.weights;  // e.g., { "0": 1, "1": 1, "2": 1, "3": 1 }
+	  const correctAnswers = question.answers; // e.g., { "0": false, "1": true, "2": false, "3": false }
 
-			const updatedGrade = await db.Grades.create(
-				gradeService.extractResponseInsertFields(newGrade)
-			);
+	  for (let key in weights) {
+		if (correctAnswers[key] === true) {
+		  // This option is correct; add its weight to the total correct weight.
+		  totalCorrectWeight += weights[key];
+		  // If the student selected it, add its weight as correct points.
+		  if (req.body.answers[key] === true) {
+			correctPoints += weights[key];
+		  }
 		} else {
-			newGrade.points = studentGrade.points += points;
-			newGrade.totalPoints = studentGrade.totalPoints += totalPoints;
-			newGrade.score = newGrade.points / newGrade.totalPoints;
-
-			const updatedGrade = await studentGrade.update({
-				grade: studentGrade.grade,
-				points: studentGrade.points,
-				totalPoints: studentGrade.totalPoints,
-			});
+		  // This option is not correct.
+		  // If the student selected an incorrect option, count that as a penalty.
+		  if (req.body.answers[key] === true) {
+			extraPenalty += weights[key];
+		  }
 		}
+	  }
 
-		res.status(201).send({
-			response: responseService.extractResponseFields(response),
+	  // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
+	  let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) / totalCorrectWeight : 0;
+	  if (computedScore < 0) computedScore = 0;
+
+	  // Override the computed values with those from req.query if provided
+	  if (req.query.points && req.query.totalPoints) {
+		correctPoints = Number(req.query.points);
+		totalCorrectWeight = Number(req.query.totalPoints);
+		computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
+	  }
+  
+	  // Prepare the response record data
+	  const responseToInsert = {
+		enrollmentId: enrollmentStudent.id,
+		questionInLectureId: questionInLecture.id,
+		score: computedScore, // now reflects the override if provided
+		submission: req.body.answers,
+		points: correctPoints,
+		totalPoints: totalCorrectWeight
+	  };
+  
+	  // Create the Response record
+	  const responseRecord = await db.Response.create(
+		responseService.extractResponseInsertFields(responseToInsert)
+	  );
+  
+	  // Retrieve or create the student’s Grade record for this course.
+	  const studentGrade = await db.Grades.findOne({
+		where: { enrollmentId: enrollmentStudent.id, userId: user.id },
+		include: [{
+		  model: db.Enrollment,
+		  required: true,
+		  where: { courseId }
+		}]
+	  });
+
+		if (!studentGrade) {
+			const newGrade = {
+			userId: user.id,
+			enrollmentId: enrollmentStudent.id,
+			sectionId: enrollmentStudent.sectionId,
+			points: correctPoints,
+			totalPoints: totalCorrectWeight,
+			grade: computedScore,
+			lectureForSectionId: lectureForSection.id 
+		};
+		await db.Grades.create(gradeService.extractResponseInsertFields(newGrade));
+	  } else {
+		// Update existing grade by accumulating points and totalPoints.
+		studentGrade.points += correctPoints;
+		studentGrade.totalPoints += totalCorrectWeight;
+		const newGradeValue = studentGrade.totalPoints ? studentGrade.points / studentGrade.totalPoints : 0;
+		await studentGrade.update({
+		  points: studentGrade.points,
+		  totalPoints: studentGrade.totalPoints,
+		  grade: newGradeValue,
+		  lectureForSectionId: lectureForSection.id 
 		});
+	  }
+  
+	  res.status(201).send({
+		response: responseService.extractResponseFields(responseRecord)
+	  });
 	} catch (e) {
-		console.log(e);
-		next(e);
+	  console.error("Error processing response:", e);
+	  next(e);
 	}
-});
+  });
+  
 
 // this route isn't even implemented in the frontend
 // student is resubmitting their answer to a question
@@ -218,15 +283,45 @@ router.put(
 			}
 
 			const question = await questionService.getQuestionInCourse(
-				questionId,
-				courseId
+				questionId
 			);
-			const questionScore = questionService.getQuestionScore(
-				question,
-				req.body
-			);
+			let totalCorrectWeight = 0;
+			let correctPoints = 0;
+			let extraPenalty = 0;
+
+			const weights = question.weights;  // e.g., { "0": 1, "1": 1, "2": 1, "3": 1 }
+			const correctAnswers = question.answers; // e.g., { "0": false, "1": true, "2": false, "3": false }
+
+			for (let key in weights) {
+				if (correctAnswers[key] === true) {
+					// This option is correct; add its weight to the total correct weight.
+					totalCorrectWeight += weights[key];
+					// If the student selected it, add its weight as correct points.
+					if (req.body.answers[key] === true) {
+						correctPoints += weights[key];
+					}
+				} else {
+					// This option is not correct.
+					// If the student selected an incorrect option, count that as a penalty.
+					if (req.body.answers[key] === true) {
+						extraPenalty += weights[key];
+					}
+				}
+			}
+
+			// Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
+			let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) / totalCorrectWeight : 0;
+			if (computedScore < 0) computedScore = 0;
+
+			// Override the computed values with those from req.query if provided
+			if (req.query.points && req.query.totalPoints) {
+				correctPoints = Number(req.query.points);
+				totalCorrectWeight = Number(req.query.totalPoints);
+				computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
+			}
+
 			const responseToUpdate = {
-				score: questionScore,
+				score: computedScore,
 				submission: req.body.answers,
 			};
 			const response = await oldResponse.update(responseToUpdate);

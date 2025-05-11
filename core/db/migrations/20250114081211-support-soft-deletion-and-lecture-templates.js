@@ -20,6 +20,7 @@ module.exports = {
     await queryInterface.addColumn('Courses', 'publishedAt', {
       type: Sequelize.DATE,
       allowNull: true,
+      defaultValue: null,
     });
     await queryInterface.addColumn('Enrollments', 'softDelete', {
       type: Sequelize.BOOLEAN,
@@ -54,6 +55,7 @@ module.exports = {
     await queryInterface.addColumn('LectureForSections', 'publishedAt', {
       type: Sequelize.DATE,
       allowNull: true,
+      defaultValue: null,
     });
     await queryInterface.addColumn('Questions', 'softDelete', {
       type: Sequelize.BOOLEAN,
@@ -68,6 +70,7 @@ module.exports = {
     await queryInterface.addColumn('QuestionInLectures', 'publishedAt', {
       type: Sequelize.DATE,
       allowNull: true,
+      defaultValue: null,
     });
     await queryInterface.addColumn('Responses', 'softDelete', {
       type: Sequelize.BOOLEAN,

@@ -9,90 +9,93 @@ const questionService = require('../services/question_service')
 
 // teacher wants to view a question inside a lecture 
 router.get('/:question_id', requireAuthentication, async function (req, res, next) {
-    const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
-    const courseId = parseInt(req.params['course_id'])
-    const lectureId = parseInt(req.params['lecture_id'])
-    const questionId = parseInt(req.params['question_id'])
-
     try {
-        //check if the user is a teacher
-        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId)
-        if (isTeacher) {
-            const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId)
-            if (isLecInCourse) {
-                const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureId)
-                if (questionInLecture) {
-                    const question = await questionService.getQuestionInCourse(questionId, courseId)
-                    if (question) {
-                        const respObj = {   // create response with question info and lecture-relationship info
-                            ...questionService.extractQuestionFields(question),
-                            ...questionService.extractQuestionInLectureFields(questionInLecture)
-                        }
-                        res.status(200).send(respObj)
-                    }
-                    else {  // if there's no question of this id (from this course)
-                        res.status(404).send({error: "The given question ID not found in this course"})
-                    }
-                }
-                else {  // if given question is not in this lecture
-                    res.status(400).send({error: "The given question ID does not belong to this lecture"})
-                }
-            }
-            else {  // if given lecture is not in this course
-                res.status(400).send({error: "The given lecture ID does not belong to this course"})
-            }
+        const user = await db.User.findByPk(req.payload.sub);
+        const courseId = parseInt(req.params['course_id']);
+        const lectureId = parseInt(req.params['lecture_id']);
+        const sectionId = parseInt(req.params['section_id']);
+        const questionId = parseInt(req.params['question_id']);
+
+        
+        if (isNaN(questionId) || isNaN(lectureId) || isNaN(courseId) || isNaN(sectionId)) {
+            return res.status(400).send({ error: "Invalid parameters" });
         }
-        else {  // user is not a teacher
-            res.status(403).send({error: "Must be a teacher of this course to get question info"})
+
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Must be a teacher of this course to get question info" });
         }
-    }
-    catch (e) {
-        next(e)
+
+        const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId);
+        if (!isLecInCourse) {
+            return res.status(400).send({ error: "The given lecture ID does not belong to this course" });
+        }
+        
+        const lectureForSection = await lectureService.getLectureForSection(sectionId, lectureId);
+        if (!lectureForSection) {
+            console.error("The given lecture ID does not belong to this section");
+            return res.status(400).send({ error: "The given lecture ID does not belong to this section" });
+        }
+
+        const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureForSection.id);
+        if (!questionInLecture) {
+            return res.status(404).send({ error: "The given question ID does not belong to this lecture" });
+        }
+
+        const question = await questionService.getQuestionFromLecture(questionId, lectureId);
+        if (!question) {
+            console.error("The given question ID not found in this course");
+            return res.status(404).send({ error: "The given question ID not found in this course" });
+        }
+
+        const respObj = {
+            ...questionService.extractQuestionFields(question),
+            ...questionService.extractQuestionInLectureFields(questionInLecture)
+        };
+
+        res.status(200).send(respObj);
+    } catch (e) {
+        console.error("An error occurred:", e);
+        return res.status(500).send({ error: "Internal server error" });
     }
 })
-
-// teacher wants to (un)publish a question inside a lecture 
+    // teacher wants to (un)publish a question inside a lecture 
 router.put('/:question_id', requireAuthentication, async function (req, res, next) {
-    // SAME logic as GET, but different action upon request validation
-    const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
-    const courseId = parseInt(req.params['course_id'])
-    const lectureId = parseInt(req.params['lecture_id'])
-    const questionId = parseInt(req.params['question_id'])
+    const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
+    const courseId = parseInt(req.params['course_id']);
+    const lectureId = parseInt(req.params['lecture_id']);
+    const sectionId = parseInt(req.params['section_id']);
+    const questionId = parseInt(req.params['question_id']);
 
     try {
-        //check if the user is a teacher
-        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId)
-        if (isTeacher) {
-            const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId)
-            if (isLecInCourse) {
-                const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureId)
-                if (questionInLecture) {
-                    const question = await questionService.getQuestionInCourse(questionId, courseId)
-                    if (question) {
-                        const updatePublishedTo = !(questionInLecture.published)    // get opposite bool of current published status
-                        await questionInLecture.update({published: updatePublishedTo})
-                        res.status(200).send()
-                    }
-                    else {  // if there's no question of this id (from this course)
-                        res.status(404).send({error: "The given question ID not found in this course"})
-                    }
-                }
-                else {  // if given question is not in this lecture
-                    res.status(400).send({error: "The given question ID does not belong to this lecture"})
-                }
-            }
-            else {  // if given lecture is not in this course
-                res.status(400).send({error: "The given lecture ID does not belong to this course"})
-            }
+        // Check if the user is a teacher
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Must be a teacher of this course to get question info" });
         }
-        else {  // user is not a teacher
-            res.status(403).send({error: "Must be a teacher of this course to get question info"})
+
+        const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId);
+        if (!isLecInCourse) {
+            return res.status(404).send({ error: "The given lecture ID does not belong to this course" });
         }
+
+        const isLecInSection = await lectureService.getLectureForSection(sectionId, lectureId);
+        if (!isLecInSection) {
+            return res.status(400).send({ error: "The given lecture ID does not belong to this section" });
+        }
+
+        const questionInLecture = await questionService.getQuestionInLecture(questionId, isLecInSection.id);
+        if (!questionInLecture) {
+            return res.status(404).send({ error: "The given question ID does not belong to this lecture" });
+        }
+
+        const updatePublishedTo = !questionInLecture.published;
+        await questionInLecture.update({ published: updatePublishedTo });
+        res.status(200).send();
+    } catch (error) {
+        next(error);
     }
-    catch (e) {
-        next(e)
-    }
-})
+});
 
 // teacher wants to (un)mark a question as live inside a lecture
 router.put('/:question_id/live', requireAuthentication, async function (req, res, next) {
@@ -145,6 +148,7 @@ router.post('/:question_id', requireAuthentication, async function (req, res, ne
     const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id'])
     const lectureId = parseInt(req.params['lecture_id'])
+    const sectionId = parseInt(req.params['section_id'])
     const questionId = parseInt(req.params['question_id'])
 
     try {
@@ -153,34 +157,31 @@ router.post('/:question_id', requireAuthentication, async function (req, res, ne
         if (isTeacher) {
             const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId)
             if (isLecInCourse) {
-                    const question = await questionService.getQuestionInCourse(questionId, courseId)
-                    if (question) {
-                        let newQsLecRelation = req.body
-                        newQsLecRelation['questionId'] = questionId
-                        newQsLecRelation['lectureId'] = lectureId
+                const question = await questionService.getQuestionFromLecture(questionId, lectureId)
+                const lectureForSection = await lectureService.getLectureForSection(sectionId, lectureId);
+                if (question && lectureForSection) {
+                    let newQsLecRelation = req.body
+                    newQsLecRelation['questionId'] = questionId
+                    newQsLecRelation['lectureId'] = lectureId
+                    newQsLecRelation['lectureForSectionId'] = lectureForSection.id
 
-                        const missingFields = questionService.validateQuestionInLectureCreationRequest(newQsLecRelation)
-                        if (missingFields.length == 0) {
-                            await db.QuestionInLecture.create(newQsLecRelation)
-                            res.status(201).send(questionService.extractCompleteQuestionInLectureFields(newQsLecRelation))
-                        }
-                        else {
-                            return res.status(400).send({error: `Missing required fields: ${missingFields}`})                        
-                        }
+                    const missingFields = questionService.validateQuestionInLectureCreationRequest(newQsLecRelation)
+                    if (missingFields.length == 0) {
+                        await db.QuestionInLecture.create(newQsLecRelation)
+                        res.status(201).send(questionService.extractCompleteQuestionInLectureFields(newQsLecRelation))
+                    } else {
+                        return res.status(400).send({ error: `Missing required fields: ${missingFields}` })
                     }
-                    else {  // if there's no question of this id (from this course)
-                        res.status(404).send({error: "The given question ID not found in this course"})
-                    }
+                } else {  // if there's no question of this id (from this course) or lectureForSection not found
+                    return res.status(404).send({ error: "The given question ID not found in this course or lectureForSection not found" })
+                }
+            } else {  // if given lecture is not in this course
+                return res.status(400).send({ error: "The given lecture ID does not belong to this course" })
             }
-            else {  // if given lecture is not in this course
-                res.status(400).send({error: "The given lecture ID does not belong to this course"})
-            }
+        } else {  // user is not a teacher
+            return res.status(403).send({ error: "Must be a teacher of this course to link question to lecture" })
         }
-        else {  // user is not a teacher
-            res.status(403).send({error: "Must be a teacher of this course to link question to lecture"})
-        }
-    }
-    catch (e) {
+    } catch (e) {
         next(e)
     }
 })
@@ -191,6 +192,7 @@ router.put('/', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id'])
     const lectureId = parseInt(req.params['lecture_id'])
+    const sectionId = parseInt(req.params['section_id'])
 
     try {
         // check if both question ids are passed in
@@ -201,11 +203,15 @@ router.put('/', requireAuthentication, async function (req, res, next) {
             if (isTeacher) {
                 const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId)
                 if (isLecInCourse) {
-                    const questionOneInLecture = await questionService.getQuestionInLecture(questionIdOne, lectureId)
-                    const questionTwoInLecture = await questionService.getQuestionInLecture(questionIdTwo, lectureId)
+                    const lectureForSection = await lectureService.getLectureForSection(sectionId, lectureId);
+                    if (!lectureForSection) {
+                        return res.status(400).send({ error: "The given lecture ID does not belong to this section" });
+                    }
+                    const questionOneInLecture = await questionService.getQuestionInLecture(questionIdOne, lectureForSection.id)
+                    const questionTwoInLecture = await questionService.getQuestionInLecture(questionIdTwo, lectureForSection.id)
                     if (questionOneInLecture && questionTwoInLecture) {     // check if both questions have a relationship with this lecture
-                        const questionOne = await questionService.getQuestionInCourse(questionIdOne, courseId)
-                        const questionTwo = await questionService.getQuestionInCourse(questionIdTwo, courseId)
+                        const questionOne = await questionService.getQuestionFromLecture(questionIdOne, lectureId)
+                        const questionTwo = await questionService.getQuestionFromLecture(questionIdTwo, lectureId)
                         if (questionOne && questionTwo) {       // check that both questions exist in this course 
                             // extract current orders of questions-in-lecture, and swap them
                             const firstOrder = questionOneInLecture.order
@@ -238,7 +244,7 @@ router.put('/', requireAuthentication, async function (req, res, next) {
         }
     }
     catch (e) {
-        next(e)
+        console.error(e)
     }
 })
 
@@ -246,40 +252,41 @@ router.put('/', requireAuthentication, async function (req, res, next) {
 router.delete('/:question_id', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id'])
+    const sectionId = parseInt(req.params['section_id'])
     const lectureId = parseInt(req.params['lecture_id'])
     const questionId = parseInt(req.params['question_id'])
 
     try {
-        //check if the user is a teacher
-        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId)
-        if (isTeacher) {
-            const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId)
-            if (isLecInCourse) {
-                const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureId)
-                if (questionInLecture) {
-                    const question = await questionService.getQuestionInCourse(questionId, courseId)
-                    if (question) {
-                        await questionInLecture.destroy()
-                        res.status(204).send()
-                    }
-                    else {  // if there's no question of this id (from this course)
-                        res.status(404).send({error: "The given question ID not found in this course"})
-                    }
-                }
-                else {  // if given question is not in this lecture
-                    res.status(400).send({error: "The given question ID does not belong to this lecture"})
-                }
-            }
-            else {  // if given lecture is not in this course
-                res.status(400).send({error: "The given lecture ID does not belong to this course"})
-            }
+        // Check if the user is a teacher
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Must be a teacher of this course to remove question from lecture" });
         }
-        else {  // user is not a teacher
-            res.status(403).send({error: "Must be a teacher of this course to remove question from lecture"})
+
+        const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId);
+        if (!isLecInCourse) {
+            return res.status(400).send({ error: "The given lecture ID does not belong to this course" });
         }
-    }
-    catch (e) {
-        next(e)
+
+        const lectureForSection = await lectureService.getLectureForSection(sectionId, lectureId);
+        if (!lectureForSection) {
+            return res.status(400).send({ error: "The given lecture ID does not belong to this section" });
+        }
+
+        const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureForSection.id);
+        if (!questionInLecture) {
+            return res.status(400).send({ error: "The given question ID does not belong to this lecture" });
+        }
+
+        const question = await questionService.getQuestionFromLecture(questionId, lectureId);
+        if (!question) {
+            return res.status(404).send({ error: "The given question ID not found in this course" });
+        }
+
+        await questionInLecture.destroy();
+        res.status(204).send();
+    } catch (e) {
+        next(e);
     }
 })
 

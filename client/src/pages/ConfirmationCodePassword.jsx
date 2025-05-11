@@ -25,7 +25,6 @@ function ConfirmationCodePasswordRequest() {
         let response = {}
 
         response = await apiUtil('put', '/users/password', {}, emailPayload)
-        console.log(response);
 
         if(response.status == 200){
             navigate("/reset/password")

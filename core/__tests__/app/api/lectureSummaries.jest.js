@@ -165,9 +165,24 @@ describe('/lectureSummaries endpoints', () => {
             userId: user5.id
         })
 
+        lecture = await db.Lecture.create({
+            courseId: course.id,
+            title: 'intro questions',
+            description: 'learning about random things'
+        })
+
+        const lectureForSection = await db.LectureForSection.create({
+            sectionId: section.id,
+            attendanceMethod: 'join',
+            lectureId: lecture.id,
+            published: true,
+            softdelete: false
+        });
+
         question = await db.Question.create({
             type: 'multiple choice',
             stem: 'What is 1 + 2?',
+            lectureId: lecture.id,
             content: {
                 options: {
                     0: 2,
@@ -188,6 +203,7 @@ describe('/lectureSummaries endpoints', () => {
         question2 = await db.Question.create({
             type: 'multiple answer',
             stem: 'Which of these are state capitals?',
+            lectureId: lecture.id,
             content: {
                 options: {
                     0: "Portland",
@@ -208,6 +224,7 @@ describe('/lectureSummaries endpoints', () => {
         question3 = await db.Question.create({
             type: 'multiple answer',
             stem: 'Which of these are state capitals?',
+            lectureId: lecture.id,
             content: {
                 options: {
                     0: "Portland",
@@ -225,30 +242,25 @@ describe('/lectureSummaries endpoints', () => {
             courseId: course.id
         })
 
-        lecture = await db.Lecture.create({
-            courseId: course.id,
-            title: 'intro questions',
-            order: 1,
-            description: 'learning about random things'
-        })
+        
 
         questionInLecture = await db.QuestionInLecture.create({
             questionId: question.id,
-            lectureId: lecture.id,
+            lectureForSectionId: lectureForSection.id,
             order: 1,
             published: true
         })
 
         questionInLecture2 = await db.QuestionInLecture.create({
             questionId: question2.id,
-            lectureId: lecture.id,
+            lectureForSectionId: lectureForSection.id,
             order: 2,
             published: true
         })
 
         questionInLecture3 = await db.QuestionInLecture.create({
             questionId: question3.id,
-            lectureId: lecture.id,
+            lectureForSectionId: lectureForSection.id,
             order: 3,
             published: false
         })

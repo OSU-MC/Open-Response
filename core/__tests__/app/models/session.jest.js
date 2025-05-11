@@ -5,7 +5,7 @@ describe("Session model", () => {
     let session
     let user
 
-    beforeAll(async() => {
+    beforeAll(async () => {
         user = await db.User.create({
             email: "session@open-response.org",
             rawPassword: "passwordmystery!!!",
@@ -18,22 +18,23 @@ describe("Session model", () => {
     })
 
     describe("Session.create", () => {
-        it ("Should create a valid session record with default time in expires (Now + 4 hours)", async () => {
-            expect(moment(session.expires).isValid()).toEqual(true) 
+        it("Should create a valid session record with default expiration time (Now + 4 hours)", async () => {
+            expect(moment(session.expires).isValid()).toEqual(true)
+            expect(session.softDelete).toBeFalsy() // Ensure soft delete defaults to false
         })
 
-        it ("Should return false, as we just made the session", async() => {
-            expect(session.checkIfExpired()).toEqual(false) 
+        it("Should return false, as we just made the session", async () => {
+            expect(session.checkIfExpired()).toEqual(false)
         })
 
-        it ("Should return true, as the session expired", async() =>{
-            await session.update({expires: moment().subtract(1, 'minutes')})
-            expect(session.checkIfExpired()).toEqual(true) 
+        it("Should return true, as the session expired", async () => {
+            await session.update({ expires: moment().subtract(1, 'minutes') })
+            expect(session.checkIfExpired()).toEqual(true)
         })
     })
-    
 
     afterAll(async () => {
+        await session.destroy()
         await user.destroy()
     })
 })

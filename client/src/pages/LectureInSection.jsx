@@ -2,7 +2,7 @@ import React from 'react';
 import { Link, useParams, useNavigate } from 'react-router-dom';
 import { TailSpin } from  'react-loader-spinner'
 import Notice from '../components/Notice'
-import useLectureQuestions from "../hooks/useLectureQuestions";
+import useLectureForSectionQuestions from "../hooks/useLectureForSectionQuestions";
 import useLecturesInSection from '../hooks/useLecturesInSection';
 import { Switch } from '@mui/material';
 import QuestionCard from '../components/QuestionCard';
@@ -12,10 +12,12 @@ import { publishLectureInSection } from '../redux/actions';
 import { useDispatch } from 'react-redux'
 import { Button, Card } from "react-bootstrap"
 
+//URL : :courseId/sections/:sectionId/lectures/:lectureId
+
 function LectureInSection() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [ questions, message, error, loading ] = useLectureQuestions()
+    const [ questions, message, error, loading ] = useLectureForSectionQuestions()
     const [ lecturesInSection, LSmessage, LSerror, LSloading ] = useLecturesInSection()
     const { courseId, lectureId, sectionId } = useParams()
     const [ published, setPublished ] = useState(false)
@@ -28,10 +30,11 @@ function LectureInSection() {
     useEffect(() => {
         if (lecturesInSection != null) {
             lecturesInSection.forEach((lecture) => {
-                if (lecture.id == lectureId)
+                if (lecture.id == lectureId) {
                     setPublished(lecture.published)
                     setIsLive(lecture.isLive || false);
                     setLecture(lecture)
+                }
             })
         }
     }, [ lecturesInSection ])

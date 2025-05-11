@@ -28,6 +28,7 @@ import SingleQuestion from "./pages/SingleQuestion";
 import Navigation from "./components/nav/Navigation";
 import useAuth from "./hooks/useAuth";
 import { TailSpin } from "react-loader-spinner";
+import Grades from "./pages/Grades";
 import LiveLecture from "./pages/LiveLecture";
 
 function App() {
@@ -94,21 +95,22 @@ function App() {
 										</Route>
 									</Route>
 								</Route>
-								<Route path='roster' element={<Outlet />}>
-									<Route path='' element={<Roster />} />
-									<Route path=':sectionId' element={<Enrollments />} />
-								</Route>
-								<Route path='createlecture' element={<AddLecture />} />
 								<Route path='sections' element={<Outlet />}>
 									<Route path='' element={<Sections />} />
 									<Route path=':sectionId' element={<Outlet />}>
 										<Route path='' element={<Section />} />
+										<Route path='grades' element={<Grades />} /> {/* Updated route */}
 										<Route
 											path='lectures/:lectureId'
 											element={<LectureInSection />}
 										/>
 									</Route>
 								</Route>
+								<Route path='roster' element={<Outlet />}>
+									<Route path='' element={<Roster />} />
+									<Route path=':sectionId' element={<Enrollments />} />
+								</Route>
+								<Route path='createlecture' element={<AddLecture />} />
 								{/* TODO: the remainder of the nested routes should go here */}
 							</Route>
 						</Route>

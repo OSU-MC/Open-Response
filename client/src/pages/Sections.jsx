@@ -62,11 +62,10 @@ function Sections() {
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />
             </div>
                 <h1 className="course-title">{courseName}</h1>
-
                     
                 <Tabs courseId={courseId} tabs={tabs_o} />
                 
-     </div>
+            </div>
 
             {showCreateModal && (
                 <Popup close={closeCreateModal}>

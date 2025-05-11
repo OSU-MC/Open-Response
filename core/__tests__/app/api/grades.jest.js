@@ -182,9 +182,17 @@ describe("/grades endpoints", () => {
 			userId: user5.id,
 		});
 
+		lecture = await db.Lecture.create({
+			courseId: course.id,
+			title: "intro questions",
+			order: 1,
+			description: "learning about random things",
+		});
+
 		question = await db.Question.create({
 			type: "multiple choice",
 			stem: "What is 1 + 2?",
+			lectureId: lecture.id,
 			content: {
 				options: {
 					0: 2,
@@ -205,6 +213,7 @@ describe("/grades endpoints", () => {
 		question2 = await db.Question.create({
 			type: "multiple answer",
 			stem: "Which of these are state capitals?",
+			lectureId: lecture.id,
 			content: {
 				options: {
 					0: "Portland",
@@ -225,6 +234,7 @@ describe("/grades endpoints", () => {
 		question3 = await db.Question.create({
 			type: "multiple answer",
 			stem: "Which of these are state capitals?",
+			lectureId: lecture.id,
 			content: {
 				options: {
 					0: "Portland",
@@ -242,36 +252,30 @@ describe("/grades endpoints", () => {
 			courseId: course.id,
 		});
 
-		lecture = await db.Lecture.create({
-			courseId: course.id,
-			title: "intro questions",
-			order: 1,
-			description: "learning about random things",
-		});
-
 		lectureForSection = await db.LectureForSection.create({
 			sectionId: section.id,
 			lectureId: lecture.id,
+			attendanceMethod: "join",
 			published: true,
 		});
 
 		questionInLecture = await db.QuestionInLecture.create({
 			questionId: question.id,
-			lectureId: lecture.id,
+			lectureForSectionId: lectureForSection.id,
 			order: 1,
 			published: true,
 		});
 
 		questionInLecture2 = await db.QuestionInLecture.create({
 			questionId: question2.id,
-			lectureId: lecture.id,
+			lectureForSectionId: lectureForSection.id,
 			order: 2,
 			published: true,
 		});
 
 		questionInLecture3 = await db.QuestionInLecture.create({
 			questionId: question3.id,
-			lectureId: lecture.id,
+			lectureForSectionId: lectureForSection.id,
 			order: 3,
 			published: false,
 		});
@@ -362,6 +366,27 @@ describe("/grades endpoints", () => {
         const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/grades`).set('Cookie', user6Cookies)
         expect(resp.statusCode).toEqual(403)
     })
+
+	// it('should export grades successfully', async () => {
+	// 	const resp = await request(app)
+	// 		.get(
+	// 			`/courses/${course.id}/sections/${section.id}/grades/export`
+	// 		)
+	// 		.set('Cookie', userCookies)
+		
+		
+	// 	expect(resp.statusCode).toEqual(200)
+	// 	expect(resp.headers['content-type']).toEqual(
+	// 		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
+	// 	)
+	// 	expect(resp.headers['content-disposition']).toEqual(
+	// 		'attachment; filename=grades.xlsx'
+	// 	)
+	// 	expect(resp.headers['content-length']).toBeDefined()
+	// 	expect(resp.headers['content-length']).toEqual(
+	// 		`${resp.body.length}`
+	// 	)
+	// })
 
     afterAll(async () => {
         await user.destroy()

@@ -30,9 +30,7 @@ import React from "react";
 import { Link, useLocation } from "react-router-dom";
 import "../../styles/Tabs.css";
 
-
 const Tabs = ({ courseId, tabs }) => {
-
     const location = useLocation(); // Get current URL path
 
     // Determine the active tab dynamically
@@ -50,14 +48,12 @@ const Tabs = ({ courseId, tabs }) => {
                         </span>
                     </Link>
                 ))}
-
             </div>
             <hr />
         </>
     );
 };
 
+
 export default Tabs;
-
-
 

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Link, useParams } from 'react-router-dom';
 import { TailSpin } from  'react-loader-spinner'
 import useLectures from '../hooks/useLectures';
@@ -10,6 +10,10 @@ import Tabs from "../components/nav/Tabs.jsx";
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import { useSelector} from 'react-redux'
 import { getUserState } from '../redux/selectors'
+import Popup from '../components/Popup';
+import AddLecture from '../components/AddLecture';
+
+// URL: courses/:courseId/lectures
 
 
 function Lectures(props){
@@ -19,7 +23,7 @@ function Lectures(props){
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
-
+    
     const tabs_o = [
         ["Sections", "sections"],
         ["Lecture Templates", "lectures"], 
@@ -39,11 +43,12 @@ function Lectures(props){
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
-
             <Tabs courseId={courseId} tabs={tabs_o} />
                 
-            {/*Add Lecture Button - ONLY if enrollment == teacher*/}
-            {role == "teacher" && 
+
+
+             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
+            {/* {role == "teacher" && 
                 <Link to={`/${courseId}/createlecture`}>
                     <Button className="create-lecture-btn"> + Create Lecture</Button>
                 </Link>}
@@ -57,7 +62,11 @@ function Lectures(props){
             }
             </div>
             <hr></hr>
-
+            {showCreateModal && (
+                <Popup close={closeCreateModal}>
+                    <AddLecture closeFunction={closeCreateModal} />
+                </Popup>
+            )}
 
 
             {/*No Lectures*/}
@@ -65,9 +74,15 @@ function Lectures(props){
 
             <div className="lectures-container">
                 {lectures[courseId] && lectures[courseId].map((lecture) => {
-                    return <LectureCard key={lecture.id} lecture={lecture} view={role} />;
+                    return <LectureCard key={lecture.id} lecture={lecture} view={role} course={courseId} />;
                 })}
             </div>
+            <Button 
+                className="create-lecture-btn"
+                onClick={openCreateModal}
+            >
+                + Create Lecture
+            </Button>
         </div>
     )
 }

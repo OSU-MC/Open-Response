@@ -4,11 +4,17 @@ const { ForeignKeyConstraintError } = require('sequelize')
 describe("Question model", () => {
 
     let course
+    let lecture
 
     beforeAll(async () => {
         course = await db.Course.create({
             name: "Test Course 1",
             description: "A course for testing the things!"
+        })
+        lecture = await db.Lecture.create({
+            title: "Test Lecture 1",
+            description: "A lecture for testing the things!",
+            courseId: course.id
         })
     })
 
@@ -22,7 +28,7 @@ describe("Question model", () => {
                 stem: 'Graph y = x + 1',
                 content: {},
                 answers: {},
-                courseId: course.id
+                lectureId: lecture.id
             })).rejects.toThrow("Validation error: Question type is not a valid option")
         })
         
@@ -31,7 +37,7 @@ describe("Question model", () => {
                 type: 'multiple answer',
                 content: {},
                 answers: {},
-                courseId: course.id
+                lectureId: lecture.id
             })).rejects.toThrow("notNull Violation: Question stem text must be provided")
         })
 
@@ -41,11 +47,11 @@ describe("Question model", () => {
                 stem: '  ',
                 content: {},
                 answers: {},
-                courseId: course.id
+                lectureId: lecture.id
             })).rejects.toThrow("Validation error: Question stem text must be provided")
         })
 
-        it ("should invalidate because no courseId was provided", async () => {
+        it ("should invalidate because no lectureId was provided", async () => {
             await expect(db.Question.create({
                 type: 'multiple choice',
                 stem: 'What is 1 + 2?',
@@ -63,10 +69,10 @@ describe("Question model", () => {
                     2: false,
                     3: false
                 },
-            })).rejects.toThrow("notNull Violation: Question must have a course")
+            })).rejects.toThrow("notNull Violation: Question must have a lecture")
         })
 
-        it ("should invalidate because no course with courseId exists", async () => {
+        it ("should invalidate because no lecture with lectureId exists", async () => {
             await expect(db.Question.create({
                 type: 'multiple choice',
                 stem: 'What is 1 + 2?',
@@ -84,7 +90,7 @@ describe("Question model", () => {
                     2: false,
                     3: false
                 },
-                courseId: course.id + 1
+                lectureId: lecture.id + 1,
             })).rejects.toThrow(ForeignKeyConstraintError)
         })
 
@@ -93,6 +99,7 @@ describe("Question model", () => {
                 question = await db.Question.create({
                     type: 'multiple choice',
                     stem: 'What is 1 + 2?',
+                    lectureId: lecture.id,
                     content: {
                         options: {
                             0: 2,
@@ -107,8 +114,7 @@ describe("Question model", () => {
                         2: false,
                         3: false
                     },
-                    courseId: course.id
-                })
+                    })
                 question = await question.reload() // this will reload data from the database so we can check access methods as well
                 expect(question.type).toEqual('multiple choice')
                 expect(question.stem).toEqual('What is 1 + 2?')
@@ -131,7 +137,7 @@ describe("Question model", () => {
                     stem: 'What is 1 + 2?',
                     content: {},
                     answers: {},
-                    courseId: course.id
+                    lectureId: lecture.id,
                 })).rejects.toThrow("Validation error: multiple choice question must have options")
             })
 
@@ -147,7 +153,7 @@ describe("Question model", () => {
                     answers: {
                         0: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id,
                 })).rejects.toThrow("Validation error: multiple choice question must have more than 1 option")
             })
 
@@ -167,7 +173,7 @@ describe("Question model", () => {
                         1: true,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id,
                 })).rejects.toThrow("Validation error: multiple choice question option indexed incorrectly or null")
             })
 
@@ -189,7 +195,7 @@ describe("Question model", () => {
                         2: false,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id,
                 })).rejects.toThrow("Validation error: multiple choice question option must have a string or numeric value")
             })
 
@@ -210,7 +216,7 @@ describe("Question model", () => {
                         1: true,
                         2: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple choice question must have indication of correctness for each option")
             })
 
@@ -232,7 +238,7 @@ describe("Question model", () => {
                         3: false,
                         4: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple choice question answer indexed incorrectly or null")
             })
 
@@ -254,7 +260,7 @@ describe("Question model", () => {
                         3: false,
                         4: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple choice question answer must have a boolean value")
             })
 
@@ -276,7 +282,7 @@ describe("Question model", () => {
                         2: false,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple choice question can only and must have 1 correct answer")
             })
 
@@ -301,7 +307,7 @@ describe("Question model", () => {
                         2: true,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })
                 question = await question.reload() // this will reload data from the database so we can check access methods as well
                 expect(question.type).toEqual('multiple answer')
@@ -327,7 +333,7 @@ describe("Question model", () => {
                     stem: 'What is 1 + 2?',
                     content: {},
                     answers: {},
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question must have options")
             })
 
@@ -343,7 +349,7 @@ describe("Question model", () => {
                     answers: {
                         0: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question must have more than 1 option")
             })
 
@@ -363,7 +369,7 @@ describe("Question model", () => {
                         1: true,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question option indexed incorrectly or null")
             })
 
@@ -385,7 +391,7 @@ describe("Question model", () => {
                         2: false,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question option must have a string or numeric value")
             })
 
@@ -406,7 +412,7 @@ describe("Question model", () => {
                         1: true,
                         2: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question must have indication of correctness for each option")
             })
 
@@ -428,7 +434,7 @@ describe("Question model", () => {
                         3: false,
                         4: true
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question answer indexed incorrectly or null")
             })
 
@@ -450,7 +456,7 @@ describe("Question model", () => {
                         3: false,
                         4: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("Validation error: multiple answer question answer must have a boolean value")
             })
 
@@ -472,7 +478,7 @@ describe("Question model", () => {
                         2: false,
                         3: false
                     },
-                    courseId: course.id
+                    lectureId: lecture.id
                 })).rejects.toThrow("multiple answer question must have at least 1 correct answer")
             })
         })

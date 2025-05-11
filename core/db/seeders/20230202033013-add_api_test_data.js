@@ -7,52 +7,55 @@ const saltRounds = parseInt(process.env.SALT_ROUNDS, 10) || 8;
 module.exports = {
 	async up(queryInterface, Sequelize) {
 		/*
-      CREATE USERS
-    */
+	  CREATE USERS
+	*/
 
-		let teacherOnlyUser = await queryInterface.bulkInsert(
-			"Users",
-			[
-				{
-					firstName: "Teacher",
-					lastName: "User",
-					email: "teacheruser@open-response.org",
-					password: await bcrypt.hash("teacherteacher", saltRounds),
-					isTeacher: true,
-					admin: false,
-				},
-			],
-			{}
+		const teacherOnlyUser = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "Teacher",
+						lastName: "User",
+						email: "teacheruser@open-response.org",
+						password: await bcrypt.hash("teacherteacher", saltRounds),
+						isTeacher: true,
+						admin: false,
+					},
+				],
+			)
 		);
 
-		let studentOnlyUser = await queryInterface.bulkInsert(
-			"Users",
-			[
-				{
-					firstName: "Student",
-					lastName: "User",
-					email: "studentuser@open-response.org",
-					password: await bcrypt.hash("studentstudent", saltRounds),
-					isTeacher: false,
-					admin: false,
-				},
-			],
-			{}
+		const studentOnlyUser = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "Student",
+						lastName: "User",
+						email: "studentuser@open-response.org",
+						password: await bcrypt.hash("studentstudent", saltRounds),
+						isTeacher: false,
+						admin: false,
+					},
+				],
+			)
 		);
 
-		let studentUserNoCourses = await queryInterface.bulkInsert(
-			"Users",
-			[
-				{
-					firstName: "No",
-					lastName: "Courses",
-					email: "nocourses@open-response.org",
-					password: await bcrypt.hash("nocourses", saltRounds),
-					isTeacher: false,
-					admin: false,
-				},
-			],
-			{}
+		const studentUserNoCourses = (
+			await queryInterface.bulkInsert(
+				"Users",
+				[
+					{
+						firstName: "No",
+						lastName: "Courses",
+						email: "nocourses@open-response.org",
+						password: await bcrypt.hash("nocourses", saltRounds),
+						isTeacher: false,
+						admin: false,
+					},
+				],
+			)
 		);
 
 		//let comboUser = await queryInterface.bulkInsert('Users', [{
@@ -64,19 +67,20 @@ module.exports = {
 		//}], {});
 
 		/*
-      CREATE COURSE 1 DATA: for comprehensive testing
-    */
+	  CREATE COURSE 1 DATA: for comprehensive testing
+	*/
 
-		let course1 = await queryInterface.bulkInsert(
-			"Courses",
-			[
-				{
-					name: "Main Course",
-					description: "This course is for primary testing",
-					published: true,
-				},
-			],
-			{}
+		const course1 = (
+			await queryInterface.bulkInsert(
+				"Courses",
+				[
+					{
+						name: "Main Course",
+						description: "This course is for primary testing",
+						published: true,
+					},
+				],
+			)
 		);
 
 		let teachercourse1 = await queryInterface.bulkInsert(
@@ -169,7 +173,8 @@ module.exports = {
 		"2": 1,
 		"3": 1
 	}`,
-				courseId: course1,
+				lectureId: lecture1course1,
+				order: 0,
 			},
 		]);
 
@@ -197,17 +202,28 @@ module.exports = {
           "2": 1,
           "3": 1
       }`,
-				courseId: course1,
+				lectureId: lecture1course1,
+				order: 1,
 			},
 		]);
+
+		let section1forlecture1 = await queryInterface.bulkInsert(
+			"LectureForSections",
+			[
+				{
+					sectionId: section1course1,
+					lectureId: lecture1course1,
+					published: true,
+				},
+			]
+		);
 
 		let question1inlecture1 = await queryInterface.bulkInsert(
 			"QuestionInLectures",
 			[
 				{
 					questionId: question1course1,
-					lectureId: lecture1course1,
-					order: 1,
+					lectureForSectionId: section1forlecture1,
 					published: true,
 				},
 			]
@@ -218,19 +234,7 @@ module.exports = {
 			[
 				{
 					questionId: question2course1,
-					lectureId: lecture1course1,
-					order: 2,
-					published: true,
-				},
-			]
-		);
-
-		let section1forlecture1 = await queryInterface.bulkInsert(
-			"LectureForSections",
-			[
-				{
-					sectionId: section1course1,
-					lectureId: lecture1course1,
+					lectureForSectionId: section1forlecture1,
 					published: true,
 				},
 			]
@@ -262,14 +266,16 @@ module.exports = {
 			"2": 1,
 			"3": 1
 		}`,
-					courseId: course1,
+					lectureId: lecture2course1,
+					totalPoints: i % 10 + 1,
+					order: i ,
 				},
 			]);
 		}
 
 		/*
-      CREATE COURSE 2 DATA: only for testing multiple courses for a teacher and multiple courses for a student
-    */
+	  CREATE COURSE 2 DATA: only for testing multiple courses for a teacher and multiple courses for a student
+	*/
 
 		let course2 = await queryInterface.bulkInsert(
 			"Courses",
@@ -320,8 +326,8 @@ module.exports = {
 		);
 
 		/*
-      CREATE COURSE 3 DATA: only for testing enrollment as teacher and student
-    */
+	  CREATE COURSE 3 DATA: only for testing enrollment as teacher and student
+	*/
 
 		let course3 = await queryInterface.bulkInsert(
 			"Courses",
@@ -339,6 +345,34 @@ module.exports = {
 		//  courseId: course3,
 		//  role: 'teacher'
 		//}], {})
+
+		/* Lecture Grade Weights */
+		let lectureGradeWeight= await queryInterface.bulkInsert(
+			"LectureGradeWeights",
+			[
+				{
+					lectureId: lecture1course1,
+					weight: 2.5,
+				},
+				{
+					lectureId: lecture2course1,
+					weight: 0.5,
+				}
+			],
+			{}
+		);	
+
+		/* RequiredQuestionsInLectures */
+		let requiredQuestionsInLectures = await queryInterface.bulkInsert(
+			"RequiredQuestionsInLectures",
+			[
+				{
+					lectureId: lecture1course1,
+					questionId: question1course1,
+				},
+			],
+			{}
+		);
 	},
 
 	async down(queryInterface, Sequelize) {
@@ -391,5 +425,6 @@ module.exports = {
 			},
 			{}
 		);
+		
 	},
 };

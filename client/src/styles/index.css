@@ -79,6 +79,20 @@ body {
     width: 30%;
     padding: 20px 0 0 100px;
 }
+.section-page {
+    width: 100%;
+    padding: 20px;
+}
+
+.add-lecture-action {
+    position:absolute;
+    top:100px;
+    right:100px;
+    background-color:#d9e7d4;
+    color:#000;
+    font-weight:700;
+    border-radius:20px
+}
 
 /* Lectures */
 .lectures {
@@ -99,10 +113,57 @@ body {
 }
 
 .lecture-card {
+    min-width: 500px;
+    min-height: 150px;
+    max-width: 500px;
+    max-height: 150px;
     width: 500px;
     height: 250px;
     margin: 5px;
     width: 29%;
+}
+
+.viewLectureBtn {
+    padding: 5px;
+}
+.create-lecture-btn {
+    position: absolute;
+    top: 100px;
+    right: 100px;
+    background-color: #d9e7d4;
+    color: #000;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
+}   
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
+
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
+
+
+.deleteLectureBtn {
+    padding: 5px;
 }
 
 .create-lecture-btn {
@@ -124,6 +185,20 @@ body {
     font-weight: 700 !important;
     border-radius: 20px !important;
 }   
+.form-control {
+    width: 75%;
+    resize: none;
+}
+.create-container {
+    width: 66%;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    margin: 0 auto;
+}
+
+
 
 /* Live Lectures */
 .LiveLecture {
@@ -133,11 +208,19 @@ body {
 /* Back button */
 .back-btn {
     width: 40px;
+    height: 40px; 
     background-image: url(../../public/free-back-arrow-1767531-1502435.webp);
-    background-size: cover;
+    background-size: contain; 
+    background-repeat: no-repeat; 
+    background-position: center; 
     border: none;
     background-color: transparent;
+    display: flex; 
+    align-items: center; 
+    justify-content: center; 
 }
+
+
 
 .back-btn:hover {
     border: none;
@@ -409,6 +492,9 @@ body {
         background-color: white;
         border-color: black;
     }
+}
+.btn-secondary{
+    margin: 10px;
 }
 
 .btn-secondary:focus {

@@ -30,189 +30,207 @@ describe("/responses endpoints", () => {
 	let response;
 
 	beforeAll(async () => {
-		user = await db.User.create({
-			firstName: "Dan",
-			lastName: "Smith",
-			email: "dannySmith@open-response.org",
-			rawPassword: "Danny-o123!",
-		});
-		userToken = jwtUtils.encode({
-			sub: user.id,
-		});
-		const userSession = await generateUserSession(user);
-		userCookies = [
-			`_openresponse_session=${userToken}`,
-			`xsrf-token=${userSession.csrfToken}`,
-		];
+		try {
 
-		user2 = await db.User.create({
-			firstName: "Mitchell",
-			lastName: "DaGoat",
-			email: "mitchdagoat@open-response.org",
-			rawPassword: "mitchell123!!",
-		});
-		user2Token = jwtUtils.encode({
-			sub: user2.id,
-		});
-		const user2Session = await generateUserSession(user2);
-		user2Cookies = [
-			`_openresponse_session=${user2Token}`,
-			`xsrf-token=${user2Session.csrfToken}`,
-		];
+			user = await db.User.create({
+				firstName: "Dan",
+				lastName: "Smith",
+				email: "dannySmith@open-response.org",
+				rawPassword: "Danny-o123!",
+			});
+			userToken = jwtUtils.encode({
+				sub: user.id,
+			});
+			const userSession = await generateUserSession(user);
+			userCookies = [
+				`_openresponse_session=${userToken}`,
+				`xsrf-token=${userSession.csrfToken}`,
+			];
 
-		user3 = await db.User.create({
-			firstName: "Tester",
-			lastName: "TheTest",
-			email: "testingtesting123@open-response.org",
-			rawPassword: "mitchelltest16!!",
-		});
-		user3Token = jwtUtils.encode({
-			sub: user3.id,
-		});
-		const user3Session = await generateUserSession(user3);
-		user3Cookies = [
-			`_openresponse_session=${user3Token}`,
-			`xsrf-token=${user3Session.csrfToken}`,
-		];
 
-		course = await db.Course.create({
-			name: "Testing Things 101",
-			description:
-				"This will be a course about testing things, most notably in jest",
-			published: false,
-		});
+			user2 = await db.User.create({
+				firstName: "Mitchell",
+				lastName: "DaGoat",
+				email: "mitchdagoat@open-response.org",
+				rawPassword: "mitchell123!!",
+			});
+			user2Token = jwtUtils.encode({
+				sub: user2.id,
+			});
+			const user2Session = await generateUserSession(user2);
+			user2Cookies = [
+				`_openresponse_session=${user2Token}`,
+				`xsrf-token=${user2Session.csrfToken}`,
+			];
 
-		section = await db.Section.create({
-			courseId: course.id,
-			number: 1,
-		});
 
-		enrollment = await db.Enrollment.create({
-			role: "teacher",
-			courseId: course.id,
-			userId: user.id,
-		});
+			user3 = await db.User.create({
+				firstName: "Tester",
+				lastName: "TheTest",
+				email: "testingtesting123@open-response.org",
+				rawPassword: "mitchelltest16!!",
+			});
+			user3Token = jwtUtils.encode({
+				sub: user3.id,
+			});
+			const user3Session = await generateUserSession(user3);
+			user3Cookies = [
+				`_openresponse_session=${user3Token}`,
+				`xsrf-token=${user3Session.csrfToken}`,
+			];
 
-		enrollment2 = await db.Enrollment.create({
-			role: "student",
-			sectionId: section.id,
-			userId: user2.id,
-		});
 
-		enrollment3 = await db.Enrollment.create({
-			role: "student",
-			sectionId: section.id,
-			userId: user3.id,
-		});
+			course = await db.Course.create({
+				name: "Testing Things 101",
+				description:
+					"This will be a course about testing things, most notably in jest",
+				published: false,
+			});
 
-		question = await db.Question.create({
-			type: "multiple choice",
-			stem: "What is 1 + 2?",
-			content: {
-				options: {
-					0: 2,
-					1: 3,
-					2: 4,
-					3: 5,
+			section = await db.Section.create({
+				courseId: course.id,
+				number: 1,
+			});
+
+			enrollment = await db.Enrollment.create({
+				role: "teacher",
+				courseId: course.id,
+				userId: user.id,
+			});
+
+			enrollment2 = await db.Enrollment.create({
+				role: "student",
+				sectionId: section.id,
+				userId: user2.id,
+			});
+
+			enrollment3 = await db.Enrollment.create({
+				role: "student",
+				sectionId: section.id,
+				userId: user3.id,
+			});
+
+			lecture = await db.Lecture.create({
+				courseId: course.id,
+				title: "intro questions",
+				order: 1,
+				description: "learning about random things",
+			});
+
+			question = await db.Question.create({
+				lectureId: lecture.id,
+				type: "multiple choice",
+				stem: "What is 1 + 2?",
+				content: {
+					options: {
+						0: 2,
+						1: 3,
+						2: 4,
+						3: 5,
+					},
 				},
-			},
-			answers: {
-				0: false,
-				1: true,
-				2: false,
-				3: false,
-			},
-			weights: {
-				0: 1,
-				1: 1,
-				2: 1,
-				3: 1,
-			},
-			courseId: course.id,
-		});
-
-		question2 = await db.Question.create({
-			type: "multiple answer",
-			stem: "Which of these are state capitals?",
-			content: {
-				options: {
-					0: "Portland",
-					1: "Washington D.C.",
-					2: "Olympia",
-					3: "Salem",
+				answers: {
+					0: false,
+					1: true,
+					2: false,
+					3: false,
 				},
-			},
-			answers: {
-				0: false,
-				1: false,
-				2: true,
-				3: true,
-			},
-			weights: {
-				0: 1,
-				1: 1,
-				2: 1,
-				3: 1,
-			},
-			courseId: course.id,
-		});
-
-		question3 = await db.Question.create({
-			type: "multiple answer",
-			stem: "Which of these are state capitals?",
-			content: {
-				options: {
-					0: "Portland",
-					1: "Washington D.C.",
-					2: "Olympia",
-					3: "Salem",
+				weights: {
+					0: 1,
+					1: 1,
+					2: 1,
+					3: 1,
 				},
-			},
-			answers: {
-				0: false,
-				1: false,
-				2: true,
-				3: true,
-			},
-			weights: {
-				0: 1,
-				1: 1,
-				2: 1,
-				3: 1,
-			},
-			courseId: course.id,
-		});
+				courseId: course.id,
+			});
 
-		lecture = await db.Lecture.create({
-			courseId: course.id,
-			title: "intro questions",
-			order: 1,
-			description: "learning about random things",
-		});
+			question2 = await db.Question.create({
+				lectureId: lecture.id,
+				type: "multiple answer",
+				stem: "Which of these are state capitals?",
+				content: {
+					options: {
+						0: "Portland",
+						1: "Washington D.C.",
+						2: "Olympia",
+						3: "Salem",
+					},
+				},
+				answers: {
+					0: false,
+					1: false,
+					2: true,
+					3: true,
+				},
+				weights: {
+					0: 1,
+					1: 1,
+					2: 1,
+					3: 1,
+				},
+				courseId: course.id,
+			});
 
-		questionInLecture = await db.QuestionInLecture.create({
-			questionId: question.id,
-			lectureId: lecture.id,
-			order: 1,
-			published: true,
-		});
+			question3 = await db.Question.create({
+				lectureId: lecture.id,
+				type: "multiple answer",
+				stem: "Which of these are state capitals?",
+				content: {
+					options: {
+						0: "Portland",
+						1: "Washington D.C.",
+						2: "Olympia",
+						3: "Salem",
+					},
+				},
+				answers: {
+					0: false,
+					1: false,
+					2: true,
+					3: true,
+				},
+				weights: {
+					0: 1,
+					1: 1,
+					2: 1,
+					3: 1,
+				},
+				courseId: course.id,
+			});
 
-		questionInLecture2 = await db.QuestionInLecture.create({
-			questionId: question2.id,
-			lectureId: lecture.id,
-			order: 2,
-			published: true,
-		});
+			const lectureForSection = await db.LectureForSection.create({
+				sectionId: section.id,
+				lectureId: lecture.id,
+				attendanceMethod: "join"
+			});		
 
-		questionInLecture3 = await db.QuestionInLecture.create({
-			questionId: question3.id,
-			lectureId: lecture.id,
-			order: 3,
-			published: false,
-		});
+			questionInLecture = await db.QuestionInLecture.create({
+				questionId: question.id,
+				lectureForSectionId: lectureForSection.id,
+				order: 1,
+				published: true,
+			});
+
+			questionInLecture2 = await db.QuestionInLecture.create({
+				questionId: question2.id,
+				lectureForSectionId: lectureForSection.id,
+				order: 2,
+				published: true,
+			});
+
+			questionInLecture3 = await db.QuestionInLecture.create({
+				questionId: question3.id,
+				lectureForSectionId: lectureForSection.id,
+				order: 3,
+				published: false,
+			});
+		} catch (error) {
+			throw(error);
+		}
 	});
 
 	it("should respond with 400 when a student tries to respond to an unpublished question", async () => {
+
 		const resp = await request(app)
 			.post(
 				`/courses/${course.id}/lectures/${lecture.id}/questions/${question3.id}/responses`
@@ -475,7 +493,7 @@ describe("/responses endpoints", () => {
 		expect(resp.body.response.questionInLectureId).toEqual(
 			questionInLecture2.id
 		);
-		expect(resp.body.response.score).toEqual(0.5);
+		expect(resp.body.response.score).toEqual(0.8);
 		expect(resp.body.response.submission).toEqual({
 			0: false,
 			1: true,
@@ -542,6 +560,7 @@ describe("/responses endpoints", () => {
 	afterAll(async () => {
 		await user.destroy();
 		await user2.destroy();
+		await user3.destroy();
 		await course.destroy(); // should cascade on delete and delete sections and enrollments as well
 	});
 });

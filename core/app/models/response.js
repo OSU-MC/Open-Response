@@ -53,14 +53,6 @@ module.exports = (sequelize, DataTypes) => {
 					},
 				},
 			},
-			points: {
-				type: DataTypes.INTEGER,
-				allowNull: true,
-			},
-			totalPoints: {
-				type: DataTypes.INTEGER,
-				allowNull: true,
-			},
 			// the submission object is what was sent in the POST/PUT request body from the frontend. It should store the answers, for example
 			submission: {
 				type: DataTypes.JSON,

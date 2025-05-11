@@ -5,6 +5,9 @@ const { serializeSequelizeErrors } = require("../../lib/string_helpers");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 const questionService = require("../services/question_service");
 const responseService = require("../services/response_service");
+const csv = require('csv-parser');
+const fs = require('fs');
+const { Parser } = require('json2csv');
 
 // URL: /courses/course_id/grades
 // teacher wants to get grades for each student in the course
@@ -85,15 +88,15 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			});
 
 			// get lectures for the section
-			const lectures = await db.Lecture.findAll({
+			const lectureForSections = await db.LectureForSection.findAll({
+				where: {
+					sectionId: sectionId,
+					published: true,
+				},
 				include: [
 					{
-						model: db.LectureForSection,
+						model: db.Lecture,
 						required: true,
-						where: {
-							sectionId: sectionId,
-							published: true,
-						},
 					},
 				],
 			});
@@ -111,12 +114,13 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				let totalPoints = 0;
 				let points = 0;
 				// for each lecture in the section
-				for (let j = 0; j < lectures.length; j++) {
+				for (let j = 0; j < lectureForSections.length; j++) {
 					// get all the questions asked during the lecture
 					const questionsInLecture = await db.QuestionInLecture.findAll({
 						where: {
-							lectureId: lectures[j].id,
+							lectureForSectionId: lectureForSections[j].id,
 						},
+						attributes: { exclude: ["LectureId"] }
 					});
 					let lectureGradeObj = {};
 					let lectureScore = 0;
@@ -150,7 +154,8 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 							lectureQuestionsAnswered++;
 						}
 					}
-					lectureGradeObj.lectureId = lectures[j].id;
+					lectureGradeObj.lectureId = lectureForSections[j].lectureId;
+					lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
 					lectureGradeObj.lectureGrade = parseFloat(
 						(lectureScore / lectureQuestionsAsked).toFixed(2)
 					);
@@ -160,13 +165,13 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					lectureGradeObj.totalPoints = totalPoints;
 					lectureGradeObj.points = points;
 					studentGradeObj.lectures.push(lectureGradeObj);
-					studentGradeObj.grade = parseFloat(
-						(lectureScore / lectureQuestionsAsked).toFixed(2)
-					);
-					studentGradeObj.pointScore = parseFloat(
-						(lectureScore / lectureQuestionsAsked).toFixed(2)
-					);
 				}
+				studentGradeObj.grade = parseFloat(
+					(totalScore / totalQuestionsAsked).toFixed(2)
+				);
+				studentGradeObj.pointScore = parseFloat(
+					(totalScore / totalQuestionsAsked).toFixed(2)
+				);
 				studentGradeObj.totalQuestions = totalQuestionsAsked;
 				studentGradeObj.totalAnswered = totalQuestionsAnswered;
 				studentGradeObj.totalScore = totalScore;
@@ -175,6 +180,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 
 			res.status(200).send(resp);
 		} catch (e) {
+			console.error("Error fetching grades for teacher:", e);
 			next(e);
 		}
 	}
@@ -186,6 +192,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
                 [
                     {
                         lectureId,
+                        lectureTitle, // Add lectureTitle
                         lectureGrade,
                         totalAnswered,
                         totalQuestions,
@@ -198,15 +205,15 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			let resp = [];
 
 			// get lectures for the section
-			const lectures = await db.Lecture.findAll({
+			const lectureForSections = await db.LectureForSection.findAll({
+				where: {
+					sectionId: sectionId,
+					published: true,
+				},
 				include: [
 					{
-						model: db.LectureForSection,
+						model: db.Lecture,
 						required: true,
-						where: {
-							sectionId: sectionId,
-							published: true,
-						},
 					},
 				],
 			});
@@ -215,13 +222,15 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			let totalQuestionsAsked = 0;
 			let totalQuestionsAnswered = 0;
 			// for each lecture in the section
-			for (let j = 0; j < lectures.length; j++) {
+			for (let j = 0; j < lectureForSections.length; j++) {
 				// get all the questions asked during the lecture
 				const questionsInLecture = await db.QuestionInLecture.findAll({
 					where: {
-						lectureId: lectures[j].id,
+						lectureForSectionId: lectureForSections[j].id,
 					},
+					attributes: { exclude: ["LectureId"] }
 				});
+				
 				let lectureGradeObj = {};
 				let lectureScore = 0;
 				let lectureQuestionsAsked = 0;
@@ -244,7 +253,8 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						lectureQuestionsAnswered++;
 					}
 				}
-				lectureGradeObj.lectureId = lectures[j].id;
+				lectureGradeObj.lectureId = lectureForSections[j].lectureId;
+				lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
 				lectureGradeObj.lectureGrade = parseFloat(
 					(lectureScore / lectureQuestionsAsked).toFixed(2)
 				);
@@ -256,6 +266,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 
 			res.status(200).send(resp);
 		} catch (e) {
+			console.error("Error fetching grades for student:", e);
 			next(e);
 		}
 	} else {
@@ -311,56 +322,68 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 
 	// Get the grades for each student in the section
 	if (enrollmentTeacher) {
-		const students = await db.User.findAll({
-			include: [
-				{
-					model: db.Enrollment,
-					required: true,
-					where: {
-						sectionId: sectionId,
+		try {
+			const students = await db.User.findAll({
+				include: [
+					{
+						model: db.Enrollment,
+						required: true,
+						where: {
+							sectionId: sectionId,
+						},
 					},
-				},
-			],
-		});
-
-		const grades = await db.Grades.findAll({
-			where: {
-				sectionId: sectionId,
-			},
-		});
-
-		const studentGrades = [];
-		for (let i = 0; i < students.length; i++) {
-			const studentGrade =
-				grades.find((grade) => grade.userId === students[i].id) || 0;
-			studentGrades.push({
-				studentId: students[i].id,
-				studentName: `${students[i].firstName} ${students[i].lastName}`,
-				grade: studentGrade.grade,
+				],
 			});
-		}
 
-		res.status(200).send(studentGrades);
+			const grades = await db.Grades.findAll({
+				where: {
+					lectureForSectionId: sectionId,
+				},
+                attributes: { exclude: ["lectureForSectionId"] }
+			});
+
+			const studentGrades = [];
+			for (let i = 0; i < students.length; i++) {
+				const studentGrade =
+					grades.find((grade) => grade.userId === students[i].id) || 0;
+				studentGrades.push({
+					studentId: students[i].id,
+					studentName: `${students[i].firstName} ${students[i].lastName}`,
+					grade: studentGrade.grade,
+				});
+			}
+
+			res.status(200).send(studentGrades);
+		} catch (e) {
+			console.error("Error fetching all grades for teacher:", e);
+			next(e);
+		}
 		return;
 	}
 
 	// Return the grade for the individual student
 	if (enrollmentStudent) {
-		const grades = await db.Grades.findAll({
-			where: {
-				sectionId: sectionId,
-			},
-		});
+		try {
+			const grades = await db.Grades.findAll({
+				where: {
+					lectureForSectionId: sectionId,
+				},
+                
+			});
 
-		const studentGrades = [];
-		const studentGrade = grades.find((grade) => grade.userId === user.id) || 0;
-		studentGrades.push({
-			studentId: user.id,
-			studentName: `${user.firstName} ${user.lastName}`,
-			grade: studentGrade.grade,
-		});
+			const studentGrades = [];
+			const studentGrade = grades.find((grade) => grade.userId === user.id) || 0;
+			studentGrades.push({
+				studentId: user.id,
+				studentName: `${user.firstName} ${user.lastName}`,
+				grade: studentGrade.grade,
+			});
 
-		res.status(200).send(studentGrades);
+			res.status(200).send(studentGrades);
+		} catch (e) {
+			console.error("Error fetching all grades for student:", e);
+			next(e);
+		}
 		return;
 	}
 });
@@ -419,53 +442,148 @@ router.get(
 
 		// Get the grades for the individual student
 		if (enrollmentTeacher) {
-			const student = await db.User.findByPk(studentId);
-			const grades = await db.Grades.findOne({
-				where: {
-					sectionId: sectionId,
-					userId: studentId,
-				},
-			});
-			if (!grades) {
-				res.status(204).send({
-					error: `No grades found for student with id ${studentId}`,
+			try {
+				const student = await db.User.findByPk(studentId);
+				const grades = await db.Grades.findOne({
+					where: {
+						lectureForSectionId: sectionId,
+						enrollmentId: studentId,
+					},
 				});
-				return;
-			}
+				if (!grades) {
+					res.status(204).send({
+						error: `No grades found for student with id ${studentId}`,
+					});
+					return;
+				}
 
-			const grade = grades.grade || 0;
-			res.status(200).send({
-				studentId: student.id,
-				studentName: `${student.firstName} ${student.lastName}`,
-				grade: grade,
-			});
+				const grade = grades.grade || 0;
+				res.status(200).send({
+					studentId: student.id,
+					studentName: `${student.firstName} ${student.lastName}`,
+					grade: grade,
+				});
+			} catch (e) {
+				console.error("Error fetching grades for individual student by teacher:", e);
+				next(e);
+			}
 			return;
 		}
 
 		// Return the grade for the individual student
 		if (enrollmentStudent) {
-			const grades = await db.Grades.findOne({
-				where: {
-					sectionId: sectionId,
-					userId: user.id,
-				},
-			});
-			if (!grades) {
-				res.status(204).send({
-					error: `No grades found for student with ID ${user.id}`,
+			try {
+				const grades = await db.Grades.findOne({
+					where: {
+						lectureForSectionId: sectionId,
+						enrollmentId: user.id,
+					},
 				});
-				return;
-			}
+				if (!grades) {
+					res.status(204).send({
+						error: `No grades found for student with ID ${user.id}`,
+					});
+					return;
+				}
 
-			const grade = grades.grade || 0;
-			res.status(200).send({
-				studentId: user.id,
-				studentName: `${user.firstName} ${user.lastName}`,
-				grade: grade,
-			});
+				const grade = grades.grade || 0;
+				res.status(200).send({
+					studentId: user.id,
+					studentName: `${user.firstName} ${user.lastName}`,
+					grade: grade,
+				});
+			} catch (e) {
+				console.error("Error fetching grades for individual student:", e);
+				next(e);
+			}
 			return;
 		}
 	}
 );
+
+// // URL: /courses/:course_id/sections/:section_id/grades/export
+// router.get("/export", requireAuthentication, async function (req, res, next) {
+// 	const courseId = parseInt(req.params["course_id"]);
+// 	const sectionId = parseInt(req.params["section_id"]);
+
+// 	try {
+// 		const grades = await db.Grade.findAll({
+// 			where: { sectionId },
+// 			include: [
+// 				{
+// 					model: db.User,
+// 					as: 'student',
+// 					attributes: ['firstName', 'lastName']
+// 				},
+// 				{
+// 					model: db.Lecture,
+// 					attributes: ['title']
+// 				}
+// 			]
+// 		});
+
+// 		const fields = ['student.firstName', 'student.lastName', 'lecture.title', 'grade'];
+// 		const json2csvParser = new Parser({ fields });
+// 		const csv = json2csvParser.parse(grades);
+
+// 		res.header('Content-Type', 'text/csv');
+// 		res.attachment('grades.csv');
+// 		res.send(csv);
+// 	} catch (e) {
+// 		console.error("Error exporting grades:", e);
+// 		next(e);
+// 	}
+// });
+
+// // URL: /courses/:course_id/sections/:section_id/grades/import
+// router.post("/import", requireAuthentication, async function (req, res, next) {
+// 	const courseId = parseInt(req.params["course_id"]);
+// 	const sectionId = parseInt(req.params["section_id"]);
+
+// 	if (!req.files || !req.files.file) {
+// 		return res.status(400).send({ error: 'No file uploaded' });
+// 	}
+
+// 	const file = req.files.file;
+// 	const grades = [];
+
+// 	fs.createReadStream(file.tempFilePath)
+// 		.pipe(csv())
+// 		.on('data', (row) => {
+// 			grades.push(row);
+// 		})
+// 		.on('end', async () => {
+// 			try {
+// 				for (const grade of grades) {
+// 					const student = await db.User.findOne({
+// 						where: {
+// 							firstName: grade['student.firstName'],
+// 							lastName: grade['student.lastName']
+// 						}
+// 					});
+
+// 					const lecture = await db.Lecture.findOne({
+// 						where: {
+// 							title: grade['lecture.title'],
+// 							courseId
+// 						}
+// 					});
+
+// 					if (student && lecture) {
+// 						await db.Grade.create({
+// 							studentId: student.id,
+// 							lectureId: lecture.id,
+// 							sectionId,
+// 							grade: grade.grade
+// 						});
+// 					}
+// 				}
+// 				res.status(200).send({ message: 'Grades imported successfully' });
+// 			} catch (e) {
+// 				console.error("Error importing grades:", e);
+// 				next(e);
+// 			}
+// 		});
+// });
 
 module.exports = router;

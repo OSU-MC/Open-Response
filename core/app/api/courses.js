@@ -8,7 +8,10 @@ const { requireAuthentication } = require("../../lib/auth");
 const string_helpers = require("../../lib/string_helpers");
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 
+
 // GET request from /courses homepage
+
+// returns: all courses associated with a given user
 router.get("/", requireAuthentication, async function (req, res) {
 	const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
 	const teacherCourses = await db.Course.findAll({
@@ -205,5 +208,6 @@ router.use(
 	require("./lectureSummaries")
 );
 router.use("/:course_id/sections/:section_id/grades", require("./grades"));
+router.use('/:course_id/sections/:section_id/lectures', require('./lectureForSection'));
 
 module.exports = router;

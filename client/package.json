@@ -42,13 +42,13 @@
     "vitest": "^2.1.3"
   },
   "scripts": {
-    "config": "cp .env.example .env && nano .env",
+    "config": "copy .env.example .env && nano .env",
     "start": "vite",
     "build": "vite build",
     "lint": "eslint .",
     "serve": "vite preview",
     "deploy": "vite build && vite preview",
-    "test": "vitest --watch",
+    "test": "vitest",
     "ws:host": "node websocket/ws_host.js",
     "ws:client": "node websocket/ws_client.js"
   },
