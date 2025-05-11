@@ -30,6 +30,10 @@ async function getEnrollmentFromSectionInCourse(userId, courseId) {
     })
 }
 
+
+
+
+
 async function getCourse(courseId) {
     return await db.Course.findOne({
         where: { id: courseId }
@@ -333,6 +337,8 @@ router.delete('/:lecture_id', requireAuthentication, async function (req, res) {
         res.status(204).send()
     }
 })
+
+
 
 router.use('/:lecture_id/questions', require('./questionsInLecture'))
 

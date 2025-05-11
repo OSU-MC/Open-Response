@@ -67,6 +67,8 @@ router.put('/:question_id', requireAuthentication, async function (req, res, nex
     const sectionId = parseInt(req.params['section_id']);
     const questionId = parseInt(req.params['question_id']);
 
+
+
     try {
         // Check if the user is a teacher
         const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
@@ -120,16 +122,13 @@ router.put('/:question_id/live', requireAuthentication, async function (req, res
             return res.status(400).send({ error: "Question ID does not belong to this lecture" });
         }
 
-        const question = await questionService.getQuestionInCourse(questionId, courseId);
+        const question = await questionService.getQuestionFromLecture(questionId, courseId);
         if (!question) {
             return res.status(404).send({ error: "Question ID not found in this course" });
         }
 
         const updatedQuestion = await question.update({ isLive: !question.isLive });
         await updatedQuestion.reload();
-
-        console.log("Updated isLive status:", updatedQuestion.isLive);
-
 
         res.status(200).send({ 
             message: `Question is now ${updatedQuestion.isLive ? "live" : "not live"}!`,

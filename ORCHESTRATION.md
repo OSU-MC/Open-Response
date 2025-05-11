@@ -31,6 +31,7 @@ Before deploying, the services need to be built using Docker. Navigate to the ro
 ```sh
 docker build -t openresponse_backend ./core
 docker build -t openresponse_frontend ./client
+docker build -t openresponse_socket ./core/socket 
 ```
 This will generate the necessary container images for the backend and frontend services.
 
@@ -66,6 +67,7 @@ When modifying code, rebuild the respective service:
 ```sh
 docker build -t openresponse_backend ./core
 docker build -t openresponse_frontend ./client
+docker build -t openresponse_socket ./core/socket 
 ```
 Then, update the running stack:
 ```sh

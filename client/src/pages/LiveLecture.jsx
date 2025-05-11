@@ -8,7 +8,7 @@ import useLectureQuestions from '../hooks/useLectureQuestions';
 import SingleQuestionStudent from '../components/questions/SingleQuestionStudent';
 import io from 'socket.io-client';
 
-const url = import.meta.env.VITE_API_URL || 'http://localhost:3001'
+const url = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:3002'
 
 const socket = io(url);
 

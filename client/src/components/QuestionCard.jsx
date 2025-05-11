@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { Switch } from '@mui/material';
@@ -10,8 +10,9 @@ import { togglePublishedForQuestionInLecture } from '../redux/actions'
 import { io } from "socket.io-client";
 
 
+const url = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:3002'
 
-const socket = io("http://localhost:3001");
+const socket = io(url);
 
 function QuestionCard(props){
     const navigate = useNavigate()
@@ -22,6 +23,12 @@ function QuestionCard(props){
     const [ error, setError ] = useState(false)
     const [ message, setMessage ] = useState("")
     const [ loading, setLoading ] = useState(false)
+
+
+    useEffect(() => {
+        setPublished(!!props.question.published);
+        setIsLive(!!props.question.isLive);
+    }, [props.question]);
 
 
 
@@ -96,7 +103,10 @@ function QuestionCard(props){
                                 <div className="switch">
                                     <label>
                                         <span>Publish Question</span>
-                                        <Switch onChange={changePublishState} checked={published}/>
+                                        <Switch
+                                            onChange={changePublishState}
+                                            checked={published}
+                                        />
                                     </label>
                                 </div>
                             )}

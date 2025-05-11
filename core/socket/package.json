@@ -1,11 +1,12 @@
 {
   "name": "socket-server",
   "version": "1.0.0",
-  "main": "socket.jsx",
+  "main": "index.js",
   "dependencies": {
+    "express": "^5.1.0",
     "socket.io": "^4.7.2"
   },
   "scripts": {
-    "start": "node socket.jsx"
+    "start": "node index.js"
   }
 }

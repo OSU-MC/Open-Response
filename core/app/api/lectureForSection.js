@@ -7,6 +7,148 @@ const { requireAuthentication } = require('../../lib/auth')
 
 // base path: /courses/:course_id/sections/:section_id/lectures
 
+
+async function getSectionsIdsFromCourse(courseId) {
+    const found_sections = await db.Section.findAll({
+        where: { courseId: courseId },
+        attributes: ['id']
+    })
+
+    // extract ids of returned sections
+    let section_ids = []
+    for (let i = 0; i < found_sections.length; i++) {
+        section_ids.push(found_sections[i].id)     
+    }
+
+    return section_ids
+}
+
+async function getEnrollmentFromSectionInCourse(userId, courseId) {
+    const sectionIds = await getSectionsIdsFromCourse(courseId);
+    const enrollment = await db.Enrollment.findOne({
+        where: {
+            userId: userId,
+            sectionId: sectionIds
+        }
+    })
+    return enrollment;
+}
+
+async function getAccessibleSectionAndLectures(userId, courseId) {
+    let enrollment = await getEnrollmentFromSectionInCourse(userId, courseId);
+    if (!enrollment) {
+        return null;
+    }
+    const sectionId = enrollment.SectionId;
+    
+    const lecturesForSection = await db.LectureForSection.findAll({
+        where: {
+            sectionId: sectionId,
+            published: true
+        },
+        attributes: ['lectureId']
+    });
+    
+    const lectureIds = lecturesForSection.map(lfs => lfs.lectureId);
+    return {
+        sectionId: sectionId,
+        lectureIds: lectureIds
+    };
+}
+
+
+
+router.get('/live', requireAuthentication, async function (req, res, next) {
+    const courseId = parseInt(req.params['course_id']);
+    const userId = parseInt(req.params['section_id']); // sneakily used here
+
+    try {
+        const sectionData = await getAccessibleSectionAndLectures(userId, courseId);
+        if (!sectionData) {
+            return res.status(403).send({ error: "User is not enrolled in this course." });
+        }
+
+        const lectureForSections = await db.LectureForSection.findAll({
+            where: {
+                sectionId: sectionData.sectionId,
+                published: true
+            },
+            include: [{
+                model: db.Lecture,
+                attributes: { exclude: ['createdAt', 'updatedAt'] }
+            }]
+        });
+
+        const liveLectureSections = lectureForSections.filter(lfs => lfs.dataValues.isLive);
+
+        if (lectureForSections.length === 0) {
+            return res.status(404).send({ error: "No live lectures found in this course and section." });
+        }
+
+        const liveLecture = liveLectureSections[0]?.dataValues;
+        if (!liveLecture) {
+            return res.status(404).send({ error: "No live lecture data found." });
+        }
+        const filteredLecture = {
+            name: liveLecture.Lecture.dataValues.title,
+            id: liveLecture.id,
+            isLive: liveLecture.isLive,
+            closedAt: liveLecture.closedAt,
+        };
+
+        res.status(200).send({ filteredLecture });
+    } catch (err) {
+        console.error("Error retrieving live lecture for section:", err);
+        next(err);
+    }
+});
+
+
+
+
+// get all lectures in section
+router.get('/', requireAuthentication, async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub);
+    const courseId = parseInt(req.params['course_id']);
+    const sectionId = parseInt(req.params['section_id']);
+
+    try {
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Must be a teacher of this course to view lectures" });
+        }
+
+        const section = await db.Section.findOne({
+            where: { id: sectionId, courseId: courseId },
+        });
+        if (!section) {
+            return res.status(404).send({ error: "Section not found or does not belong to the course" });
+        }
+
+        const lectureForSections = await db.LectureForSection.findAll({
+            where: { sectionId: sectionId },
+            include: [{
+                model: db.Lecture,
+                attributes: { exclude: ['createdAt', 'updatedAt'] }
+            }],
+        });
+
+        const lectures = lectureForSections.map(entry => ({
+            ...entry.Lecture.dataValues,
+            attendanceMethod: entry.attendanceMethod,
+            published: entry.published,
+            isLive: entry.isLive
+        }));
+
+        res.status(200).send({ lectures });
+    } catch (err) {
+        console.error("Error retrieving lectures for section:", err);
+        next(err);
+    }
+});
+
+
+
 // (un)publish a lecture in a section
 router.put('/:lecture_id', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
@@ -228,19 +370,26 @@ router.delete('/:lecture_id', requireAuthentication, async function (req, res, n
     }
 });
 
-router.put('/:lecture_id/live', requireAuthentication, async function (req, res, next) {
+router.put('/:lecture_id/live/:live_status', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub)
     const courseId = parseInt(req.params['course_id'])
     const sectionId = parseInt(req.params['section_id'])
     const lectureId = parseInt(req.params['lecture_id'])
+    const liveStatus = req.params['live_status'] === '1';
+
+
 
     try {
         const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId)
         if (isTeacher) {
-            const foundLecture = await db.Lecture.findByPk(lectureId)
-            if (foundLecture) {
-                const { isLive = false, published } = req.body
-                await foundLecture.update({ isLive, published })
+            const lectureForSection = await db.LectureForSection.findOne({
+                where: {
+                        LectureId: lectureId,
+                        SectionId: sectionId
+                    }
+                });            
+            if (lectureForSection) {
+                await lectureForSection.update({ isLive: liveStatus, published: true });
                 res.status(200).send({ message: "Live status updated" })
             } else { //no lecture
                 res.status(404).send({ error: "Lecture not found" })
