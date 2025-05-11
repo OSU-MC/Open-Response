@@ -40,7 +40,7 @@ function Lecture() {
                         <div id="back-btn-image"/>
                     </Button>
                 </Link>
-                <p className="lecture-subtitle">{lecture.title} Lecture dog log pog Questions</p>
+                <p className="lecture-subtitle">{lecture.title} Lecture Questions</p>
             </div>
 
             { Cmessage ? <Notice error={Cerror ? "error" : ""} message={Cmessage}/> : <></>}
