@@ -9,7 +9,7 @@ echo "Building frontend image"
 docker build -t openresponse_frontend ./client
 
 echo "Building socket image"
-docker build -t openresponse_socket ./core/socket 
+docker build -t openresponse_socket ./socket 
 
 
 echo "Removing existing stack"

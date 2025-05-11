@@ -43,7 +43,7 @@ services:
       CLIENT_URL: "http://localhost:3000"
       SOCKET_PORT: 3002
     build:
-      context: ./core/socket
+      context: ./socket
     ports:
       - "3002:3002"
     networks:
