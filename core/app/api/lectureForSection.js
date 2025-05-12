@@ -57,7 +57,7 @@ async function getAccessibleSectionAndLectures(userId, courseId) {
 }
 
 
-
+// get a student's live lecture if one is live
 router.get('/live', requireAuthentication, async function (req, res, next) {
     const courseId = parseInt(req.params['course_id']);
     const userId = parseInt(req.params['section_id']); // sneakily used here
@@ -103,9 +103,6 @@ router.get('/live', requireAuthentication, async function (req, res, next) {
     }
 });
 
-
-
-
 // get all lectures in section
 router.get('/', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub);
@@ -147,8 +144,6 @@ router.get('/', requireAuthentication, async function (req, res, next) {
     }
 });
 
-
-
 // (un)publish a lecture in a section
 router.put('/:lecture_id', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub) // find user by ID, which is stored in sub
@@ -188,7 +183,7 @@ router.put('/:lecture_id', requireAuthentication, async function (req, res, next
     catch (e) {
         next(e)
     }
-})
+});
 
 // Get all of the questions from a lectureForSection
 router.get('/:lecture_id/questions', requireAuthentication, async function (req, res, next) {
@@ -257,7 +252,6 @@ router.get('/:lecture_id/questions', requireAuthentication, async function (req,
         return res.status(500).send({ error: "Internal server error" });
     }
 });
-
 
 // Add a lecture to a section
 router.post('/', requireAuthentication, async function (req, res, next) {
@@ -370,6 +364,7 @@ router.delete('/:lecture_id', requireAuthentication, async function (req, res, n
     }
 });
 
+// Update a lecture's live status
 router.put('/:lecture_id/live/:live_status', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub)
     const courseId = parseInt(req.params['course_id'])

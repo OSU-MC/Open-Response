@@ -29,7 +29,6 @@ function LiveLecture() {
             socket.off("questionUpdated");
         };
     }, [lectureId, getLecture]);
-    
     const liveQuestions = lecture?.questions?.filter(question => question.isLive);
 
     return (

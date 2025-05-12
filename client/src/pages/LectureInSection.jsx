@@ -57,6 +57,34 @@ function LectureInSection() {
             dispatch(publishLectureInSection(sectionId, lectureId))
             setPublished(!published)
         }
+
+        //remove all live questions from students screens if turned off
+        if (questions.length > 0) {
+            for (const question of questions) {
+                const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/0`, { 
+                    dispatch,
+                    navigate
+                });
+                if (updateResponse.status === 200) {
+                    // update students screens
+                    socket.emit("setLiveQuestion", { lectureId });
+                }
+            }
+            //remove all questions from being published
+            for (const question of questions) {
+                const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/sections/${sectionId}/0`, { 
+                    dispatch,
+                    navigate
+                });
+                if (updateResponse.status === 200) {
+                    // update students screens
+                    socket.emit("setLiveQuestion", { lectureId });
+                }
+            }
+        }
+        reloadQuestions();
+
+
     }
 
     const changeLiveState = async () => {
@@ -81,12 +109,11 @@ function LectureInSection() {
             setPublished(true);
         
             //remove all live questions from students screens if turned off
-            if (!isLiveNew && questions.length > 0) {
+            if (questions.length > 0) {
                 for (const question of questions) {
-                    const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live`, { 
+                    const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/${false}`, { 
                         dispatch,
-                        navigate,
-                        data: { isLive: false }
+                        navigate
                     });
                     if (updateResponse.status === 200) {
                         // update students screens

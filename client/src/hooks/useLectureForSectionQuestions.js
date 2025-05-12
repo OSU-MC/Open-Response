@@ -31,6 +31,7 @@ function useLectureForSectionQuestions() {
 
     if (response.status === 200) {
       setQuestions(response.data.questions);
+      console.log("questions: ", response);
       dispatch(addLectureQuestions(lectureId, response.data.questions));
     } else {
       setError(response.error);
