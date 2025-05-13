@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Button, Card } from "react-bootstrap";
 import { Link } from 'react-router-dom';
 import { Switch } from '@mui/material';
@@ -10,8 +10,9 @@ import { togglePublishedForQuestionInLecture } from '../redux/actions'
 import { io } from "socket.io-client";
 
 
+const url = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:3002'
 
-const socket = io("http://localhost:3001");
+const socket = io(url);
 
 function QuestionCard(props){
     const navigate = useNavigate()
@@ -24,13 +25,20 @@ function QuestionCard(props){
     const [ loading, setLoading ] = useState(false)
 
 
+    useEffect(() => {
+        setPublished(!!props.question.published);
+        setIsLive(!!props.question.isLive);
+    }, [props.question]);
+
+
 
     //(un)publish a question
     //called on switch onChange()
     async function changePublishState(){
-        //call the api for an update 
+        
         setLoading(true)
-        const response = await apiUtil("put", `/courses/${courseId}/sections/${props.sectionId}/lectures/${lectureId}/questions/${props.question.id}`, { dispatch: dispatch, navigate: navigate})
+        const publishedStatus = published ? '0' : '1'
+        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/sections/${props.sectionId}/${publishedStatus}`, { dispatch: dispatch, navigate: navigate})
         setLoading(false)
         setError(response.error)
         setMessage(response.message)
@@ -45,11 +53,11 @@ function QuestionCard(props){
 
     async function goLive() {
 
-        setLoading(true);    
-        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/live`, { 
+        setLoading(true);
+        const liveStatus = isLive ? '0' : '1';
+        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/live/${liveStatus}`, { 
             dispatch: dispatch,
-            navigate: navigate,
-            data: { isLive: !isLive }
+            navigate: navigate
         });
     
         setLoading(false);
@@ -96,7 +104,10 @@ function QuestionCard(props){
                                 <div className="switch">
                                     <label>
                                         <span>Publish Question</span>
-                                        <Switch onChange={changePublishState} checked={published}/>
+                                        <Switch
+                                            onChange={changePublishState}
+                                            checked={published}
+                                        />
                                     </label>
                                 </div>
                             )}

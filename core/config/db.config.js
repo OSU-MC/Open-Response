@@ -1,4 +1,4 @@
-const env = process.env.NODE_ENV || "development";
+const env = process.env.NODE_ENV || "test";
 if (env === "development" || env === "test") {
 	// dotenv file will only be used in dev and testing
 	require("dotenv").config({ override: false }); // will not override current environment variables if they exist

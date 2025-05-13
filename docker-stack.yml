@@ -7,13 +7,13 @@ services:
       - "3000:80"
     environment:
       VITE_API_URL: "http://backend:3001"
+      VITE_SOCKET_URL: "http://localhost:3002"
     networks:
       - openresponse_network
     deploy:
       replicas: 1
       restart_policy:
         condition: on-failure
-
   backend:
     image: openresponse_backend
     dns:
@@ -37,7 +37,21 @@ services:
       replicas: 1
       restart_policy:
         condition: on-failure
-
+  socket:
+    image: openresponse_socket
+    environment:
+      CLIENT_URL: "http://localhost:3000"
+      SOCKET_PORT: 3002
+    build:
+      context: ./socket
+    ports:
+      - "3002:3002"
+    networks:
+      - openresponse_network
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
   db:
     image: mysql:latest
     environment:

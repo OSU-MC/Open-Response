@@ -11,13 +11,19 @@ import apiUtil from '../utils/apiUtil'
 import { publishLectureInSection } from '../redux/actions';
 import { useDispatch } from 'react-redux'
 import { Button, Card } from "react-bootstrap"
+import io from 'socket.io-client';
+
 
 //URL : :courseId/sections/:sectionId/lectures/:lectureId
+
+const url = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:3002'
+
+const socket = io(url);
 
 function LectureInSection() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [ questions, message, error, loading ] = useLectureForSectionQuestions()
+    const [questions, message, error, loading, reloadQuestions] = useLectureForSectionQuestions();
     const [ lecturesInSection, LSmessage, LSerror, LSloading ] = useLecturesInSection()
     const { courseId, lectureId, sectionId } = useParams()
     const [ published, setPublished ] = useState(false)
@@ -51,16 +57,44 @@ function LectureInSection() {
             dispatch(publishLectureInSection(sectionId, lectureId))
             setPublished(!published)
         }
+
+        //remove all live questions from students screens if turned off
+        if (questions.length > 0) {
+            for (const question of questions) {
+                const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/0`, { 
+                    dispatch,
+                    navigate
+                });
+                if (updateResponse.status === 200) {
+                    // update students screens
+                    socket.emit("setLiveQuestion", { lectureId });
+                }
+            }
+            //remove all questions from being published
+            for (const question of questions) {
+                const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/sections/${sectionId}/0`, { 
+                    dispatch,
+                    navigate
+                });
+                if (updateResponse.status === 200) {
+                    // update students screens
+                    socket.emit("setLiveQuestion", { lectureId });
+                }
+            }
+        }
+        reloadQuestions();
+
+
     }
 
     const changeLiveState = async () => {
         setLoadingPublish(true);
-        const requestData = { isLive: !isLive, published: true };
-        console.log('Sending live state:', requestData);
-        const response = await apiUtil("put", `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/live`, { 
+        const isLiveNew = !isLive;
+        const requestData = { isLive: isLiveNew, published: true };
+        const liveStatus = isLiveNew ? '1' : '0';
+        const response = await apiUtil("put", `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/live/${liveStatus}`, { 
             dispatch, 
             navigate,
-            data: { isLive: !isLive, published: true }
         });
         setErrorPublish(response.error);
         setMessagePublish(response.message);
@@ -73,7 +107,21 @@ function LectureInSection() {
                 isLive: !prevLecture.isLive
             }));
             setPublished(true);
-            console.log('Updated Lecture:', { ...lecture, isLive: !lecture.isLive });
+        
+            //remove all live questions from students screens if turned off
+            if (questions.length > 0) {
+                for (const question of questions) {
+                    const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/${false}`, { 
+                        dispatch,
+                        navigate
+                    });
+                    if (updateResponse.status === 200) {
+                        // update students screens
+                        socket.emit("setLiveQuestion", { lectureId });
+                    }
+                }
+            }
+            reloadQuestions();
         }
     };
 
@@ -108,15 +156,15 @@ function LectureInSection() {
                     </div>
 
                     <div className='questions'>
-                    {loading ? <TailSpin visible={true}/> : questions.questions.map((question) => {
+                        {loading ? <TailSpin visible={true}/> : questions.map((question) => {
                             return <QuestionCard 
-                                        key={question.id} 
-                                        question={question} 
-                                        view={'teacher'} 
-                                        lecturePublished={published}
-                                        sectionId={sectionId}
-                                        isLectureLive={isLive}
-                                    />;
+                                key={question.id} 
+                                question={question} 
+                                view={'teacher'} 
+                                lecturePublished={published}
+                                isLectureLive={isLive}
+                                sectionId={sectionId}
+                            />;
                         })}
                     </div>
                 </div>

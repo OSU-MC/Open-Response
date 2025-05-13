@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Link, useParams } from 'react-router-dom';
+import { Link, useParams, useNavigate } from 'react-router-dom';
 import { TailSpin } from  'react-loader-spinner'
 import useLectures from '../hooks/useLectures';
 import Notice from '../components/Notice'
@@ -12,18 +12,53 @@ import { useSelector} from 'react-redux'
 import { getUserState } from '../redux/selectors'
 import Popup from '../components/Popup';
 import AddLecture from '../components/AddLecture';
+import apiUtil from '../utils/apiUtil'
+import { useDispatch } from 'react-redux'
+
+
+
 
 // URL: courses/:courseId/lectures
 
 
 function Lectures(props){
+
     //get the lectures for the current course & section
+    const dispatch = useDispatch()
+    const navigate = useNavigate()
+    
     const { courseId } = useParams()
     const [lectures, message, error, loading] = useLectures()
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
+    const [liveLecture, setLiveLecture] = useState(null);
+    const [ apierror, setError ] = useState(false)
+    const [ apimessage, setMessage ] = useState("")
+    const [ apiloading, setLoading ] = useState(false)
+
     
+    useEffect(() => {
+        const fetchLectures = async () => {
+            try {
+                setLoading(true)
+                const response = await apiUtil("get", `/courses/${courseId}/sections/${user.user.id}/lectures/live`, { dispatch: dispatch, navigate: navigate });
+                setLoading(false)
+                setError(response.error)
+                setMessage(response.message)
+                if (response.status === 200) {
+                    setLiveLecture(response.data.filteredLecture);
+                }
+            } catch (err) {
+                console.error(err);
+            }
+        };
+
+        fetchLectures();
+    }, [courseId]);
+
+
+
     const tabs_o = [
         ["Sections", "sections"],
         ["Lecture Templates", "lectures"], 
@@ -32,7 +67,7 @@ function Lectures(props){
     ];
 
     const [showCreateModal, setShowCreateModal] = useState(false);
-    
+
     const closeCreateModal = () => {
         setShowCreateModal(false);
     };
@@ -42,10 +77,6 @@ function Lectures(props){
     };
 
     
-    
-
-    const liveLecture = lectures[courseId]?.[0]
-    const lectureId = liveLecture?.id;
     return (
         <div className='lectures'>
             <div className='lectures-top-bar'>
@@ -53,33 +84,22 @@ function Lectures(props){
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
-            <Tabs courseId={courseId} tabs={tabs_o} />
-                
-
-
-             {/*Add Lecture Button - ONLY if enrollment == teacher*/}
-            {/* {role == "teacher" && 
-                <Link to={`/${courseId}/createlecture`}>
-                    <Button className="create-lecture-btn"> + Create Lecture</Button>
-                </Link>}
-            <hr></hr>
-            {/* && lectures[courseId]  */}
+            {role !== "student" && <Tabs courseId={courseId} tabs={tabs_o} />}
+            
             {/*Join Live Lecture Button - ONLY if enrollment != teacher and a live lecture exists*/}
-            {role !== "teacher" && lectureId && liveLecture?.isLive && 
-                <Link className="join-live-btn" to={`/${courseId}/live/${lectureId}`}>
-                    <Button variant="success" className="btn-add">Join Live Lecture</Button>
+            {role !== "teacher" && liveLecture && 
+                <Link className="join-live-btn" to={`/${courseId}/live/${liveLecture.id}`}>
+                    <Button variant="success" className="btn-add">{liveLecture.name} is Live</Button>
                 </Link>
             }
             </div>
             <hr></hr>
-
-
-
             {showCreateModal && (
                 <Popup close={closeCreateModal}>
                     <AddLecture closeFunction={closeCreateModal} />
                 </Popup>
             )}
+
 
             {/*No Lectures*/}
             { message ? <Notice error={error ? "error" : ""} message={message}/> : (!lectures) ? <Notice message={"You Do Not Have Any Lectures Yet"}/> : <></>}
@@ -89,12 +109,14 @@ function Lectures(props){
                     return <LectureCard key={lecture.id} lecture={lecture} view={role} course={courseId} />;
                 })}
             </div>
-            <Button 
-                className="create-lecture-btn"
-                onClick={openCreateModal}
-            >
-                + Create Lecture
-            </Button>
+            {role !== "student" && (
+                <Button 
+                    className="create-lecture-btn"
+                    onClick={openCreateModal}
+                >
+                    + Create Lecture
+                </Button>
+            )}
         </div>
     )
 }

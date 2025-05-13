@@ -29,6 +29,7 @@
         "axe-core": "^4.10.3",
         "concurrently": "^7.6.0",
         "forever": "^4.0.3",
-        "playwright": "^1.52.0"
+        "concurrently": "^7.6.0",
+        "dotenv": "^16.5.0"
     }
 }

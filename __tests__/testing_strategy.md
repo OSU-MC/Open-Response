@@ -31,7 +31,6 @@
 /:courseId/sections/:sectionId/lectures/:lectureId
 ```
 
-
 # Rest API Endpoints
 ```
 # courses.js
