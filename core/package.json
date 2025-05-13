@@ -36,9 +36,18 @@
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
         "redis": "^4.7.0",
+        "socket.io-client": "^4.8.1",
         "supertest": "^7.0.0",
         "web-push": "^3.6.7",
         "winston": "^3.15.0",
         "winston-daily-rotate-file": "^5.0.0"
-    }
+    },
+    "description": "Welcome to the Open-Response node.js Backend Core! This README.md is dedicated to development guidance and information reguarding the core side of the application. For more information about contributing, or general user guides, please visit the [Open-Response Wiki](https://github.com/OSU-MC/Open-Response/wiki).",
+    "main": "jest.config.js",
+    "directories": {
+        "lib": "lib"
+    },
+    "keywords": [],
+    "author": "",
+    "license": "ISC"
 }
