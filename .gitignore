@@ -10,6 +10,7 @@
 # testing
 /coverage
 /core/coverage
+.artifacts
 
 # production
 /client/build
