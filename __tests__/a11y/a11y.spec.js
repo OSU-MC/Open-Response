@@ -1,4 +1,4 @@
-import { test } from './fixtures.js';
+import { test } from '../shared/playwright_fixtures.js';
 import { analyzePage } from './axeHelper.js';
 import { expect } from '@playwright/test';
 
