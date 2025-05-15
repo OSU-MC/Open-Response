@@ -21,7 +21,7 @@ function useGrades(courseId, sectionId) {
             if (response.status === 200) {
                 setGrades(response.data);
             } else {
-                console.error('Unexpected API Response:', response.data); // Log unexpected response
+                console.error('Unexpected API Response:', response.data); 
                 setMessage(response.data.error || 'Unexpected response from server');
                 setError(true);
             }
