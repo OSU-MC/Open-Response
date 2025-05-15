@@ -47,31 +47,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 	// lecture id also returned for links to the lecture
 	if (enrollmentTeacher) {
 		try {
-			// Response format:
-			/*
-            {
-                [
-                    {
-                        studentName,
-                        studentId,
-                        grade: (as a percentage),
-                        totalQuestions,
-                        totalAnswered,
-                        totalScore,
-                        lectures: [
-                            {
-                                lectureId,
-                                lectureGrade,
-                                totalAnswered,
-                                totalQuestions,
-                                totalScore
-                            }
-                        ]
-                    },
-                    ...
-                ]
-            }
-            */
 			let resp = [];
 
 			// get students in the section
@@ -155,7 +130,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						}
 					}
 					lectureGradeObj.lectureId = lectureForSections[j].lectureId;
-					lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
+					lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title;
 					lectureGradeObj.lectureGrade = parseFloat(
 						(lectureScore / lectureQuestionsAsked).toFixed(2)
 					);
@@ -187,21 +162,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 	// get student grade in the course as well as grade for each indiivdual lecture
 	else if (enrollmentStudent && sectionCheck) {
 		try {
-			// Response format:
-			/*
-                [
-                    {
-                        lectureId,
-                        lectureTitle, // Add lectureTitle
-                        lectureGrade,
-                        totalAnswered,
-                        totalQuestions,
-                        totalScore
-                    },
-                    ...
-                ]
-            */
-
 			let resp = [];
 
 			// get lectures for the section
