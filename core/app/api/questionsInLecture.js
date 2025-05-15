@@ -60,12 +60,14 @@ router.get('/:question_id', requireAuthentication, async function (req, res, nex
     }
 })
     // teacher wants to (un)publish a question inside a lecture 
-router.put('/:question_id', requireAuthentication, async function (req, res, next) {
+router.put('/:question_id/sections/:section_id/:publish_status', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id']);
     const lectureId = parseInt(req.params['lecture_id']);
     const sectionId = parseInt(req.params['section_id']);
     const questionId = parseInt(req.params['question_id']);
+    const isPublished = req.params['publish_status'] === '1';
+
 
     try {
         // Check if the user is a teacher
@@ -89,13 +91,55 @@ router.put('/:question_id', requireAuthentication, async function (req, res, nex
             return res.status(404).send({ error: "The given question ID does not belong to this lecture" });
         }
 
-        const updatePublishedTo = !questionInLecture.published;
-        await questionInLecture.update({ published: updatePublishedTo });
+        await questionInLecture.update({ published: isPublished });
         res.status(200).send();
     } catch (error) {
         next(error);
     }
 });
+
+// teacher wants to (un)mark a question as live inside a lecture
+router.put('/:question_id/live/:live_status', requireAuthentication, async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub);
+    const courseId = parseInt(req.params['course_id']);
+    const lectureId = parseInt(req.params['lecture_id']);
+    const questionId = parseInt(req.params['question_id']);
+    const isLive = req.params['live_status'] === '1';
+
+
+    try {
+        const isTeacher = await enrollmentService.checkIfTeacher(user.id, courseId);
+        if (!isTeacher) {
+            return res.status(403).send({ error: "Not a teacher of this course" });
+        }
+
+        const isLecInCourse = await lectureService.getLectureInCourse(lectureId, courseId);
+        if (!isLecInCourse) {
+            return res.status(400).send({ error: "Lecture ID does not belong to this course" });
+        }
+
+        const questionInLecture = await questionService.getQuestionInLecture(questionId, lectureId);
+        if (!questionInLecture) {
+            return res.status(400).send({ error: "Question ID does not belong to this lecture" });
+        }
+
+        const question = await questionService.getQuestionFromLecture(questionId, courseId);
+        if (!question) {
+            return res.status(404).send({ error: "Question ID not found in this course" });
+        }
+        
+        const updatedQuestion = await question.update({ isLive });
+        await updatedQuestion.reload();
+
+        res.status(200).send({ 
+            message: `Question is now ${updatedQuestion.isLive ? "live" : "not live"}!`,
+            isLive: updatedQuestion.isLive 
+        });      
+    } catch (e) {
+        next(e);
+    }
+});
+
 
 // teacher wants to connect a question to a lecture
 // NOTE: only considers fields 'order' and 'published' from the request body,

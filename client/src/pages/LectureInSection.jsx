@@ -11,16 +11,23 @@ import apiUtil from '../utils/apiUtil'
 import { publishLectureInSection } from '../redux/actions';
 import { useDispatch } from 'react-redux'
 import { Button, Card } from "react-bootstrap"
+import io from 'socket.io-client';
+
 
 //URL : :courseId/sections/:sectionId/lectures/:lectureId
+
+const url = import.meta.env.VITE_SOCKET_URL || 'ws://localhost:3002'
+
+const socket = io(url);
 
 function LectureInSection() {
     const dispatch = useDispatch()
     const navigate = useNavigate()
-    const [ questions, message, error, loading ] = useLectureForSectionQuestions()
+    const [questions, message, error, loading, reloadQuestions] = useLectureForSectionQuestions();
     const [ lecturesInSection, LSmessage, LSerror, LSloading ] = useLecturesInSection()
     const { courseId, lectureId, sectionId } = useParams()
     const [ published, setPublished ] = useState(false)
+    const [isLive, setIsLive] = useState(false);
     const [ lecture, setLecture ] = useState({})
     const [ loadingPublish, setLoadingPublish ] = useState(false)
     const [ errorPublish, setErrorPublish ] = useState(false)
@@ -31,6 +38,7 @@ function LectureInSection() {
             lecturesInSection.forEach((lecture) => {
                 if (lecture.id == lectureId) {
                     setPublished(lecture.published)
+                    setIsLive(lecture.isLive || false);
                     setLecture(lecture)
                 }
             })
@@ -49,7 +57,73 @@ function LectureInSection() {
             dispatch(publishLectureInSection(sectionId, lectureId))
             setPublished(!published)
         }
+
+        //remove all live questions from students screens if turned off
+        if (questions.length > 0) {
+            for (const question of questions) {
+                const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/0`, { 
+                    dispatch,
+                    navigate
+                });
+                if (updateResponse.status === 200) {
+                    // update students screens
+                    socket.emit("setLiveQuestion", { lectureId });
+                }
+            }
+            //remove all questions from being published
+            for (const question of questions) {
+                const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/sections/${sectionId}/0`, { 
+                    dispatch,
+                    navigate
+                });
+                if (updateResponse.status === 200) {
+                    // update students screens
+                    socket.emit("setLiveQuestion", { lectureId });
+                }
+            }
+        }
+        reloadQuestions();
+
+
     }
+
+    const changeLiveState = async () => {
+        setLoadingPublish(true);
+        const isLiveNew = !isLive;
+        const requestData = { isLive: isLiveNew, published: true };
+        const liveStatus = isLiveNew ? '1' : '0';
+        const response = await apiUtil("put", `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/live/${liveStatus}`, { 
+            dispatch, 
+            navigate,
+        });
+        setErrorPublish(response.error);
+        setMessagePublish(response.message);
+        setLoadingPublish(false);
+
+        if (response.status === 200) {
+            setIsLive(!isLive);
+            setLecture(prevLecture => ({
+                ...prevLecture,
+                isLive: !prevLecture.isLive
+            }));
+            setPublished(true);
+        
+            //remove all live questions from students screens if turned off
+            if (questions.length > 0) {
+                for (const question of questions) {
+                    const updateResponse = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/${false}`, { 
+                        dispatch,
+                        navigate
+                    });
+                    if (updateResponse.status === 200) {
+                        // update students screens
+                        socket.emit("setLiveQuestion", { lectureId });
+                    }
+                }
+            }
+            reloadQuestions();
+        }
+    };
 
     return (
         <div className="lecture-page-container">
@@ -70,14 +144,27 @@ function LectureInSection() {
                     <div className='switch'>
                         <label className="lecture-publish-switch">
                             <span>Publish Lecture</span>
-                            { loadingPublish ? <TailSpin visible={true}/> : <Switch onChange={() => changePublishState()} checked={published}/> }
+                            { loadingPublish ? <TailSpin visible={true}/> : <Switch onChange={changePublishState} checked={published}/> }
                         </label>
-                        { messagePublish != "" && <Notice status={errorPublish ? "error" : ""} message={messagePublish}/> }
+
+                        <label className="lecture-live-switch">
+                            <span>Go Live</span>
+                            { loadingPublish ? <TailSpin visible={true}/> : <Switch onChange={changeLiveState} checked={isLive}/> }
+                        </label>
+
+                        { messagePublish !== "" && <Notice status={errorPublish ? "error" : ""} message={messagePublish}/> }
                     </div>
 
                     <div className='questions'>
                         {loading ? <TailSpin visible={true}/> : questions.map((question) => {
-                            return <QuestionCard key={question.id} question={question} view={'teacher'} lecturePublished={published} sectionId={sectionId}/>
+                            return <QuestionCard 
+                                key={question.id} 
+                                question={question} 
+                                view={'teacher'} 
+                                lecturePublished={published}
+                                isLectureLive={isLive}
+                                sectionId={sectionId}
+                            />;
                         })}
                     </div>
                 </div>

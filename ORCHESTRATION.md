@@ -17,7 +17,7 @@ docker network create --driver overlay openresponse_network
 ```
 This command sets up the current machine as a manager node in the Swarm.
 
-If deploying across multiple nodes, additional worker nodes can join using:
+If deploying across multiple nodes (multiple different machines), additional worker nodes can join using:
 ```sh
 docker swarm join --token <TOKEN> <MANAGER-IP>:2377
 ```
@@ -31,6 +31,7 @@ Before deploying, the services need to be built using Docker. Navigate to the ro
 ```sh
 docker build -t openresponse_backend ./core
 docker build -t openresponse_frontend ./client
+docker build -t openresponse_socket ./socket 
 ```
 This will generate the necessary container images for the backend and frontend services.
 
@@ -66,6 +67,7 @@ When modifying code, rebuild the respective service:
 ```sh
 docker build -t openresponse_backend ./core
 docker build -t openresponse_frontend ./client
+docker build -t openresponse_socket ./socket 
 ```
 Then, update the running stack:
 ```sh

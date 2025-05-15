@@ -17,37 +17,38 @@ function useLectureForSectionQuestions() {
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    // reset any previous state
+  const reloadQuestions = async () => {
     setQuestions([]);
     setError(false);
     setMessage('');
     setLoading(true);
 
-    async function getLectureQuestions() {
-      const response = await apiUtil(
-        'get',
-        `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions`,
-        { dispatch, navigate }
-      );
-      if (response.status === 200) {
-        setQuestions(response.data.questions);
-        dispatch(addLectureQuestions(lectureId, response.data.questions));
-      } else {
-        setError(response.error);
-        setMessage(response.message);
-      }
-      setLoading(false);
-    }
+    const response = await apiUtil(
+      'get',
+      `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions`,
+      { dispatch, navigate }
+    );
 
+    if (response.status === 200) {
+      setQuestions(response.data.questions);
+      console.log("questions: ", response);
+      dispatch(addLectureQuestions(lectureId, response.data.questions));
+    } else {
+      setError(response.error);
+      setMessage(response.message);
+    }
+    setLoading(false);
+  };
+
+  useEffect(() => {
     if (lectureId) {
-      getLectureQuestions();
+      reloadQuestions();
     } else {
       setLoading(false);
     }
   }, [courseId, sectionId, lectureId, dispatch, navigate]);
 
-  return [questions, message, error, loading];
+  return [questions, message, error, loading, reloadQuestions];
 }
 
 export default useLectureForSectionQuestions;

@@ -4,12 +4,14 @@
 /node_modules
 /core/node_modules
 /client/node_modules
+/socket/node_modules
 /.pnp
 .pnp.js
 
 # testing
 /coverage
 /core/coverage
+.artifacts
 
 # production
 /client/build
@@ -57,3 +59,6 @@ yarn-error.log*
 *.seed
 *.pid.lock
 
+# Accessibility Test Results
+test-results/
+a11y-results/

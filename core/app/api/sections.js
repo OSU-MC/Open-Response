@@ -31,7 +31,7 @@ async function getLecturesFromSection(sectionId) {
                 where: { id: sectionId },
                 required: true
             }],
-            attributes: ['published'],  // return only published column from the join
+            attributes: ['published', 'isLive'],  // return published & live column from the join
             required: true
         }],
         attributes: { exclude: ['CourseId'] }   // exclude duplicate CourseId field from join
@@ -41,6 +41,8 @@ async function getLecturesFromSection(sectionId) {
     for (let i = 0; i < foundLectures.length; i++) {
         if (foundLectures[i].LectureForSections.length == 1) {  // SHOULD always be true, given query above
             foundLectures[i].dataValues['published'] = foundLectures[i].LectureForSections[0].published     // bring published attr up
+            foundLectures[i].dataValues['isLive'] = foundLectures[i].LectureForSections[0].isLive;
+
             delete foundLectures[i].dataValues.LectureForSections   // remove unneccesary LectureForSection object from response
         }
     }

@@ -1,0 +1,1 @@
+real-world scenario testing, combining playwrite for e2e flows and k6 for vu's and load testing
