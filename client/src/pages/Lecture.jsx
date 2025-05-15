@@ -8,7 +8,7 @@ import useCourse from "../hooks/useCourse";
 import useLectures from '../hooks/useLectures';
 import QuestionCard from '../components/QuestionCard';
 
-// URL: :courseId/lecutres/:lectureId 
+// URL: :courseId/lectures/:lectureId 
 
 function Lecture() {
     const [ questions, message, error, loading ] = useLectureQuestions()

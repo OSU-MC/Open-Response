@@ -43,6 +43,11 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       defaultValue: false
     },
+    isLive: {
+      type: DataTypes.BOOLEAN,
+      allowNull: false,
+      defaultValue: false,
+    },
     closedAt: {
       type: DataTypes.DATE(6),
       allowNull: true
