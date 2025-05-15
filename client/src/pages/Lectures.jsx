@@ -4,6 +4,7 @@ import { TailSpin } from  'react-loader-spinner'
 import useLectures from '../hooks/useLectures';
 import Notice from '../components/Notice'
 import { Button, Card } from "react-bootstrap"
+import useSectionId from "../hooks/useSectionId";
 import useCourse from "../hooks/useCourse";
 import LectureCard from '../components/LectureCard';
 import Tabs from "../components/nav/Tabs.jsx";
@@ -13,6 +14,7 @@ import { getUserState } from '../redux/selectors'
 import Popup from '../components/Popup';
 import AddLecture from '../components/AddLecture';
 
+
 // URL: courses/:courseId/lectures
 
 
@@ -21,17 +23,27 @@ function Lectures(props){
     const { courseId } = useParams()
     const [lectures, message, error, loading] = useLectures()
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
+    const sectionId = useSectionId();
     const breadcrumbs_object = [['Courses', '/'], [course.name, null]];
     const user = useSelector(getUserState);
     
-    const tabs_o = [
+
+    // Ensure course is defined before accessing its properties
+    const tabs_o = (role === "teacher") ? [
         ["Sections", "sections"],
-        ["Lecture Templates", "lectures"], 
-        ["Roster", "roster"], 
-        ["Settings", "settings"]
+        ["Lecture Templates", "lectures"],  
+        ["Settings", null]
+    ] 
+    :
+    [
+        ["Lectures", "lectures"], 
+        ["Gradebook", `sections/${sectionId}/grades`], 
+        ["Settings", null]
     ];
 
     const [showCreateModal, setShowCreateModal] = useState(false);
+
+
     
     const closeCreateModal = () => {
         setShowCreateModal(false);

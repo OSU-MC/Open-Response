@@ -39,6 +39,16 @@ router.get("/", requireAuthentication, async function (req, res) {
 		],
 	});
 
+	// console.log("Student Courses: ", studentCourses);
+	studentCourses.forEach(course => {
+		console.log(`Course: ${course.dataValues.name}`);
+		course.dataValues.Sections.forEach(section => {
+			console.log("  Section:", section);
+		});
+	});
+
+
+
 	res.status(200).send({
 		studentCourses:
 			courseService.extractArrayStudentCourseFields(studentCourses),
