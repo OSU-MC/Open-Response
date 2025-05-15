@@ -1,7 +1,9 @@
 :root {
     --primary: #fff;
     --splash: #C5EFAA;
+    --splash: #C5EFAA;
     --splash2: #93c48f;
+    --splash3: #456731;
     --splash3: #456731;
     --accent: lightgrey;
     --accent2: #f3f3f3;
@@ -172,6 +174,16 @@ body {
     color: #000;
     font-weight: 700 !important;
     border-radius: 20px !important;
+}
+
+.join-live-btn {
+    position: absolute;
+    top: 100px;
+    right: 100px;
+    background-color: #d9e7d4;
+    color: #000;
+    font-weight: 700 !important;
+    border-radius: 20px !important;
 }   
 .form-control {
     width: 75%;
@@ -187,6 +199,11 @@ body {
 }
 
 
+
+/* Live Lectures */
+.LiveLecture {
+    width: 100%;
+}
 
 /* Back button */
 .back-btn {
