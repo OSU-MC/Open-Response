@@ -3,3 +3,19 @@
     height: 100%;
     padding: 20px;
 }
+
+.grades-assignment-column {
+    width: 25%;
+}
+
+.grades-grade-column, .grades-questions-column {
+    width: 37.5%;
+}
+
+.grades-student-column {
+    width: 25%;
+}
+
+.grades-lecture-column {
+    width: auto;
+}

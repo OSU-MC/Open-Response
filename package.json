@@ -18,7 +18,7 @@
         "build:containers": "docker build -t openresponse_backend ./core && docker build -t openresponse_frontend ./client",
         "deploy:stack": "docker stack deploy -c docker-stack.yml openresponse",
         "remove:stack": "docker stack rm openresponse",
-        "start:dev": "concurrently \"cd client && npm run start\" \"cd core && npm run start\""
+        "start:dev": "concurrently \"cd client && npm run start\" \"cd core && npm run start\" \"cd socket && npm run start\""
     },
     "keywords": [],
     "author": "",
@@ -29,7 +29,6 @@
         "axe-core": "^4.10.3",
         "concurrently": "^7.6.0",
         "forever": "^4.0.3",
-        "concurrently": "^7.6.0",
         "dotenv": "^16.5.0"
     }
 }
