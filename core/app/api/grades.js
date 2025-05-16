@@ -213,10 +213,10 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						lectureQuestionsAnswered++;
 					}
 				}
-				lectureGradeObj.lectureId = lectureForSections[j].lectureId;
+				lectureGradeObj.lectureId = lectureForSections[j].lectureId; // Add lectureTitleId
 				lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
 				lectureGradeObj.lectureGrade = parseFloat(
-					(lectureScore / lectureQuestionsAsked).toFixed(2)
+					(lectureScore / lectureQuestionsAsked).toFixed(2) // ratio of score to questions asked
 				);
 				lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
 				lectureGradeObj.totalQuestions = lectureQuestionsAsked;

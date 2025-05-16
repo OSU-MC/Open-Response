@@ -5,6 +5,7 @@ const questionInsertSchema = {
 	stem: { required: true },
 	content: { required: true },
 	answers: { required: true },
+	weights: { required: true },
 };
 
 exports.extractQuestionUpdateFields = (body) => {
