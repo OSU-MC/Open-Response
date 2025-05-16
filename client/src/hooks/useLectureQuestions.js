@@ -6,12 +6,10 @@ import { useEffect, useState, useCallback } from 'react'
 import { useNavigate, useParams } from 'react-router-dom'
 
 function useLectureQuestions() {
-    console.log("useLectureQuestions hook running...");
     const navigate = useNavigate()
     const dispatch = useDispatch()
     const lectures = useSelector(getLectureDetails)
     const { courseId, lectureId } = useParams()
-    console.log("Params:", { courseId, lectureId });
     const [ error, setError ] = useState(false)
     const [ message, setMessage ] = useState("")
     const [ loading, setLoading ] = useState(true)

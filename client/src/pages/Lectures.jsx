@@ -46,19 +46,23 @@ function Lectures(props){
         const fetchLectures = async () => {
             try {
                 setLoading(true)
+                
                 const response = await apiUtil("get", `/courses/${courseId}/sections/${user.user.id}/lectures/live`, { dispatch: dispatch, navigate: navigate });
+                
                 setLoading(false)
                 setError(response.error)
                 setMessage(response.message)
                 if (response.status === 200) {
                     setLiveLecture(response.data.filteredLecture);
-                }
+                
+            }
             } catch (err) {
                 console.error(err);
             }
         };
-
-        fetchLectures();
+        if (!user.user.isTeacher) {
+            fetchLectures();
+        }
     }, [courseId]);
 
 
@@ -93,7 +97,7 @@ function Lectures(props){
                 <Breadcrumbs breadcrumbs={breadcrumbs_object} />            
             </div>
             <p id="lectures-subtitle">{course.name} Lectures</p>
-            {role !== "student" && <Tabs courseId={courseId} tabs={tabs_o} />}
+            {<Tabs courseId={courseId} tabs={tabs_o} />}
             
             {/*Join Live Lecture Button - ONLY if enrollment != teacher and a live lecture exists*/}
             {role !== "teacher" && liveLecture && 
