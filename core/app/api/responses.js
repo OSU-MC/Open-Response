@@ -141,11 +141,11 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 
 
 	  // Override the computed values with those from req.query if provided
-	//   if (req.query.points && req.query.totalPoints) {
-	// 	correctPoints = Number(req.query.points);
-	// 	totalCorrectWeight = Number(req.query.totalPoints);
-	// 	computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
-	//   }
+	  if (req.query.points && req.query.totalPoints) {
+		correctPoints = Number(req.query.points);
+		totalCorrectWeight = Number(req.query.totalPoints);
+		computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
+	  }
   
 	  // Prepare the response record data
 	  const responseToInsert = {
