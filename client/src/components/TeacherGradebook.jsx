@@ -3,6 +3,7 @@ import { Table } from "react-bootstrap";
 
 function TeacherGradebook({ grades }) {
     return (
+        console.log(grades),
         <div className="grades-container">
             <Table striped bordered hover className="grades-table">
                 <thead>
@@ -18,7 +19,7 @@ function TeacherGradebook({ grades }) {
                         <tr key={grade.studentId}>
                             <td className="grades-student">{grade.studentName}</td>
                             {grade.lectures.map((lecture) => (
-                                <td key={lecture.lectureId} className="grades-grade">{lecture.lectureGrade}</td>
+                                <td key={lecture.lectureId} className="grades-grade">{lecture.lectureGrade} / {lecture.totalScore}</td>
                             ))}
                         </tr>
                     ))}

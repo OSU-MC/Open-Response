@@ -131,9 +131,11 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					}
 					lectureGradeObj.lectureId = lectureForSections[j].lectureId;
 					lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title;
-					lectureGradeObj.lectureGrade = parseFloat(
-						(lectureScore / lectureQuestionsAsked).toFixed(2)
-					);
+					lectureGradeObj.lectureGrade = lectureScore 
+					
+					// lectureGradeObj.lectureGrade = parseFloat(
+					// 	(lectureScore / lectureQuestionsAsked).toFixed(2)
+					// );
 					lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
 					lectureGradeObj.totalQuestions = lectureQuestionsAsked;
 					lectureGradeObj.totalScore = lectureScore;
@@ -212,13 +214,16 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						lectureScore += response.score;
 						lectureQuestionsAnswered++;
 					}
+
 				}
+
 				lectureGradeObj.lectureId = lectureForSections[j].lectureId; // Add lectureTitleId
 				lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
-				lectureGradeObj.lectureGrade = parseFloat(
-					(lectureScore / lectureQuestionsAsked).toFixed(2) // ratio of score to questions asked
-				);
-				lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
+				lectureGradeObj.lectureGrade = lectureScore
+				// lectureGradeObj.lectureGrade = parseFloat(
+				// 	(lectureScore / lectureQuestionsAsked).toFixed(2) // ratio of score to questions asked
+				// );
+				// lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
 				lectureGradeObj.totalQuestions = lectureQuestionsAsked;
 				lectureGradeObj.totalScore = lectureScore;
 				resp.push(lectureGradeObj);
