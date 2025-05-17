@@ -101,6 +101,9 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	  const question = await db.Question.findOne({
 		where: { id: questionId }
 	  });
+
+	  console.log("responses.js Question:", question);
+
 	  if (!question) {
 		return res.status(404).send({ error: "Question not found" });
 	  }
@@ -110,7 +113,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	  let totalCorrectWeight = 0;
 	  let correctPoints = 0;
 	  let extraPenalty = 0;
-
+ 
 	  const weights = question.weights;  // e.g., { "0": 1, "1": 1, "2": 1, "3": 1 }
 	  const correctAnswers = question.answers; // e.g., { "0": false, "1": true, "2": false, "3": false }
 
@@ -132,15 +135,17 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	  }
 
 	  // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
-	  let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) / totalCorrectWeight : 0;
+	  let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) : 0;
 	  if (computedScore < 0) computedScore = 0;
 
+
+
 	  // Override the computed values with those from req.query if provided
-	  if (req.query.points && req.query.totalPoints) {
-		correctPoints = Number(req.query.points);
-		totalCorrectWeight = Number(req.query.totalPoints);
-		computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
-	  }
+	//   if (req.query.points && req.query.totalPoints) {
+	// 	correctPoints = Number(req.query.points);
+	// 	totalCorrectWeight = Number(req.query.totalPoints);
+	// 	computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
+	//   }
   
 	  // Prepare the response record data
 	  const responseToInsert = {
@@ -151,11 +156,13 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 		points: correctPoints,
 		totalPoints: totalCorrectWeight
 	  };
+
   
 	  // Create the Response record
 	  const responseRecord = await db.Response.create(
 		responseService.extractResponseInsertFields(responseToInsert)
 	  );
+
   
 	  // Retrieve or create the student’s Grade record for this course.
 	  const studentGrade = await db.Grades.findOne({

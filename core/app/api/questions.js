@@ -121,6 +121,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 			error: `Request is missing the following required fields: ${missingRequestFields}`,
 		});
 	}
+
 	// Check if question has the key 'weights' and if it doesn't then create it and assign each weight to 1
 	if (!questionToInsert.weights) {
 		questionToInsert.weights = {};
@@ -128,6 +129,17 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 			questionToInsert.weights[i] = 1;
 		}
 	}
+	let totalPoints = 0;
+	for (let key in questionToInsert.weights) {
+		if (questionToInsert.answers[key] === true) {
+		  // This option is correct; add its weight to the total correct weight.
+		  totalPoints += questionToInsert.weights[key];
+		}
+	}
+	
+	// add total poitns to questionToInsert object
+	questionToInsert.totalPoints = totalPoints;
+	
 
 	try {
 		const question = await db.Question.create(

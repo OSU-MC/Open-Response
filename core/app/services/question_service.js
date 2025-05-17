@@ -6,6 +6,7 @@ const questionInsertSchema = {
 	content: { required: true },
 	answers: { required: true },
 	weights: { required: true },
+	totalPoints: { required: true },
 };
 
 exports.extractQuestionUpdateFields = (body) => {
