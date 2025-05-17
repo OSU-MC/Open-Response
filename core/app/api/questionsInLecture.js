@@ -5,7 +5,7 @@ const enrollmentService = require('../services/enrollment_service')
 const lectureService = require('../services/lecture_service')
 const questionService = require('../services/question_service')
 
-// base path: /courses/:course_id/lectures/:lecture_id/questions
+// base path: /courses/:course_id/sections/:sectionId/lectures/:lecture_id/questions
 
 // teacher wants to view a question inside a lecture 
 router.get('/:question_id', requireAuthentication, async function (req, res, next) {
@@ -60,14 +60,12 @@ router.get('/:question_id', requireAuthentication, async function (req, res, nex
     }
 })
     // teacher wants to (un)publish a question inside a lecture 
-router.put('/:question_id/sections/:section_id/:publish_status', requireAuthentication, async function (req, res, next) {
+router.put('/:question_id', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id']);
     const lectureId = parseInt(req.params['lecture_id']);
     const sectionId = parseInt(req.params['section_id']);
     const questionId = parseInt(req.params['question_id']);
-    const isPublished = req.params['publish_status'] === '1';
-
 
     try {
         // Check if the user is a teacher
@@ -91,7 +89,8 @@ router.put('/:question_id/sections/:section_id/:publish_status', requireAuthenti
             return res.status(404).send({ error: "The given question ID does not belong to this lecture" });
         }
 
-        await questionInLecture.update({ published: isPublished });
+        const updatePublishedTo = !questionInLecture.published;
+        await questionInLecture.update({ published: updatePublishedTo });
         res.status(200).send();
     } catch (error) {
         next(error);
