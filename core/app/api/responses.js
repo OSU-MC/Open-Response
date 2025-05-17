@@ -112,7 +112,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	  let extraPenalty = 0;
 
 	  const weights = question.weights;  // e.g., { "0": 1, "1": 1, "2": 1, "3": 1 }
-	  console.log("frog log pog Weights:", weights);
 	  const correctAnswers = question.answers; // e.g., { "0": false, "1": true, "2": false, "3": false }
 
 	  for (let key in weights) {
