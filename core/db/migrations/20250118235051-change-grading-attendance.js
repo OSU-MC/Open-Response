@@ -152,6 +152,7 @@ module.exports = {
           model: 'LectureForSections',
           key: 'id',
         },
+        onDelete: 'CASCADE',
         validate: {
           notNull: {
             msg: 'a grade must have an associated lecture',

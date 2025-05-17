@@ -129,8 +129,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 		}
 	}
 
-	console.log("questionToInsert", questionToInsert);
-
 	try {
 		const question = await db.Question.create(
 			questionService.extractQuestionUpdateFields(questionToInsert)

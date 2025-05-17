@@ -100,7 +100,6 @@ function SingleQuestionTeacher(props) {
                 options: options
             }
         }
-        console.log(questionBody)
         if (question != null) {
             // TODO: add update functionality once backend has implmented a put route for questions
             setQuestion(questionBody)
