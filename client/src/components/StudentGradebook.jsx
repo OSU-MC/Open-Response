@@ -17,7 +17,7 @@ function StudentGradebook({ grades }) {
                         <tr key={lecture.lectureId}>
                             <td className="grades-assignment">{lecture.lectureTitle}</td>
                             <td className="grades-questions">{lecture.totalAnswered} / {lecture.totalQuestions}</td>
-                            <td className="grades-grade">{lecture.lectureGrade} / {lecture.totalScore}</td>
+                            <td className="grades-grade">{lecture.lectureGrade} / {lecture.totalPoints}</td>
                         </tr>
                     ))}
                 </tbody>

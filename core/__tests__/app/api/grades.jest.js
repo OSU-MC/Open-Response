@@ -297,6 +297,34 @@ describe("/grades endpoints", () => {
 			questionInLectureId: questionInLecture.id,
 			score: 0.0,
 		});
+
+		// Create Grades objects for each student in the section for the lecture
+		// Only for published questions (questionInLecture, questionInLecture2)
+		
+	
+		await db.Grades.create({
+			enrollmentId: enrollment2.id,
+			userId: user2.id, // tag with correct user
+			lectureForSectionId: lectureForSection.id,
+			points: 1.0, // response.score * question.totalPoints (assume totalPoints=1 for each question)
+			totalPoints: 3, // 3 questions in lecture
+		});
+	
+	
+		await db.Grades.create({
+			enrollmentId: enrollment3.id,
+			userId: user3.id, // tag with correct user
+			lectureForSectionId: lectureForSection.id,
+			points: 1.0,
+			totalPoints: 3,
+		});
+		await db.Grades.create({
+			enrollmentId: enrollment4.id,
+			userId: user4.id, // tag with correct user
+			lectureForSectionId: lectureForSection.id,
+			points: 0.0,
+			totalPoints: 3,
+		});
 	});
 
 	it("should respond with 200 when a teacher gets grades for students in a section", async () => {

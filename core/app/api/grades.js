@@ -48,7 +48,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 	if (enrollmentTeacher) {
 		try {
 			let resp = [];
-
 			// get students in the section
 			const students = await db.User.findAll({
 				include: [
@@ -61,7 +60,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					},
 				],
 			});
-
 			// get lectures for the section
 			const lectureForSections = await db.LectureForSection.findAll({
 				where: {
@@ -75,7 +73,14 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					},
 				],
 			});
-
+			// get all questions for all lectures in this section
+			const allQuestionsInLectures = {};
+			for (const lfs of lectureForSections) {
+				allQuestionsInLectures[lfs.id] = await db.QuestionInLecture.findAll({
+					where: { lectureForSectionId: lfs.id },
+					attributes: { exclude: ["LectureId"] }
+				});
+			}
 			// for each student in the section
 			for (let i = 0; i < students.length; i++) {
 				let studentGradeObj = {
@@ -87,73 +92,51 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				let totalQuestionsAsked = 0;
 				let totalQuestionsAnswered = 0;
 				let totalPoints = 0;
-				
-				// for each lecture in the section
 				for (let j = 0; j < lectureForSections.length; j++) {
-					// get all the questions asked during the lecture
-					const questionsInLecture = await db.QuestionInLecture.findAll({
-						where: {
-							lectureForSectionId: lectureForSections[j].id,
-						},
-						attributes: { exclude: ["LectureId"] }
-					});
+					const lfs = lectureForSections[j];
+					const questionsInLecture = allQuestionsInLectures[lfs.id];
 					let lectureGradeObj = {};
 					let lectureScore = 0;
 					let lectureQuestionsAsked = 0;
 					let lectureQuestionsAnswered = 0;
-					totalPoints = 0;
-					// for each question in the lecture, get the students response/score
+					let lectureTotalPoints = 0;
+					// Sum totalPoints for all questions in this lecture
 					for (let k = 0; k < questionsInLecture.length; k++) {
+						const question = await db.Question.findOne({
+							where: { id: questionsInLecture[k].questionId },
+						});
+						lectureTotalPoints += question.totalPoints || 0;
+						totalPoints += question.totalPoints || 0;
 						totalQuestionsAsked++;
 						lectureQuestionsAsked++;
-						
-						// find the question with id questionsInLecture[k].questionId
-						const question = await db.Question.findOne({
-							where: {
-								id: questionsInLecture[k].questionId,
-							},
-						});
-						// find the response for the question
-						const response = await db.Response.findOne({
-							where: {
-								questionInLectureId: questionsInLecture[k].id,
-							},
-							include: [
-								{
-									model: db.Enrollment,
-									required: true,
-									where: {
-										userId: students[i].id,
-									},
-								},
-							],
-						});						
-						
-						totalPoints += question.totalPoints; // amount of points question is worth
-						if (response) {
-							totalQuestionsAnswered++;
-							lectureQuestionsAnswered++;
-							
-							totalScore += response.score; // amount of score received in total
-							lectureScore += response.score * question.totalPoints; // score for this lecture
-						}
 					}
-					lectureGradeObj.lectureId = lectureForSections[j].lectureId;
-					lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title;
-					lectureGradeObj.lectureGrade = lectureScore 
-					
+					// Get the student's grade for this lecture (if any)
+					const grade = await db.Grades.findOne({
+						where: {
+							enrollmentId: students[i].Enrollments[0].id,
+							lectureForSectionId: lfs.id
+						}
+					});
+					if (grade) {
+						lectureScore = grade.points;
+						lectureQuestionsAnswered = grade.points > 0 ? 1 : 0; // 1 if answered, 0 if not
+						totalScore += grade.points;
+						totalQuestionsAnswered += lectureQuestionsAnswered;
+					}
+					lectureGradeObj.lectureId = lfs.lectureId;
+					lectureGradeObj.lectureTitle = lfs.Lecture.title;
+					lectureGradeObj.lectureGrade = lectureScore; // points received for this lecture
 					lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
 					lectureGradeObj.totalQuestions = lectureQuestionsAsked;
 					lectureGradeObj.totalScore = lectureScore;
-					lectureGradeObj.totalPoints = totalPoints;
-					
+					lectureGradeObj.totalPoints = lectureTotalPoints;
 					studentGradeObj.lectures.push(lectureGradeObj);
 				}
 				studentGradeObj.grade = parseFloat(
-					(totalScore / totalQuestionsAsked).toFixed(2)
+					(totalScore / (totalPoints || 1)).toFixed(2)
 				);
 				studentGradeObj.pointScore = parseFloat(
-					(totalScore / totalQuestionsAsked).toFixed(2)
+					(totalScore / (totalPoints || 1)).toFixed(2)
 				);
 				studentGradeObj.totalQuestions = totalQuestionsAsked;
 				studentGradeObj.totalAnswered = totalQuestionsAnswered;
@@ -167,12 +150,10 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 			next(e);
 		}
 	}
-	// get student grade in the course as well as grade for each indiivdual lecture
+	// get student grade in the course as well as grade for each indiivudal lecture
 	else if (enrollmentStudent && sectionCheck) {
 		try {
 			let resp = [];
-
-			// get lectures for the section
 			const lectureForSections = await db.LectureForSection.findAll({
 				where: {
 					sectionId: sectionId,
@@ -185,66 +166,56 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					},
 				],
 			});
-
-			let totalQuestionsAsked = 0;
-			let totalQuestionsAnswered = 0;
-			// for each lecture in the section
-			for (let j = 0; j < lectureForSections.length; j++) {
-				let totalScore = 0;
-				
-				// get all the questions asked during the lecture
-				const questionsInLecture = await db.QuestionInLecture.findAll({
-					where: {
-						lectureForSectionId: lectureForSections[j].id,
-					},
+			const allQuestionsInLectures = {};
+			for (const lfs of lectureForSections) {
+				allQuestionsInLectures[lfs.id] = await db.QuestionInLecture.findAll({
+					where: { lectureForSectionId: lfs.id },
 					attributes: { exclude: ["LectureId"] }
 				});
-				
+			}
+			let totalQuestionsAsked = 0;
+			let totalQuestionsAnswered = 0;
+			let totalScore = 0;
+			let totalPoints = 0;
+			for (let j = 0; j < lectureForSections.length; j++) {
+				const lfs = lectureForSections[j];
+				const questionsInLecture = allQuestionsInLectures[lfs.id];
 				let lectureGradeObj = {};
 				let lectureScore = 0;
 				let lectureQuestionsAsked = 0;
 				let lectureQuestionsAnswered = 0;
-				
-				// for each question in the lecture, get the students response/score
+				let lectureTotalPoints = 0;
 				for (let k = 0; k < questionsInLecture.length; k++) {
-					let totalPoints = 0;
+					const question = await db.Question.findOne({
+						where: { id: questionsInLecture[k].questionId },
+					});
+					lectureTotalPoints += question.totalPoints || 0;
+					totalPoints += question.totalPoints || 0;
 					totalQuestionsAsked++;
 					lectureQuestionsAsked++;
-
-					// find the question with id questionsInLecture[k].questionId
-					const question = await db.Question.findOne({
-						where: {
-							id: questionsInLecture[k].questionId,
-						},
-					});
-					// get student answer if it exists
-					const response = await db.Response.findOne({
-						where: {
-							questionInLectureId: questionsInLecture[k].id,
-							enrollmentId: enrollmentStudent.id,
-						},
-					});
-					totalPoints += question.totalPoints; // amount of points question is worth
-					if (response) {
-						totalQuestionsAnswered++;
-						lectureQuestionsAnswered++;
-						
-						totalScore += question.totalPoints; // amount of score received in total
-						lectureScore += response.score * question.totalPoints; // score for this lecture
-					}
-
 				}
-
-				lectureGradeObj.lectureId = lectureForSections[j].lectureId; // Add lectureTitleId
-				lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
+				// Get the student's grade for this lecture (if any)
+				const grade = await db.Grades.findOne({
+					where: {
+						enrollmentId: enrollmentStudent.id,
+						lectureForSectionId: lfs.id
+					}
+				});
+				if (grade) {
+					lectureScore = grade.points;
+					lectureQuestionsAnswered = grade.points > 0 ? 1 : 0;
+					totalScore += grade.points;
+					totalQuestionsAnswered += lectureQuestionsAnswered;
+				}
+				lectureGradeObj.lectureId = lfs.lectureId;
+				lectureGradeObj.lectureTitle = lfs.Lecture.title;
 				lectureGradeObj.lectureGrade = lectureScore;
-				lectureGradeObj.totalQuestions = totalQuestionsAsked;
-				lectureGradeObj.totalAnswered = totalQuestionsAnswered;
-				lectureGradeObj.totalScore = totalScore;
-				
+				lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
+				lectureGradeObj.totalQuestions = lectureQuestionsAsked;
+				lectureGradeObj.totalScore = lectureScore;
+				lectureGradeObj.totalPoints = lectureTotalPoints;
 				resp.push(lectureGradeObj);
 			}
-
 			res.status(200).send(resp);
 		} catch (e) {
 			console.error("Error fetching grades for student:", e);

@@ -107,8 +107,8 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 		return res.status(404).send({ error: "Question not found" });
 	  }
   
-	  // Calculate points: totalPoints is the sum of all weights;
-	  // points is the sum of weights for each answer that is marked true.
+	  // Calculate points: totalPoints is the total possible points for the question (question.totalPoints)
+	  // points is the amount the user receives for this question (response.score * question.totalPoints)
 	  let totalCorrectWeight = 0;
 	  let correctPoints = 0;
 	  let extraPenalty = 0;
@@ -118,15 +118,11 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 
 	  for (let key in weights) {
 		if (correctAnswers[key] === true) {
-		  // This option is correct; add its weight to the total correct weight.
 		  totalCorrectWeight += weights[key];
-		  // If the student selected it, add its weight as correct points.
 		  if (req.body.answers[key] === true) {
 			correctPoints += weights[key];
 		  }
 		} else {
-		  // This option is not correct.
-		  // If the student selected an incorrect option, count that as a penalty.
 		  if (req.body.answers[key] === true) {
 			extraPenalty += weights[key];
 		  }
@@ -135,12 +131,14 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 
 	  // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
 		let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) / totalCorrectWeight : 0;
-	if (computedScore < 0) computedScore = 0;
+		if (computedScore < 0) computedScore = 0;
 
-
+	  // Points and totalPoints for the grade record
+	  const pointsForThisQuestion = computedScore * (question.totalPoints || 1);
+	  const totalPointsForThisQuestion = question.totalPoints || 1;
 
 	  // Override the computed values with those from req.query if provided
-	if (req.query.points && req.query.totalPoints) {
+	  if (req.query.points && req.query.totalPoints) {
 		correctPoints = Number(req.query.points);
 		totalCorrectWeight = Number(req.query.totalPoints);
 		computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
@@ -152,8 +150,8 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 		questionInLectureId: questionInLecture.id,
 		score: computedScore, // now reflects the override if provided
 		submission: req.body.answers,
-		points: correctPoints,
-		totalPoints: totalCorrectWeight
+		points: pointsForThisQuestion,
+		totalPoints: totalPointsForThisQuestion
 	  };
 
   
@@ -163,37 +161,35 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	  );
 
   
-	  // Retrieve or create the student’s Grade record for this course.
-	  const studentGrade = await db.Grades.findOne({
-		where: { enrollmentId: enrollmentStudent.id, userId: user.id },
-		include: [{
-		  model: db.Enrollment,
-		  required: true,
-		  where: { courseId }
-		}]
+	  // Retrieve or create the student’s Grade record for this lectureForSection
+	  let studentGrade = await db.Grades.findOne({
+		where: {
+		  enrollmentId: enrollmentStudent.id,
+		  lectureForSectionId: lectureForSection.id
+		}
 	  });
 
-		if (!studentGrade) {
-			const newGrade = {
-			userId: user.id,
-			enrollmentId: enrollmentStudent.id,
-			sectionId: enrollmentStudent.sectionId,
-			points: correctPoints,
-			totalPoints: totalCorrectWeight,
-			grade: computedScore,
-			lectureForSectionId: lectureForSection.id 
+	  if (!studentGrade) {
+		const newGrade = {
+		  userId: user.id,
+		  enrollmentId: enrollmentStudent.id,
+		  sectionId: enrollmentStudent.sectionId,
+		  points: pointsForThisQuestion,
+		  totalPoints: totalPointsForThisQuestion,
+		  grade: totalPointsForThisQuestion ? pointsForThisQuestion / totalPointsForThisQuestion : 0,
+		  lectureForSectionId: lectureForSection.id
 		};
 		await db.Grades.create(gradeService.extractResponseInsertFields(newGrade));
 	  } else {
-		// Update existing grade by accumulating points and totalPoints.
-		studentGrade.points += correctPoints;
-		studentGrade.totalPoints += totalCorrectWeight;
+		// Update existing grade by accumulating points and totalPoints for this lectureForSection
+		studentGrade.points += pointsForThisQuestion;
+		studentGrade.totalPoints += totalPointsForThisQuestion;
 		const newGradeValue = studentGrade.totalPoints ? studentGrade.points / studentGrade.totalPoints : 0;
 		await studentGrade.update({
 		  points: studentGrade.points,
 		  totalPoints: studentGrade.totalPoints,
 		  grade: newGradeValue,
-		  lectureForSectionId: lectureForSection.id 
+		  lectureForSectionId: lectureForSection.id
 		});
 	  }
   
