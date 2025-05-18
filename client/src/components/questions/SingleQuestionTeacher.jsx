@@ -31,6 +31,7 @@ function SingleQuestionTeacher(props) {
         2: false,
         3: false
     })
+    const [ points, setPoints ] = useState(question?.points || 1)
     const [ weights, setWeights ] = useState(question?.weights || {
         0: 1,
         1: 1,
@@ -53,6 +54,7 @@ function SingleQuestionTeacher(props) {
             2: false,
             3: false
         })
+        setPoints(question?.points || 1)
         setWeights(question?.weights || {
             0: 1,
             1: 1,
@@ -92,12 +94,12 @@ function SingleQuestionTeacher(props) {
             type: type,
             answers: answers,
             lectureId: lectureId,
+            totalPoints: points,
             weights: weights,
             content: {
                 options: options
             }
         }
-        
         if (question != null) {
             // TODO: add update functionality once backend has implmented a put route for questions
             setQuestion(questionBody)
@@ -105,6 +107,7 @@ function SingleQuestionTeacher(props) {
         }
         else {
             const response = await apiUtil("post", `courses/${courseId}/questions`, { dispatch: dispatch, navigate: navigate}, questionBody)
+            console.log("removelog response", response)
             setError(response.error)
             setMessage(response.message)
             setLoading(false)
@@ -224,6 +227,7 @@ function SingleQuestionTeacher(props) {
         setWeights(newWeights)
     }
 
+    // TODO: Create setPoints function. to set the total points for the question
     // TODO: Create setweights function. to set the weight of an answer
 
     if (editing) {
@@ -233,6 +237,8 @@ function SingleQuestionTeacher(props) {
                 <div className="question-subcontainer">
                     <label>Question Stem:</label>
                     <input className="question-text" type="text" placeholder="What is 1 + 1?" name="stem" id="stem" value={stem} onChange={(e) => setStem(e.target.value)}></input>
+                    <label>Points: </label> 
+                    <input className="question-points" type="number" placeholder="1" name="points" id="points" value={points} onChange={(e) => setPoints(Number(e.target.value))}></input>
                 </div>
                 <div className="question-subcontainer">
                     <label>Question Type:</label>

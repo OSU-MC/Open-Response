@@ -129,8 +129,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 			questionToInsert.weights[i] = 1;
 		}
 	}
-	
-	questionToInsert.totalPoints = 0;
+	// questionToInsert.totalPoints = 0;
 
 	try {
 		const question = await db.Question.create(

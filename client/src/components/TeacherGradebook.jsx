@@ -19,7 +19,7 @@ function TeacherGradebook({ grades }) {
                         <tr key={grade.studentId}>
                             <td className="grades-student">{grade.studentName}</td>
                             {grade.lectures.map((lecture) => (
-                                <td key={lecture.lectureId} className="grades-grade">{lecture.lectureGrade} / {lecture.totalScore}</td>
+                                <td key={lecture.lectureId} className="grades-grade">{lecture.lectureGrade} / {lecture.totalPoints}</td>
                             ))}
                         </tr>
                     ))}
