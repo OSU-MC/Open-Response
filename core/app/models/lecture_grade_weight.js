@@ -1,5 +1,7 @@
 "use strict";
 
+const lecture_for_section = require("./lecture_for_section");
+
 module.exports = (sequelize, DataTypes) => {
   const LectureGradeWeight = sequelize.define('LectureGradeWeight', {
     id: {
@@ -8,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    lectureId: {
+    LectureForSectionId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -33,8 +35,8 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   LectureGradeWeight.associate = (models) => {
-    LectureGradeWeight.belongsTo(models.Lecture, {
-      foreignKey: 'lectureId',
+    LectureGradeWeight.belongsTo(models.LectureForSection, {
+      foreignKey: 'LectureForSectionId',
       onDelete: 'CASCADE',
     });
   };

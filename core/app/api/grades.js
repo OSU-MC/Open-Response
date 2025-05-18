@@ -230,6 +230,20 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 	}
 });
 
+// endpoint to get the grade of student(s) in a course
+// sums the lecture * lecutre_weight for each lecture 
+// normalized to 0-100 before returning
+//URL: /courses/:course_id/sections/:section_id/grades/all
+router.get("/courseGrade", requireAuthentication, async function (req, res, next) {
+	// check enrollment in course and section
+	// finds all of the lecutres with courseId
+	// finds all of the lecuteForSections with 
+	// find all of the grade records for the student
+	
+
+});
+
+
 //URL: /courses/:course_id/sections/:section_id/grades/all
 router.get("/all", requireAuthentication, async function (req, res, next) {
 	const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub

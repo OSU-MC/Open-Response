@@ -71,11 +71,11 @@ module.exports = {
           autoIncrement: true,
           allowNull: false,
         },
-        lectureId: {
+        lectureForSectionId: {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'Lectures',
+            model: 'LectureForSections',
             key: 'id',
           },
           onDelete: 'CASCADE',
