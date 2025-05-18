@@ -28,7 +28,6 @@ describe('/enrollments and /enrollments/enrollment_id endpoints', () => {
     let user4Cookies
 
     beforeAll(async() => {
-
         user = await db.User.create({
             firstName: 'Dan',
             lastName: 'Smith',
