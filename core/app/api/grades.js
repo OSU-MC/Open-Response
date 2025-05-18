@@ -128,12 +128,12 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 								},
 							],
 						});						
-
+						
+						totalPoints += question.totalPoints; // amount of points question is worth
 						if (response) {
 							totalQuestionsAnswered++;
 							lectureQuestionsAnswered++;
 							
-							totalPoints += question.totalPoints; // amount of points question is worth
 							totalScore += response.score; // amount of score received in total
 							lectureScore += response.score * question.totalPoints; // score for this lecture
 						}
@@ -186,11 +186,12 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				],
 			});
 
-			let totalScore = 0;
 			let totalQuestionsAsked = 0;
 			let totalQuestionsAnswered = 0;
 			// for each lecture in the section
 			for (let j = 0; j < lectureForSections.length; j++) {
+				let totalScore = 0;
+				
 				// get all the questions asked during the lecture
 				const questionsInLecture = await db.QuestionInLecture.findAll({
 					where: {
@@ -203,10 +204,19 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				let lectureScore = 0;
 				let lectureQuestionsAsked = 0;
 				let lectureQuestionsAnswered = 0;
+				
 				// for each question in the lecture, get the students response/score
 				for (let k = 0; k < questionsInLecture.length; k++) {
+					let totalPoints = 0;
 					totalQuestionsAsked++;
 					lectureQuestionsAsked++;
+
+					// find the question with id questionsInLecture[k].questionId
+					const question = await db.Question.findOne({
+						where: {
+							id: questionsInLecture[k].questionId,
+						},
+					});
 					// get student answer if it exists
 					const response = await db.Response.findOne({
 						where: {
@@ -214,24 +224,24 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 							enrollmentId: enrollmentStudent.id,
 						},
 					});
+					totalPoints += question.totalPoints; // amount of points question is worth
 					if (response) {
-						totalScore += response.score;
 						totalQuestionsAnswered++;
-						lectureScore += response.score;
 						lectureQuestionsAnswered++;
+						
+						totalScore += question.totalPoints; // amount of score received in total
+						lectureScore += response.score * question.totalPoints; // score for this lecture
 					}
 
 				}
 
 				lectureGradeObj.lectureId = lectureForSections[j].lectureId; // Add lectureTitleId
 				lectureGradeObj.lectureTitle = lectureForSections[j].Lecture.title; // Add lectureTitle
-				lectureGradeObj.lectureGrade = lectureScore
-				// lectureGradeObj.lectureGrade = parseFloat(
-				// 	(lectureScore / lectureQuestionsAsked).toFixed(2) // ratio of score to questions asked
-				// );
-				// lectureGradeObj.totalAnswered = lectureQuestionsAnswered;
-				lectureGradeObj.totalQuestions = lectureQuestionsAsked;
-				lectureGradeObj.totalScore = lectureScore;
+				lectureGradeObj.lectureGrade = lectureScore;
+				lectureGradeObj.totalQuestions = totalQuestionsAsked;
+				lectureGradeObj.totalAnswered = totalQuestionsAnswered;
+				lectureGradeObj.totalScore = totalScore;
+				
 				resp.push(lectureGradeObj);
 			}
 

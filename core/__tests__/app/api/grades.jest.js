@@ -312,7 +312,9 @@ describe("/grades endpoints", () => {
 		expect(resp.body[0].totalQuestions).toEqual(3);
 		expect(resp.body[0].totalAnswered).toEqual(1);
 		expect(resp.body[0].totalScore).toEqual(1);
-		expect(resp.body[0].lectures[0].lectureGrade).toEqual(0.33);
+		// changed to 1 to repersent the number of points recived from the lecture, from the % of the lecture points received.
+		// changed because questions now can be worth more than one points each.
+		expect(resp.body[0].lectures[0].lectureGrade).toEqual(1); 
 	});
 
 	it("should respond with 200 when a student gets their for a section", async () => {
@@ -321,7 +323,9 @@ describe("/grades endpoints", () => {
 			.set("Cookie", user2Cookies);
 		expect(resp.statusCode).toEqual(200);
 		expect(resp.body[0].lectureId).toEqual(lecture.id);
-		expect(resp.body[0].lectureGrade).toEqual(0.33);
+		// changed to 1 to repersent the number of points recived from the lecture, from the % of the lecture points received.
+		// changed because questions now can be worth more than one points each.
+		expect(resp.body[0].lectureGrade).toEqual(1);
 		expect(resp.body[0].totalQuestions).toEqual(3);
 		expect(resp.body[0].totalAnswered).toEqual(1);
 		expect(resp.body[0].totalScore).toEqual(1);
@@ -340,18 +344,22 @@ describe("/grades endpoints", () => {
         expect(resp.statusCode).toEqual(200)
         expect(resp.body[0].studentName).toEqual(`${user2.firstName} ${user2.lastName}`)
         expect(resp.body[0].studentId).toEqual(user2.id)
-        expect(resp.body[0].grade).toEqual(0.33)
+		expect(resp.body[0].grade).toEqual(0.33)
         expect(resp.body[0].totalQuestions).toEqual(3)
         expect(resp.body[0].totalAnswered).toEqual(1)
         expect(resp.body[0].totalScore).toEqual(1)
-        expect(resp.body[0].lectures[0].lectureGrade).toEqual(0.33)
+		// changed to 1 to repersent the number of points recived from the lecture, from the % of the lecture points received.
+		// changed because questions now can be worth more than one points each.
+        expect(resp.body[0].lectures[0].lectureGrade).toEqual(1)
     })
 
     it('should respond with 200 when a student gets their for a section', async () => {
         const resp = await request(app).get(`/courses/${course.id}/sections/${section.id}/grades`).set('Cookie', user2Cookies)
         expect(resp.statusCode).toEqual(200)
         expect(resp.body[0].lectureId).toEqual(lecture.id)
-        expect(resp.body[0].lectureGrade).toEqual(0.33)
+        // changed to 1 to repersent the number of points recived from the lecture, from the % of the lecture points received.
+		// changed because questions now can be worth more than one points each.
+		expect(resp.body[0].lectureGrade).toEqual(1)
         expect(resp.body[0].totalQuestions).toEqual(3)
         expect(resp.body[0].totalAnswered).toEqual(1)
         expect(resp.body[0].totalScore).toEqual(1)
