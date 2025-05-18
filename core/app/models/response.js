@@ -46,6 +46,10 @@ module.exports = (sequelize, DataTypes) => {
 					min: {
 						args: [0],
 						msg: "score cannot be less than 0",
+					},
+					max: {
+						args: [1],
+						msg: "score cannot be greater than 1",
 					}
 				},
 			},

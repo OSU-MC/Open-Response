@@ -129,17 +129,8 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 			questionToInsert.weights[i] = 1;
 		}
 	}
-	let totalPoints = 0;
-	for (let key in questionToInsert.weights) {
-		if (questionToInsert.answers[key] === true) {
-		  // This option is correct; add its weight to the total correct weight.
-		  totalPoints += questionToInsert.weights[key];
-		}
-	}
 	
-	// add total poitns to questionToInsert object
-	questionToInsert.totalPoints = totalPoints;
-	
+	questionToInsert.totalPoints = 0;
 
 	try {
 		const question = await db.Question.create(

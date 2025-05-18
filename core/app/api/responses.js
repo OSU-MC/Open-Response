@@ -102,7 +102,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 		where: { id: questionId }
 	  });
 
-	  console.log("responses.js Question:", question);
 
 	  if (!question) {
 		return res.status(404).send({ error: "Question not found" });
@@ -135,20 +134,20 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 	  }
 
 	  // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
-	  let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) : 0;
-	  if (computedScore < 0) computedScore = 0;
+		let computedScore = totalCorrectWeight > 0 ? (correctPoints - extraPenalty) / totalCorrectWeight : 0;
+	if (computedScore < 0) computedScore = 0;
 
 
 
 	  // Override the computed values with those from req.query if provided
-	  if (req.query.points && req.query.totalPoints) {
+	if (req.query.points && req.query.totalPoints) {
 		correctPoints = Number(req.query.points);
 		totalCorrectWeight = Number(req.query.totalPoints);
 		computedScore = totalCorrectWeight ? correctPoints / totalCorrectWeight : 0;
 	  }
   
 	  // Prepare the response record data
-	  const responseToInsert = {
+	const responseToInsert = {
 		enrollmentId: enrollmentStudent.id,
 		questionInLectureId: questionInLecture.id,
 		score: computedScore, // now reflects the override if provided
@@ -159,7 +158,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 
   
 	  // Create the Response record
-	  const responseRecord = await db.Response.create(
+	const responseRecord = await db.Response.create(
 		responseService.extractResponseInsertFields(responseToInsert)
 	  );
 
