@@ -38,7 +38,6 @@
     border-left: 2px solid #dee2e6;
 }
 
-/* Optionally, make the sticky student column stand out */
 .grades-student-column.sticky-col, .grades-student.sticky-col {
     background: #fff !important;
     box-shadow: 2px 0 5px -2px #ccc;

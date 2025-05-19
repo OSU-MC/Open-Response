@@ -57,12 +57,14 @@ function Grades(props) {
                     </div>
                     <h1 className="course-title">{`${courseName} Section ${sectionId} Grades`}</h1>
                     <Tabs courseId={courseId} tabs={tabs_o} />
+                    
                     {isInstructor && (
                         <div className="grades-actions">
                             <button className="btn btn-primary">Export</button>
                             <button className="btn btn-primary">Import</button>
                         </div>
                     )}
+
                 </div>
 
                 {/* Course Grade for students */}

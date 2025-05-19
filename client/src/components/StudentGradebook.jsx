@@ -6,6 +6,7 @@ function StudentGradebook({ grades }) {
     if (lectureGrades.length === 0) {
         return <div>No grades available.</div>;
     }
+
     return (
         <div className="grades-container">
             <Table striped bordered hover className="grades-table">
