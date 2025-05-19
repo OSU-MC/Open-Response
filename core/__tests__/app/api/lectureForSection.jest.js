@@ -11,6 +11,7 @@ describe('Test api/lecturesForSection', () => {
     let section1
     let lecture1
     let sec1_lec1
+    let lecture2 
 
     beforeAll(async() => {
         teacher = await db.User.create({
@@ -72,6 +73,24 @@ describe('Test api/lecturesForSection', () => {
             sectionId: section1.id,
             userId: student.id
         })
+
+    
+        const maxOrder = await db.Lecture.max('order', { where: { courseId: course1.id } }) || 1;
+        lecture2 = await db.Lecture.create({
+            title: 'Second Lecture',
+            order: maxOrder + 1,
+            description: 'desc',
+            courseId: course1.id
+        });
+        
+        await db.Question.create({
+            lectureId: lecture2.id,
+            totalPoints: 2,
+            order: 5,
+            softdelete: false, 
+            type: "multiple choice",
+            stem: "what is the answer",
+        })
     })
 
     describe('PUT /courses/:course_id/sections/:section_id/lectures/:lecture_id', () => {        
@@ -108,7 +127,7 @@ describe('Test api/lecturesForSection', () => {
         it('should respond with 400 for updating when there is no relationship between section and lecture', async () => {
             const tempLec = await db.Lecture.create({
                 title: 'temp lec',
-                order: 2,
+                order: 99,
                 description: 'temp qqq',
                 courseId: course1.id
             })            
@@ -238,32 +257,6 @@ describe('Test api/lecturesForSection', () => {
     })
 
     describe('POST /courses/:course_id/sections/:section_id/lectures', () => {
-        let lecture2;
-        beforeAll(async () => {
-        // Find the max order for lectures in course1 to avoid unique constraint errors
-            const maxOrder = await db.Lecture.max('order', { where: { courseId: course1.id } }) || 1;
-            lecture2 = await db.Lecture.create({
-                title: 'Second Lecture',
-                order: maxOrder + 1,
-                description: 'desc',
-                courseId: course1.id
-            });
-            // Add a question to lecture2
-            const question1 = await db.Question.create({
-                lectureId: lecture2.id,
-                totalPoints: 2,
-                order: 5,
-                softdelete: false, 
-                type: "multiple choice",
-                stem: "what is the answer",
-            })
-        });
-
-        afterAll(async () => {
-            await db.Question.destroy({ where: { lectureId: lecture2.id } });
-            await lecture2.destroy();
-        });
-
         it('should return 403 if not a teacher', async () => {
             const resp = await request(app)
                 .post(`/courses/${course1.id}/sections/${section1.id}/lectures`)
@@ -305,14 +298,12 @@ describe('Test api/lecturesForSection', () => {
             expect(resp.statusCode).toBe(400);
         });
 
-        it('should create lectureForSection, questionsInLecture, and lectureGradeWeight (int/float/zero weight)', async () => {
+        it('should create lectureForSection, questionsInLecture, and lectureGradeWeight (int weight)', async () => {
             // Use lecture2 and section1 (should not exist yet)
-            // Int weight
             let resp = await request(app)
                 .post(`/courses/${course1.id}/sections/${section1.id}/lectures`)
                 .set('Cookie', teachCookies)
                 .send({ lectureId: lecture2.id, attendanceMethod: 'join', weight: 2 });
-
             expect(resp.statusCode).toBe(200);
             let lfs = await db.LectureForSection.findOne({ where: { sectionId: section1.id, lectureId: lecture2.id } });
             expect(lfs).not.toBeNull();
@@ -321,35 +312,38 @@ describe('Test api/lecturesForSection', () => {
             let weight = await db.LectureGradeWeight.findOne({ where: { LectureForSectionId: lfs.id } });
             expect(weight).not.toBeNull();
             expect(weight.weight).toBe(2);
+        });
 
-            // Float weight
+        it('should create lectureForSection, questionsInLecture, and lectureGradeWeight (float weight)', async () => {
             const section2 = await db.Section.create({ number: 99, joinCode: 'float6', courseId: course1.id });
-            resp = await request(app)
+            let resp = await request(app)
                 .post(`/courses/${course1.id}/sections/${section2.id}/lectures`)
                 .set('Cookie', teachCookies)
                 .send({ lectureId: lecture2.id, attendanceMethod: 'join', weight: 1.5 });
             expect(resp.statusCode).toBe(200);
-            lfs = await db.LectureForSection.findOne({ where: { sectionId: section2.id, lectureId: lecture2.id } });
-            weight = await db.LectureGradeWeight.findOne({ where: { LectureForSectionId: lfs.id } });
+            let lfs = await db.LectureForSection.findOne({ where: { sectionId: section2.id, lectureId: lecture2.id } });
+            let weight = await db.LectureGradeWeight.findOne({ where: { LectureForSectionId: lfs.id } });
             expect(weight.weight).toBeCloseTo(1.5);
+            await section2.destroy();
+        });
 
-            // Zero weight
+        it('should create lectureForSection, questionsInLecture, and lectureGradeWeight (zero weight)', async () => {
             const section3 = await db.Section.create({ number: 100, joinCode: 'zero00', courseId: course1.id });
-            resp = await request(app)
+            let resp = await request(app)
                 .post(`/courses/${course1.id}/sections/${section3.id}/lectures`)
                 .set('Cookie', teachCookies)
                 .send({ lectureId: lecture2.id, attendanceMethod: 'join', weight: 0 });
             expect(resp.statusCode).toBe(200);
-            lfs = await db.LectureForSection.findOne({ where: { sectionId: section3.id, lectureId: lecture2.id } });
-            weight = await db.LectureGradeWeight.findOne({ where: { LectureForSectionId: lfs.id } });
+            let lfs = await db.LectureForSection.findOne({ where: { sectionId: section3.id, lectureId: lecture2.id } });
+            let weight = await db.LectureGradeWeight.findOne({ where: { LectureForSectionId: lfs.id } });
             expect(weight.weight).toBe(0);
-
-            await section2.destroy();
             await section3.destroy();
         });
     })
 
     afterAll(async () => {
+        await db.Question.destroy({ where: { lectureId: lecture2.id } });
+        await lecture2.destroy();
         await teacher.destroy()
         await student.destroy()
         await course1.destroy()
