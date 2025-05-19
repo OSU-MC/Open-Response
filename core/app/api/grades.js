@@ -211,12 +211,10 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						}
 					});
 					if (response) {
-						console.log("\n\n\nfound response for ", questionsInLecture[k].questionId)
 						totalQuestionsAnswered++;
 						lectureQuestionsAnswered++;
 
 					}else {
-						console.log("\n\n\nnot found response for ", questionsInLecture[k].questionId)
 
 					}
 				}
@@ -230,7 +228,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				if (studentGrade) {
 					lectureScore = studentGrade.points;
 					totalScore += studentGrade.points;
-					console.log(`Lecture ${lfs.lectureId} (${lfs.Lecture.title}): grade.points = ${studentGrade.points}, questions answered (by question check) = ${lectureQuestionsAnswered}`);
 				}
 				lectureGradeObj.lectureId = lfs.lectureId;
 				lectureGradeObj.lectureTitle = lfs.Lecture.title;
@@ -242,8 +239,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				resp.push(lectureGradeObj);
 			}
 			// Log the total number of questions asked and answered for the student
-			console.log(`Total questions asked for student ${user.id} (${user.firstName} ${user.lastName}): ${totalQuestionsAsked}`);
-			console.log(`Total questions answered for student ${user.id} (${user.firstName} ${user.lastName}): ${totalQuestionsAnswered}`);
 			res.status(200).send(resp);
 		} catch (e) {
 			console.error("Error fetching grades for student:", e);

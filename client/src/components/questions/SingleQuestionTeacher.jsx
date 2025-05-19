@@ -107,7 +107,6 @@ function SingleQuestionTeacher(props) {
         }
         else {
             const response = await apiUtil("post", `courses/${courseId}/questions`, { dispatch: dispatch, navigate: navigate}, questionBody)
-            console.log("removelog response", response)
             setError(response.error)
             setMessage(response.message)
             setLoading(false)
