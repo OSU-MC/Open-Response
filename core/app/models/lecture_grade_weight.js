@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         min: {
-          args: [0.000000001], // Ensures weight is greater than 0
+          args: [0], // zero so teachers can have lectures that don't affect the grade
           msg: "Validation error: Weight must be greater than 0",
         },
       },
