@@ -8,6 +8,7 @@ const responseService = require("../services/response_service");
 const csv = require('csv-parser');
 const fs = require('fs');
 const { Parser } = require('json2csv');
+const { Op } = require("sequelize");
 
 // URL: /courses/course_id/grades
 // teacher wants to get grades for each student in the course
@@ -231,16 +232,121 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 });
 
 // endpoint to get the grade of student(s) in a course
-// sums the lecture * lecutre_weight for each lecture 
+// sums the lecture * lecture_weight for each lecture 
 // normalized to 0-100 before returning
-//URL: /courses/:course_id/sections/:section_id/grades/all
+// URL: /courses/:course_id/sections/:section_id/grades/courseGrade
 router.get("/courseGrade", requireAuthentication, async function (req, res, next) {
-	// check enrollment in course and section
-	// finds all of the lecutres with courseId
-	// finds all of the lecuteForSections with 
-	// find all of the grade records for the student
-	
+    try {
+        const courseId = parseInt(req.params["course_id"]);
+        const sectionId = parseInt(req.params["section_id"]);
+        if (isNaN(courseId) || isNaN(sectionId)) {
+            return res.status(400).send({ error: "Invalid courseId or sectionId" });
+        }
+        const user = await db.User.findByPk(req.payload.sub);
+        // Check enrollments
+        const enrollmentTeacher = await db.Enrollment.findOne({
+            where: { userId: user.id, courseId: courseId, role: "teacher" },
+        });
+        const enrollmentStudent = await db.Enrollment.findOne({
+            where: { userId: user.id, sectionId: sectionId, role: "student" },
+        });
+        // Check section is in course
+        const sectionCheck = await db.Section.findOne({
+            where: { id: sectionId, courseId: courseId },
+        });
+        if (!enrollmentTeacher && !(enrollmentStudent && sectionCheck)) {
+            return res.status(403).send({
+                error: `Only a teacher or student for the given course/section can see grades for the course`,
+            });
+        }
+        // Find all lectures for this section
+        const lectureForSections = await db.LectureForSection.findAll({
+            where: { sectionId: sectionId, published: true},
+        });
+        const lectureForSectionIds = lectureForSections.map(lfs => lfs.id);
+        // Find all grades for these lectures
+        const allGrades = await db.Grades.findAll({
+            where: { lectureForSectionId: { [db.Sequelize.Op.in]: lectureForSectionIds } },
+        });
+        // Find all weights for these lectures
+        const weights = await db.LectureGradeWeight.findAll({
+            where: { LectureForSectionId: { [db.Sequelize.Op.in]: lectureForSectionIds } },
+        });
+        const weightMap = {};
+        let totalWeight = 0;
+        for (const w of weights) {
+            weightMap[w.LectureForSectionId] = w.weight;
+            totalWeight += w.weight;
+        }
+        if (totalWeight === 0) totalWeight = 1; // avoid division by zero
 
+        // For each lecture, get max possible points
+        const lectureMaxPointsMap = {};
+        for (const lfs of lectureForSections) {
+            const questions = await db.QuestionInLecture.findAll({
+                where: { lectureForSectionId: lfs.id },
+            });
+            let maxPoints = 0;
+            for (const q of questions) {
+                const question = await db.Question.findByPk(q.questionId);
+                maxPoints += question ? (question.totalPoints || 0) : 0;
+            }
+            lectureMaxPointsMap[lfs.id] = maxPoints;
+        }
+        // Helper to calculate normalized grade
+        const normalize = (sum, totalWeight) =>
+            totalWeight === 0 ? 0 : parseFloat(((sum / totalWeight) * 100).toFixed(2));
+        if (enrollmentTeacher) {
+            // For the teacher, sum weighted normalized grades for all students
+            const students = await db.User.findAll({
+                include: [
+                    {
+                        model: db.Enrollment,
+                        required: true,
+                        where: { sectionId: sectionId, role: "student" },
+                    },
+                ],
+            });
+            const results = [];
+            for (const student of students) {
+                let weightedSum = 0;
+                for (const lfs of lectureForSections) {
+                    const grade = allGrades.find(g => g.enrollmentId === student.Enrollments[0].id && g.lectureForSectionId === lfs.id);
+                    const points = grade ? grade.points : 0;
+                    const maxPoints = lectureMaxPointsMap[lfs.id] || 1;
+                    const normalizedLecture = points / maxPoints;
+                    const weight = weightMap[lfs.id] || 0;
+                    weightedSum += normalizedLecture * weight;
+                }
+                results.push({
+                    studentId: student.id,
+                    studentName: `${student.firstName} ${student.lastName}`,
+                    courseGrade: parseFloat(((weightedSum / totalWeight) * 100).toFixed(2)),
+                });
+            }
+            return res.status(200).send(results);
+        } else if (enrollmentStudent && sectionCheck) {
+            // For the student, sum their weighted normalized grades
+            let weightedSum = 0;
+            for (const lfs of lectureForSections) {
+                const grade = allGrades.find(g => g.enrollmentId === enrollmentStudent.id && g.lectureForSectionId === lfs.id);
+                const points = grade ? grade.points : 0;
+                const maxPoints = lectureMaxPointsMap[lfs.id] || 1;
+                const normalizedLecture = points / maxPoints;
+                const weight = weightMap[lfs.id] || 0;
+                weightedSum += normalizedLecture * weight;
+            }
+            const normalized = parseFloat(((weightedSum / totalWeight) * 100).toFixed(2));
+            return res.status(200).send({
+                studentId: user.id,
+                studentName: `${user.firstName} ${user.lastName}`,
+                courseGrade: normalized,
+            });
+        }
+    } catch (e) {
+        console.error("Error in /courseGrade endpoint:", e);
+        next(e);
+    }
 });
 
 
@@ -311,7 +417,8 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 			const studentGrades = [];
 			for (let i = 0; i < students.length; i++) {
 				const studentGrade =
-					grades.find((grade) => grade.userId === students[i].id) || 0;
+					grades.find((grade) =>
+						grade.userId === students[i].id) || 0;
 				studentGrades.push({
 					studentId: students[i].id,
 					studentName: `${students[i].firstName} ${students[i].lastName}`,
@@ -344,7 +451,6 @@ router.get("/all", requireAuthentication, async function (req, res, next) {
 				studentName: `${user.firstName} ${user.lastName}`,
 				grade: studentGrade.grade,
 			});
-
 			res.status(200).send(studentGrades);
 		} catch (e) {
 			console.error("Error fetching all grades for student:", e);

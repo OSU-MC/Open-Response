@@ -259,6 +259,12 @@ describe("/grades endpoints", () => {
 			published: true,
 		});
 
+		// Create LectureGradeWeight for the lectureForSection
+		await db.LectureGradeWeight.create({
+			LectureForSectionId: lectureForSection.id,
+			weight: 1.0,
+		});
+
 		questionInLecture = await db.QuestionInLecture.create({
 			questionId: question.id,
 			lectureForSectionId: lectureForSection.id,
@@ -300,8 +306,6 @@ describe("/grades endpoints", () => {
 
 		// Create Grades objects for each student in the section for the lecture
 		// Only for published questions (questionInLecture, questionInLecture2)
-		
-	
 		await db.Grades.create({
 			enrollmentId: enrollment2.id,
 			userId: user2.id, // tag with correct user
@@ -403,26 +407,211 @@ describe("/grades endpoints", () => {
         expect(resp.statusCode).toEqual(403)
     })
 
-	// it('should export grades successfully', async () => {
-	// 	const resp = await request(app)
-	// 		.get(
-	// 			`/courses/${course.id}/sections/${section.id}/grades/export`
-	// 		)
-	// 		.set('Cookie', userCookies)
-		
-		
-	// 	expect(resp.statusCode).toEqual(200)
-	// 	expect(resp.headers['content-type']).toEqual(
-	// 		'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'
-	// 	)
-	// 	expect(resp.headers['content-disposition']).toEqual(
-	// 		'attachment; filename=grades.xlsx'
-	// 	)
-	// 	expect(resp.headers['content-length']).toBeDefined()
-	// 	expect(resp.headers['content-length']).toEqual(
-	// 		`${resp.body.length}`
-	// 	)
-	// })
+	it("should respond with 200 and correct courseGrade for a teacher (all students)", async () => {
+		// NOTE: In the test setup, each student has a Grades object with points=1.0, totalPoints=3 (for 3 questions, but only 2 are published).
+		// The endpoint uses points/totalPoints, so normalized grade is 1/3 = 33.33% for user2 and user3, 0/3 = 0% for user4.
+		const resp = await request(app)
+			.get(`/courses/${course.id}/sections/${section.id}/grades/courseGrade`)
+			.set("Cookie", userCookies);
+		expect(resp.statusCode).toEqual(200);
+		const user2Grade = resp.body.find(s => s.studentId === user2.id);
+		const user3Grade = resp.body.find(s => s.studentId === user3.id);
+		const user4Grade = resp.body.find(s => s.studentId === user4.id);
+		expect(user2Grade.courseGrade).toBeCloseTo(33.33, 2);
+		expect(user3Grade.courseGrade).toBeCloseTo(33.33, 2);
+		expect(user4Grade.courseGrade).toBeCloseTo(0.0, 2);
+	});
+
+	it("should respond with 200 and correct courseGrade for a student (self)", async () => {
+		// See note above: user2 has 1/3 = 33.33%
+		const resp = await request(app)
+			.get(`/courses/${course.id}/sections/${section.id}/grades/courseGrade`)
+			.set("Cookie", user2Cookies);
+		expect(resp.statusCode).toEqual(200);
+		expect(resp.body.studentId).toEqual(user2.id);
+		expect(resp.body.courseGrade).toBeCloseTo(33.33, 2);
+	});
+
+	it("should return 0% for a student with no grades", async () => {
+		// Password must be at least 11 characters
+		const userNoGrades = await db.User.create({
+			firstName: "NoGrades",
+			lastName: "Student",
+			email: "nogrades@open-response.org",
+			rawPassword: "nope123456!!",
+		});
+		const enrollmentNoGrades = await db.Enrollment.create({
+			role: "student",
+			sectionId: section.id,
+			userId: userNoGrades.id,
+		});
+		const userNoGradesToken = jwtUtils.encode({ sub: userNoGrades.id });
+		const userNoGradesSession = await generateUserSession(userNoGrades);
+		const userNoGradesCookies = [
+			`_openresponse_session=${userNoGradesToken}`,
+			`xsrf-token=${userNoGradesSession.csrfToken}`,
+		];
+		const resp = await request(app)
+			.get(`/courses/${course.id}/sections/${section.id}/grades/courseGrade`)
+			.set("Cookie", userNoGradesCookies);
+		expect(resp.statusCode).toEqual(200);
+		expect(resp.body.studentId).toEqual(userNoGrades.id);
+		expect(resp.body.courseGrade).toBeCloseTo(0.0, 2);
+		await userNoGrades.destroy();
+	});
+
+	it("should ignore unpublished lectures and questions in courseGrade calculation", async () => {
+		// Add a new published lecture with weight, and an unpublished lecture with weight
+		const lecture2 = await db.Lecture.create({
+			courseId: course.id,
+			title: "Published Lecture",
+			order: 2,
+			description: "Published lecture for testing",
+		});
+		const lectureForSection2 = await db.LectureForSection.create({
+			sectionId: section.id,
+			lectureId: lecture2.id,
+			attendanceMethod: "join",
+			published: true,
+		});
+		await db.LectureGradeWeight.create({
+			LectureForSectionId: lectureForSection2.id,
+			weight: 2.0,
+		});
+		const question4 = await db.Question.create({
+			type: "multiple choice",
+			stem: "What is 2+2?",
+			lectureId: lecture2.id,
+			content: { options: { 0: 3, 1: 4 } },
+			answers: { 0: false, 1: true },
+			courseId: course.id,
+		});
+		const questionInLecture4 = await db.QuestionInLecture.create({
+			questionId: question4.id,
+			lectureForSectionId: lectureForSection2.id,
+			order: 1,
+			published: true,
+		});
+		// Give user2 a perfect score on this lecture
+		await db.Grades.create({
+			enrollmentId: enrollment2.id,
+			userId: user2.id,
+			lectureForSectionId: lectureForSection2.id,
+			points: 1.0,
+			totalPoints: 1,
+		});
+		// Add an unpublished lecture (should be ignored)
+		const lecture3 = await db.Lecture.create({
+			courseId: course.id,
+			title: "Unpublished Lecture",
+			order: 3,
+			description: "Should be ignored",
+		});
+		const lectureForSection3 = await db.LectureForSection.create({
+			sectionId: section.id,
+			lectureId: lecture3.id,
+			attendanceMethod: "join",
+			published: false,
+		});
+		await db.LectureGradeWeight.create({
+			LectureForSectionId: lectureForSection3.id,
+			weight: 5.0,
+		});
+		const resp = await request(app)
+			.get(`/courses/${course.id}/sections/${section.id}/grades/courseGrade`)
+			.set("Cookie", user2Cookies);
+		expect(resp.statusCode).toEqual(200);
+		// user2: lecture1 (1/3), lecture2 (1/1), weights 1+2=3
+		// weighted = (1/3*1 + 1/1*2)/3 = (0.333 + 2)/3 = 0.7777...*100 = 77.78
+		expect(resp.body.courseGrade).toBeCloseTo(77.78, 2);
+		// Clean up
+		await lecture2.destroy();
+		await lectureForSection2.destroy();
+		await question4.destroy();
+		await questionInLecture4.destroy();
+		await lecture3.destroy();
+		await lectureForSection3.destroy();
+	});
+
+	it("should calculate weighted average correctly for partial grades", async () => {
+		// Add a new published lecture with weight 2.0
+		const lecture2 = await db.Lecture.create({
+			courseId: course.id,
+			title: "Weighted Lecture",
+			order: 2,
+			description: "Weighted lecture for testing",
+		});
+		const lectureForSection2 = await db.LectureForSection.create({
+			sectionId: section.id,
+			lectureId: lecture2.id,
+			attendanceMethod: "join",
+			published: true,
+		});
+		await db.LectureGradeWeight.create({
+			LectureForSectionId: lectureForSection2.id,
+			weight: 2.0,
+		});
+		const question4 = await db.Question.create({
+			type: "multiple choice",
+			stem: "What is 2+2?",
+			lectureId: lecture2.id,
+			content: { options: { 0: 3, 1: 4 } },
+			answers: { 0: false, 1: true },
+			courseId: course.id,
+		});
+		const questionInLecture4 = await db.QuestionInLecture.create({
+			questionId: question4.id,
+			lectureForSectionId: lectureForSection2.id,
+			order: 1,
+			published: true,
+		});
+		// Give user2 a perfect score on this lecture, user3 gets 0
+		await db.Grades.create({
+			enrollmentId: enrollment2.id,
+			userId: user2.id,
+			lectureForSectionId: lectureForSection2.id,
+			points: 1.0,
+			totalPoints: 1,
+		});
+		await db.Grades.create({
+			enrollmentId: enrollment3.id,
+			userId: user3.id,
+			lectureForSectionId: lectureForSection2.id,
+			points: 0.0,
+			totalPoints: 1,
+		});
+		const resp = await request(app)
+			.get(`/courses/${course.id}/sections/${section.id}/grades/courseGrade`)
+			.set("Cookie", userCookies);
+		expect(resp.statusCode).toEqual(200);
+		const user2Grade = resp.body.find(s => s.studentId === user2.id);
+		const user3Grade = resp.body.find(s => s.studentId === user3.id);
+		// user2: lecture1 (1/3), lecture2 (1/1), weights 1+2=3
+		// weighted = (1/3*1 + 1*2)/3 = (0.333 + 2)/3 = 0.7777...*100 = 77.78
+		// user3: lecture1 (1/3), lecture2 (0/1), weights 1+2=3
+		// weighted = (1/3*1 + 0*2)/3 = (0.333 + 0)/3 = 0.1111...*100 = 11.11
+		expect(user2Grade.courseGrade).toBeCloseTo(77.78, 2);
+		expect(user3Grade.courseGrade).toBeCloseTo(11.11, 2);
+		// Clean up
+		await lecture2.destroy();
+		await lectureForSection2.destroy();
+		await question4.destroy();
+		await questionInLecture4.destroy();
+	});
+
+	it("should return 403 for unauthorized user (not enrolled)", async () => {
+		const resp = await request(app)
+			.get(`/courses/${course.id}/sections/${section.id}/grades/courseGrade`)
+			.set("Cookie", user6Cookies);
+		expect(resp.statusCode).toEqual(403);
+	});
+
+	it("should return 400 for invalid courseId or sectionId", async () => {
+		const resp = await request(app)
+			.get(`/courses/abc/sections/def/grades/courseGrade`)
+			.set("Cookie", userCookies);
+		expect(resp.statusCode).toEqual(400);
+	});
 
     afterAll(async () => {
         await user.destroy()
@@ -432,5 +621,5 @@ describe("/grades endpoints", () => {
         await user5.destroy()
         await user6.destroy()
         await course.destroy() // should cascade on delete and delete sections and enrollments as well
-    })
-})
+    });
+});

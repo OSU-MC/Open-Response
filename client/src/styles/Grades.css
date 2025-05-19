@@ -17,5 +17,67 @@
 }
 
 .grades-lecture-column {
-    width: auto;
+    min-width: 100px;
+    max-width: 200px;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.grades-course-column {
+    min-width: 120px;
+    text-align: right;
+    background: #f8f9fa;
+    font-weight: bold;
+}
+
+.grades-course-grade {
+    font-weight: bold;
+    color: #2c3e50;
+    background: #f4f6fa;
+    text-align: right;
+    border-left: 2px solid #dee2e6;
+}
+
+/* Optionally, make the sticky student column stand out */
+.grades-student-column.sticky-col, .grades-student.sticky-col {
+    background: #fff !important;
+    box-shadow: 2px 0 5px -2px #ccc;
+    z-index: 2;
+}
+
+.course-grade-summary {
+    margin: 12px 0 12px 0;
+    padding: 4px 12px;
+    background: #f8f9fa;
+    border-radius: 6px;
+    box-shadow: none;
+    max-width: 320px;
+    text-align: left;
+    display: flex;
+    align-items: center;
+    font-size: 1rem;
+}
+
+.course-grade-summary h2 {
+    font-size: 1rem;
+    margin: 0 8px 0 0;
+    color: #2c3e50;
+    font-weight: 500;
+    display: inline;
+}
+
+.course-grade-value {
+    font-size: 1.1rem;
+    font-weight: bold;
+    color: #1a7f37;
+    margin-left: 4px;
+    display: inline;
+}
+
+.grades-lecture-column,
+.grades-student-column,
+.grades-course-column {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
 }

@@ -218,6 +218,17 @@ module.exports = {
 			]
 		);
 
+		let section1forlecture2 = await queryInterface.bulkInsert(
+			"LectureForSections",
+			[
+				{
+					sectionId: section1course1,
+					lectureId: lecture2course1,
+					published: true,
+				},
+			]
+		);
+
 		let question1inlecture1 = await queryInterface.bulkInsert(
 			"QuestionInLectures",
 			[
@@ -351,13 +362,13 @@ module.exports = {
 			"LectureGradeWeights",
 			[
 				{
-					lectureId: lecture1course1,
+					LectureForSectionId: section1forlecture1,
 					weight: 2.5,
 				},
 				{
-					lectureId: lecture2course1,
+					LectureForSectionId: section1forlecture2,
 					weight: 0.5,
-				}
+				},
 			],
 			{}
 		);	
