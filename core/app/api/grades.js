@@ -186,6 +186,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				let lectureQuestionsAsked = 0;
 				let lectureQuestionsAnswered = 0;
 				let lectureTotalPoints = 0;
+				console.log("questionInLecture", questionsInLecture.length)
 				for (let k = 0; k < questionsInLecture.length; k++) {
 					const question = await db.Question.findOne({
 						where: { id: questionsInLecture[k].questionId },
