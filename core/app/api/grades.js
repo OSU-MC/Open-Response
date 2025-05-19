@@ -110,6 +110,17 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 						totalPoints += question.totalPoints || 0;
 						totalQuestionsAsked++;
 						lectureQuestionsAsked++;
+						// Check if a response exists for this question, this student, and this lectureForSection
+						const response = await db.Response.findOne({
+							where: {
+								enrollmentId: students[i].Enrollments[0].id,
+								questionInLectureId: questionsInLecture[k].id
+							}
+						});
+						if (response) {
+							lectureQuestionsAnswered++;
+							totalQuestionsAnswered++;
+						}
 					}
 					// Get the student's grade for this lecture (if any)
 					const grade = await db.Grades.findOne({
@@ -120,9 +131,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					});
 					if (grade) {
 						lectureScore = grade.points;
-						lectureQuestionsAnswered = grade.points > 0 ? 1 : 0; // 1 if answered, 0 if not
 						totalScore += grade.points;
-						totalQuestionsAnswered += lectureQuestionsAnswered;
 					}
 					lectureGradeObj.lectureId = lfs.lectureId;
 					lectureGradeObj.lectureTitle = lfs.Lecture.title;
@@ -186,7 +195,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				let lectureQuestionsAsked = 0;
 				let lectureQuestionsAnswered = 0;
 				let lectureTotalPoints = 0;
-				console.log("questionInLecture", questionsInLecture.length)
 				for (let k = 0; k < questionsInLecture.length; k++) {
 					const question = await db.Question.findOne({
 						where: { id: questionsInLecture[k].questionId },
@@ -195,19 +203,34 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 					totalPoints += question.totalPoints || 0;
 					totalQuestionsAsked++;
 					lectureQuestionsAsked++;
+					// Check if a response exists for this question, this student, and this lectureForSection
+					const response = await db.Response.findOne({
+						where: {
+							enrollmentId: enrollmentStudent.id,
+							questionInLectureId: questionsInLecture[k].id
+						}
+					});
+					if (response) {
+						console.log("\n\n\nfound response for ", questionsInLecture[k].questionId)
+						totalQuestionsAnswered++;
+						lectureQuestionsAnswered++;
+
+					}else {
+						console.log("\n\n\nnot found response for ", questionsInLecture[k].questionId)
+
+					}
 				}
 				// Get the student's grade for this lecture (if any)
-				const grade = await db.Grades.findOne({
+				const studentGrade = await db.Grades.findOne({
 					where: {
 						enrollmentId: enrollmentStudent.id,
 						lectureForSectionId: lfs.id
 					}
 				});
-				if (grade) {
-					lectureScore = grade.points;
-					lectureQuestionsAnswered = grade.points > 0 ? 1 : 0;
-					totalScore += grade.points;
-					totalQuestionsAnswered += lectureQuestionsAnswered;
+				if (studentGrade) {
+					lectureScore = studentGrade.points;
+					totalScore += studentGrade.points;
+					console.log(`Lecture ${lfs.lectureId} (${lfs.Lecture.title}): grade.points = ${studentGrade.points}, questions answered (by question check) = ${lectureQuestionsAnswered}`);
 				}
 				lectureGradeObj.lectureId = lfs.lectureId;
 				lectureGradeObj.lectureTitle = lfs.Lecture.title;
@@ -218,6 +241,9 @@ router.get("/", requireAuthentication, async function (req, res, next) {
 				lectureGradeObj.totalPoints = lectureTotalPoints;
 				resp.push(lectureGradeObj);
 			}
+			// Log the total number of questions asked and answered for the student
+			console.log(`Total questions asked for student ${user.id} (${user.firstName} ${user.lastName}): ${totalQuestionsAsked}`);
+			console.log(`Total questions answered for student ${user.id} (${user.firstName} ${user.lastName}): ${totalQuestionsAnswered}`);
 			res.status(200).send(resp);
 		} catch (e) {
 			console.error("Error fetching grades for student:", e);
@@ -546,20 +572,20 @@ router.get(
 		// Return the grade for the individual student
 		if (enrollmentStudent) {
 			try {
-				const grades = await db.Grades.findOne({
+				const singleGrade = await db.Grades.findOne({
 					where: {
 						lectureForSectionId: sectionId,
 						enrollmentId: user.id,
 					},
 				});
-				if (!grades) {
+				if (!singleGrade) {
 					res.status(204).send({
 						error: `No grades found for student with ID ${user.id}`,
 					});
 					return;
 				}
 
-				const grade = grades.grade || 0;
+				const grade = singleGrade.grade || 0;
 				res.status(200).send({
 					studentId: user.id,
 					studentName: `${user.firstName} ${user.lastName}`,
