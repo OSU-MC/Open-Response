@@ -115,7 +115,7 @@ describe("Response model", () => {
 					questionId: question.id,
 					enrollmentId: enrollment.id,
 				})
-			).rejects.toThrow("Validation error: score cannot be more than 1");
+			).rejects.toThrow("Validation error: score cannot be greater than 1");
 		});
 
 		it("should invalidate because score is too low", async () => {

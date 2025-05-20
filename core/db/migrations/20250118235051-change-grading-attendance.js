@@ -71,11 +71,11 @@ module.exports = {
           autoIncrement: true,
           allowNull: false,
         },
-        lectureId: {
+        lectureForSectionId: {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'Lectures',
+            model: 'LectureForSections',
             key: 'id',
           },
           onDelete: 'CASCADE',
@@ -152,6 +152,7 @@ module.exports = {
           model: 'LectureForSections',
           key: 'id',
         },
+        onDelete: 'CASCADE',
         validate: {
           notNull: {
             msg: 'a grade must have an associated lecture',

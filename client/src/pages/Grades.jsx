@@ -57,11 +57,27 @@ function Grades(props) {
                     </div>
                     <h1 className="course-title">{`${courseName} Section ${sectionId} Grades`}</h1>
                     <Tabs courseId={courseId} tabs={tabs_o} />
-                    <div className="grades-actions">
-                        <button className="btn btn-primary">Export</button>
-                        <button className="btn btn-primary">Import</button>
-                    </div>
+                    
+                    {isInstructor && (
+                        <div className="grades-actions">
+                            <button className="btn btn-primary">Export</button>
+                            <button className="btn btn-primary">Import</button>
+                        </div>
+                    )}
+
                 </div>
+
+                {/* Course Grade for students */}
+                {!isInstructor && grades && grades.courseGrades && (
+                    <div className="course-grade-summary">
+                        <h2>Course Grade</h2>
+                        <div className="course-grade-value">
+                            {grades.courseGrades.courseGrade !== undefined
+                                ? `${grades.courseGrades.courseGrade} / 100`
+                                : 'N/A'}
+                        </div>
+                    </div>
+                )}
 
                 {message ? (
                     <Notice error={error ? "error" : ""} message={message} />

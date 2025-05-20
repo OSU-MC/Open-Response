@@ -191,7 +191,7 @@ module.exports = (sequelize, DataTypes) => {
 				allowNull: false,
 				defaultValue: 1,
 				validate: {
-					notNull: {
+					notNull: { 
 						msg: 'Question must have a totalPoints'
 					},
 					min: {

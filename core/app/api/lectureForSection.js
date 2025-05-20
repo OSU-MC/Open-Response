@@ -258,10 +258,11 @@ router.post('/', requireAuthentication, async function (req, res, next) {
     const user = await db.User.findByPk(req.payload.sub); // find user by ID, which is stored in sub
     const courseId = parseInt(req.params['course_id']);
     const sectionId = parseInt(req.params['section_id']);
-    const { lectureId: selectedLectureId, attendanceMethod: selectedAttendanceMethod } = req.body;
+    const { lectureId: selectedLectureId, attendanceMethod: selectedAttendanceMethod, weight : lectureWeight} = req.body;
 
+    
     // Validate the parameters
-    if (!courseId || !sectionId || !selectedLectureId || !selectedAttendanceMethod) {
+    if (!courseId || !sectionId || !selectedLectureId || !selectedAttendanceMethod || lectureWeight === undefined || lectureWeight === null) {
         return res.status(400).send({ error: "Missing required parameters: courseId, sectionId, or lectureId" });
     }
 
@@ -316,6 +317,14 @@ router.post('/', requireAuthentication, async function (req, res, next) {
                 published: false,
             });
         }
+
+        // create a lectureGradeWeight with lectureForSectionId and lectureWeight
+        await db.LectureGradeWeight.create({
+            LectureForSectionId: lectureForSection.id,
+            weight: lectureWeight
+        });
+
+
 
         res.status(200).send(lectureForSection);
     } catch (error) {

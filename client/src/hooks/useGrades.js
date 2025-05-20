@@ -18,12 +18,25 @@ function useGrades(courseId, sectionId) {
             setLoading(false);
             setMessage(response.message);
             setError(response.error);
+            let gradesData = [];
+            let courseGrades = null;
             if (response.status === 200) {
-                setGrades(response.data);
+                gradesData = response.data;
+                // Fetch course grade(s) and append
+                const courseGradeResp = await apiUtil("get", `courses/${courseId}/sections/${sectionId}/grades/courseGrade`, { dispatch, navigate });
+                if (courseGradeResp.status === 200) {
+                    courseGrades = courseGradeResp.data;
+                }
             } else {
                 console.error('Unexpected API Response:', response.data); 
                 setMessage(response.data.error || 'Unexpected response from server');
                 setError(true);
+            }
+            // Attach courseGrades to grades object (array or object)
+            if (Array.isArray(gradesData)) {
+                setGrades({ lectures: gradesData, courseGrades });
+            } else {
+                setGrades({ ...gradesData, courseGrades });
             }
         }
 

@@ -1,5 +1,7 @@
 "use strict";
 
+const lecture_for_section = require("./lecture_for_section");
+
 module.exports = (sequelize, DataTypes) => {
   const LectureGradeWeight = sequelize.define('LectureGradeWeight', {
     id: {
@@ -8,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
       autoIncrement: true,
       allowNull: false,
     },
-    lectureId: {
+    LectureForSectionId: {
       type: DataTypes.INTEGER,
       allowNull: false,
     },
@@ -17,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
       allowNull: false,
       validate: {
         min: {
-          args: [0.000000001], // Ensures weight is greater than 0
+          args: [0], // zero so teachers can have lectures that don't affect the grade
           msg: "Validation error: Weight must be greater than 0",
         },
       },
@@ -27,14 +29,14 @@ module.exports = (sequelize, DataTypes) => {
     indexes: [
       {
         unique: true,
-        fields: ['lectureId'],
+        fields: ['LectureForSectionId'], 
       },
     ],
   });
 
   LectureGradeWeight.associate = (models) => {
-    LectureGradeWeight.belongsTo(models.Lecture, {
-      foreignKey: 'lectureId',
+    LectureGradeWeight.belongsTo(models.LectureForSection, {
+      foreignKey: 'LectureForSectionId',
       onDelete: 'CASCADE',
     });
   };

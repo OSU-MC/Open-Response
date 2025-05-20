@@ -2,6 +2,11 @@ import React from 'react';
 import { Table } from "react-bootstrap";
 
 function StudentGradebook({ grades }) {
+    const lectureGrades = Array.isArray(grades) ? grades : (Array.isArray(grades?.lectures) ? grades.lectures : []);
+    if (lectureGrades.length === 0) {
+        return <div>No grades available.</div>;
+    }
+
     return (
         <div className="grades-container">
             <Table striped bordered hover className="grades-table">
@@ -13,11 +18,11 @@ function StudentGradebook({ grades }) {
                     </tr>
                 </thead>
                 <tbody>
-                    {grades.map((lecture) => (
+                    {lectureGrades.map((lecture) => (
                         <tr key={lecture.lectureId}>
                             <td className="grades-assignment">{lecture.lectureTitle}</td>
                             <td className="grades-questions">{lecture.totalAnswered} / {lecture.totalQuestions}</td>
-                            <td className="grades-grade">{lecture.lectureGrade} / {lecture.totalScore}</td>
+                            <td className="grades-grade">{lecture.lectureGrade} / {lecture.totalPoints}</td>
                         </tr>
                     ))}
                 </tbody>
