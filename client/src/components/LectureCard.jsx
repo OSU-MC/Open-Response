@@ -54,6 +54,11 @@ function LectureCard (props) {
                                 {props.section ? `View Lecture` : `Edit Lecture`}
                             </Button>
                         </Link>
+                        <Link classname="viewPastLectureBtn" to={props.section ? `lectures/past/${props.lecture.id}` : `${props.lecture.id}`}>
+                            <Button className="viewPastLectureBtn">
+                                {props.section ? `View Past Lecture` : `Edit Lecture`}
+                            </Button>
+                        </Link>
                         <Button variant="danger" onClick={handleDelete} className="deleteLectureBtn">
                             Delete
                         </Button>
