@@ -95,7 +95,7 @@ export const test = base.extend({
     },
 
     /****************************************
-     * AUTHENTICATED SESSION - DYNAMIC URLS *
+     * STUDENT - DYNAMIC URLS *
      ****************************************/
     // These assume using the seeded data for the test database, which should be reset berfore the start of each test
     coursePageStudent: async ({ loggedInPageStudent }, use) => {

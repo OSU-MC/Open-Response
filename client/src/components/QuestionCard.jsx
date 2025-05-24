@@ -37,8 +37,7 @@ function QuestionCard(props){
     async function changePublishState(){
         
         setLoading(true)
-        const publishedStatus = published ? '0' : '1'
-        const response = await apiUtil("put", `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/sections/${props.sectionId}/${publishedStatus}`, { dispatch: dispatch, navigate: navigate})
+        const response = await apiUtil("put", `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${props.question.id}/`, { dispatch: dispatch, navigate: navigate})
         setLoading(false)
         setError(response.error)
         setMessage(response.message)

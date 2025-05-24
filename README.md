@@ -21,7 +21,7 @@ git clone git@github.com:OSU-MC/Open-Response.git
 
 Navigate to the cloned repository:
 ```
-cd MyCOpen-Responselassroom
+cd Open-Response
 ```
 
 Install the application dependencies:

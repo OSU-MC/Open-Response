@@ -101,7 +101,7 @@ module.exports = (sequelize, DataTypes) => {
         Lecture.belongsTo(models.Course)
         Lecture.hasMany(models.Question)
         Lecture.hasMany(models.LectureForSection)
-        Lecture.hasMany(models.LectureGradeWeight)
+        
         Lecture.hasMany(models.RequiredQuestionsInLecture)
     }
 

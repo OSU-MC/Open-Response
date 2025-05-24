@@ -5,7 +5,7 @@ const enrollmentService = require('../services/enrollment_service')
 const lectureService = require('../services/lecture_service')
 const questionService = require('../services/question_service')
 
-// base path: /courses/:course_id/lectures/:lecture_id/questions
+// base path: /courses/:course_id/sections/:sectionId/lectures/:lecture_id/questions
 
 // teacher wants to view a question inside a lecture 
 router.get('/:question_id', requireAuthentication, async function (req, res, next) {

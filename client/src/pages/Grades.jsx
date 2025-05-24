@@ -10,6 +10,9 @@ import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
 import { TailSpin } from 'react-loader-spinner';
 import "../styles/Grades.css";
+import TeacherGradebook from '../components/TeacherGradebook';
+import StudentGradebook from '../components/StudentGradebook';
+
 
 // URL for this page: /:courseId/sections/:sectionId/grades
 
@@ -54,25 +57,27 @@ function Grades(props) {
                     </div>
                     <h1 className="course-title">{`${courseName} Section ${sectionId} Grades`}</h1>
                     <Tabs courseId={courseId} tabs={tabs_o} />
-                    <div className="grades-actions">
-                        <button className="btn btn-primary">Export</button>
-                        <button className="btn btn-primary">Import</button>
-                        
-                        {/* <button className="btn btn-primary" onClick={exportGrades} disabled={exporting}>
-                            {exporting ? 'Exporting...' : 'Export'}
-                        </button>
-                        <input
-                            type="file"
-                            accept=".csv"
-                            onChange={handleImport}
-                            style={{ display: 'none' }}
-                            id="import-grades"
-                        />
-                        <label htmlFor="import-grades" className="btn btn-secondary">
-                            {importing ? 'Importing...' : 'Import'}
-                        </label> */}
-                    </div>
+                    
+                    {isInstructor && (
+                        <div className="grades-actions">
+                            <button className="btn btn-primary">Export</button>
+                            <button className="btn btn-primary">Import</button>
+                        </div>
+                    )}
+
                 </div>
+
+                {/* Course Grade for students */}
+                {!isInstructor && grades && grades.courseGrades && (
+                    <div className="course-grade-summary">
+                        <h2>Course Grade</h2>
+                        <div className="course-grade-value">
+                            {grades.courseGrades.courseGrade !== undefined
+                                ? `${grades.courseGrades.courseGrade} / 100`
+                                : 'N/A'}
+                        </div>
+                    </div>
+                )}
 
                 {message ? (
                     <Notice error={error ? "error" : ""} message={message} />
@@ -80,44 +85,11 @@ function Grades(props) {
                     <Notice message="No grades available" />
                 ) : null}
 
-                <div className="grades-container">
-                    <Table striped bordered hover>
-                        <thead>
-                            <tr>
-                                {isInstructor && <th>Student</th>}
-                                {isInstructor ? (
-                                    grades[0]?.lectures.map((lecture) => (
-                                        <th key={lecture.lectureId}>{lecture.lectureTitle}</th>
-                                    ))
-                                ) : (
-                                    <>
-                                        <th>Lecture</th>
-                                        <th>Grade</th>
-                                    </>
-                                )}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {Array.isArray(grades) && grades.map((grade) => (
-                                <tr key={grade.studentId}>
-                                    {isInstructor && <td>{grade.studentName}</td>}
-                                    {isInstructor ? (
-                                        grade.lectures.map((lecture) => (
-                                            <td key={lecture.lectureId}>{lecture.lectureGrade}</td>
-                                        ))
-                                    ) : (
-                                        grade.lectures.map((lecture) => (
-                                            <React.Fragment key={lecture.lectureId}>
-                                                <td>{lecture.lectureTitle}</td>
-                                                <td>{lecture.lectureGrade}</td>
-                                            </React.Fragment>
-                                        ))
-                                    )}
-                                </tr>
-                            ))}
-                        </tbody>
-                    </Table>
-                </div>
+                {isInstructor ? (
+                    <TeacherGradebook grades={grades} />
+                ) : (
+                    <StudentGradebook grades={grades} />
+                )}
             </div>
         )
     );

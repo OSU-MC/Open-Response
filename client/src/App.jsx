@@ -30,6 +30,7 @@ import useAuth from "./hooks/useAuth";
 import { TailSpin } from "react-loader-spinner";
 import Grades from "./pages/Grades";
 import LiveLecture from "./pages/LiveLecture";
+import PastLectureId from "./pages/PastLectureId";
 
 function App() {
 	const [loggedIn, message, error, loading] = useAuth();
@@ -103,6 +104,10 @@ function App() {
 										<Route
 											path='lectures/:lectureId'
 											element={<LectureInSection />}
+										/>
+										<Route
+											path='lectures/past/:lectureId'
+											element={<PastLectureId />}
 										/>
 									</Route>
 								</Route>

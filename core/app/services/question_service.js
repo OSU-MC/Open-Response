@@ -5,6 +5,8 @@ const questionInsertSchema = {
 	stem: { required: true },
 	content: { required: true },
 	answers: { required: true },
+	weights: { required: true },
+	totalPoints: { required: true },
 };
 
 exports.extractQuestionUpdateFields = (body) => {
@@ -46,6 +48,7 @@ const questionInformationSchema = {
 	weights: { required: false },
 	content: { required: false },
 	answers: { required: false },
+	totalPoints: { required: true },
 };
 
 // doesn't have question ID... this is usually called along with the schema above, avoid duplicates

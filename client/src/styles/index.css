@@ -123,9 +123,14 @@ body {
     width: 29%;
 }
 
+.viewPastLectureBtn {
+    padding: 5px;
+}
+
 .viewLectureBtn {
     padding: 5px;
 }
+
 .create-lecture-btn {
     position: absolute;
     top: 100px;
@@ -203,6 +208,13 @@ body {
 /* Live Lectures */
 .LiveLecture {
     width: 100%;
+}
+
+/* Past Lectures */
+.past-lecture-page {
+    width: 100%;
+    height: 100%;
+    padding: 20px;
 }
 
 /* Back button */

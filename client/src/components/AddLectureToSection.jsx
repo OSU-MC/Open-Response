@@ -13,6 +13,7 @@ function AddLectureToSection({ show, handleClose, courseId, sectionId }) {
     const [lectures, setLectures] = useState([]);
     const [selectedLectureId, setSelectedLectureId] = useState(null);
     const [selectedAttendanceMethod, setSelectedAttendanceMethod] = useState(''); // Added state for attendance method
+    const [lectureWeight, setLectureWeight] = useState(''); // New state for lecture weight
     const [loading, setLoading] = useState(false);
 
     useEffect(() => {
@@ -37,7 +38,7 @@ function AddLectureToSection({ show, handleClose, courseId, sectionId }) {
     }, [show, courseId]);
 
     const handleSave = async () => {
-        if (!selectedLectureId || !selectedAttendanceMethod) return;
+        if (!selectedLectureId || !selectedAttendanceMethod || lectureWeight === '') return;
 
         setLoading(true);
         try {
@@ -47,7 +48,8 @@ function AddLectureToSection({ show, handleClose, courseId, sectionId }) {
                 null,
                 { 
                     lectureId: selectedLectureId, 
-                    attendanceMethod: selectedAttendanceMethod
+                    attendanceMethod: selectedAttendanceMethod,
+                    weight: parseFloat(lectureWeight)
                 },
                 null
             );
@@ -102,13 +104,28 @@ function AddLectureToSection({ show, handleClose, courseId, sectionId }) {
                             <option value="requiredQuestions">Required Questions</option>
                         </Form.Control>
                     </Form.Group>
+                    <Form.Group controlId="lectureWeight">
+                        <Form.Label>Lecture Weight</Form.Label>
+                        <Form.Control
+                            type="number"
+                            min="0"
+                            step="any"
+                            value={lectureWeight}
+                            onChange={e => {
+                                const val = e.target.value;
+                                // Allow empty, or a valid float >= 0
+                                if (val === '' || /^\d*\.?\d*$/.test(val)) setLectureWeight(val);
+                            }}
+                            placeholder="Enter lecture weight"
+                        />
+                    </Form.Group>
                 </Form>
             </Modal.Body>
             <Modal.Footer>
                 <Button variant="secondary" onClick={handleClose} disabled={loading}>
                     Close
                 </Button>
-                <Button variant="primary" onClick={handleSave} disabled={loading || !selectedLectureId || !selectedAttendanceMethod}>
+                <Button variant="primary" onClick={handleSave} disabled={loading || !selectedLectureId || !selectedAttendanceMethod || lectureWeight === ''}>
                     {loading ? 'Saving...' : 'Save Changes'}
                 </Button>
             </Modal.Footer>

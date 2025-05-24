@@ -115,6 +115,7 @@ module.exports = (sequelize, DataTypes) => {
     LectureForSection.belongsTo(models.Lecture)
     LectureForSection.hasMany(models.QuestionInLecture)
     LectureForSection.hasMany(models.Attendance)
+    LectureForSection.hasMany(models.LectureGradeWeight)
     LectureForSection.hasMany(models.Grades, { foreignKey: 'lectureForSectionId' });
   }
 

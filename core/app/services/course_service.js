@@ -12,7 +12,7 @@ const courseStudentInformationSchema = {
     name: {required: true},
     description: {required: false},
     published: {required: false},
-    Sections: {required: false}
+    Sections: {required: true}
 }
 
 const courseInsertSchema = {
