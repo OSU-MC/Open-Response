@@ -41,7 +41,7 @@ jobs:
           git push
 
       - name: Run ESLint
-        run: npx eslint --pattern "**/*.{js,jsx,ts,tsx}" --max-warnings 0
+        run: npx eslint "**/*.{js,jsx,ts,tsx}" --max-warnings 0
 
   shellcheck:
     name: ShellCheck (manual)
