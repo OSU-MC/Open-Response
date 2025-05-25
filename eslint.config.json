@@ -1,54 +1,63 @@
-{
-  "root": true,
-  "env": {
-    "browser": true,
-    "node":    true,
-    "es2021":  true
+[
+  {
+    "ignores": [
+      "node_modules/**",
+      "dist/**"
+    ]
   },
-  "extends": [
-    "eslint:recommended",
-    "plugin:react/recommended",
-    "plugin:@typescript-eslint/recommended"
-  ],
-  "parser": "@typescript-eslint/parser",
-  "parserOptions": {
-    "ecmaVersion":  12,
-    "sourceType":   "module",
-    "ecmaFeatures": { "jsx": true }
-  },
-  "plugins": [
-    "react",
-    "@typescript-eslint"
-  ],
-  "settings": {
-    "react": { "version": "detect" }
-  },
-  "rules": {
-    "quotes":               ["error", "single", { "avoidEscape": true }], 
-    "semi":                 ["error", "always"],   
-    "comma-dangle":         ["error", "always-multiline"], 
-    "curly":                ["error", "all"],       
+  {
+    "files": [
+      "**/*.{js,jsx}"
+    ],
+    "languageOptions": {
+      "env": {
+        "browser": true,
+        "node": true,
+        "es2021": true
+      },
+      "parserOptions": {
+        "ecmaVersion": 12,
+        "sourceType": "module",
+        "ecmaFeatures": {
+          "jsx": true
+        }
+      }
+    },
+    "plugins": {
+      "react": "eslint-plugin-react",
+      "react-hooks": "eslint-plugin-react-hooks",
+      "prettier": "eslint-plugin-prettier"
+    },
+    "settings": {
+      "react": {
+        "version": "detect"
+      }
+    },
+    "extends": [
+      "eslint:recommended",
+      "plugin:react/recommended",
+      "plugin:prettier/recommended"
+    ],
+    "rules": {
+      "quotes": ["error", "single", { "avoidEscape": true }],
+      "semi": ["error", "always"],
+      "comma-dangle": ["error", "always-multiline"],
+      "curly": ["error", "all"],
 
-    "eqeqeq":               ["error", "always"],
-    "no-console":           ["warn", { "allow": ["warn","error"] }],
-    "no-debugger":          "error",
-    "no-unused-vars":       ["error", { "argsIgnorePattern": "^_" }],
+      "eqeqeq": ["error", "always"],
+      "no-console": ["warn", { "allow": ["warn", "error"] }],
+      "no-debugger": "error",
+      "no-unused-vars": ["error", { "argsIgnorePattern": "^_" }],
 
-    "react/jsx-uses-react": "off",
-    "react/react-in-jsx-scope": "off",
-    "react/jsx-boolean-value": ["error", "never"],
-    "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "never" }],
+      "react/jsx-boolean-value": ["error", "never"],
+      "react/jsx-curly-brace-presence": ["error", { "props": "never", "children": "never" }],
+      "react-hooks/rules-of-hooks": "error",
+      "react-hooks/exhaustive-deps": ["warn"],
 
-    "react-hooks/rules-of-hooks":      "error",
-    "react-hooks/exhaustive-deps":     ["warn"],
-
-    "@typescript-eslint/no-explicit-any":       "warn",
-    "@typescript-eslint/consistent-type-definitions": ["error", "interface"],
-    "@typescript-eslint/no-unused-vars":        ["error"],
-    "@typescript-eslint/strict-boolean-expressions": "error",
-    "@typescript-eslint/prefer-readonly":        "warn",
-    "@typescript-eslint/no-non-null-assertion": "warn",
-
-    "prettier/prettier": ["error"]
+      "prettier/prettier": ["error"]
+    },
+    "linterOptions": {
+      "reportUnusedDisableDirectives": true
+    }
   }
-}
+]
