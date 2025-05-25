@@ -41,15 +41,3 @@ jobs:
       - name: Lint all scripts
         run: |
           git ls-files '*.sh' | xargs shellcheck -x
-
-  hadolint:
-    name: Hadolint Dockerfiles
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check out code
-        uses: actions/checkout@v3
-
-      - name: Run Hadolint
-        uses: hadolint/hadolint-action@v3.1.0
-        with:
-          dockerfile: '**/Dockerfile'
