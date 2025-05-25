@@ -1,0 +1,55 @@
+name: Code Formatting & Linting
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+jobs:
+  formatting:
+    name: Prettier & ESLint
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier (check only)
+        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,scss,md,yml,html}"
+
+      - name: Run ESLint
+        run: npx eslint . --ext .js,.jsx,.ts,.tsx --max-warnings=0
+
+  shellcheck:
+    name: ShellCheck (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Lint all scripts
+        run: |
+          git ls-files '*.sh' | xargs shellcheck -x
+
+  hadolint:
+    name: Hadolint Dockerfiles
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+
+      - name: Run Hadolint
+        uses: hadolint/hadolint-action@v3.1.0
+        with:
+          dockerfile: '**/Dockerfile'
