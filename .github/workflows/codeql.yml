@@ -77,8 +77,8 @@ jobs:
     #     echo "Run, Build Application using script"
     #     ./location_of_script_within_repo/buildscript.sh
 
-    - name: Perform CodeQL Analysis (non-blocking)
+    - name: Perform CodeQL Analysis # (non-blocking)
       uses: github/codeql-action/analyze@v2
-      continue-on-error: true
+      # continue-on-error: true
       with:
         category: "/language:${{matrix.language}}"
