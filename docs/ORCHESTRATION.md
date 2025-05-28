@@ -17,15 +17,6 @@ docker network create --driver overlay openresponse_network
 ```
 This command sets up the current machine as a manager node in the Swarm.
 
-If deploying across multiple nodes (multiple different machines), additional worker nodes can join using:
-```sh
-docker swarm join --token <TOKEN> <MANAGER-IP>:2377
-```
-Retrieve the join token from an existing Swarm manager using:
-```sh
-docker swarm join-token worker
-```
-
 ## Building the Application
 Before deploying, the services need to be built using Docker. Navigate to the root directory of the project and execute:
 ```sh
@@ -55,7 +46,6 @@ To view detailed service information:
 ```sh
 docker service inspect <service-name>
 ```
-
 To inspect service health and list running tasks, their state, and recent failures:
 ```sh
 docker service ps <service-name>
@@ -86,7 +76,7 @@ This scales the backend service to three replicas.
 ### Automatically Scaling Services
 To automatically scale services based on CPU usage run the script:
 ```sh
-python docker_swarm_scaling.py
+python ./docker/docker_swarm_scaling.py
 ```
 This script monitors system and container resource usage and scales the services up or down based on the defined thresholds.
 
