@@ -46,7 +46,7 @@ router.get('/:question_id', requireAuthentication, async function (req, res, nex
         if (!question) {
             console.error("The given question ID not found in this course");
             return res.status(404).send({ error: "The given question ID not found in this course" });
-        }
+        }            
 
         const respObj = {
             ...questionService.extractQuestionFields(question),
@@ -91,7 +91,7 @@ router.put('/:question_id', requireAuthentication, async function (req, res, nex
 
         const updatePublishedTo = !questionInLecture.published;
         await questionInLecture.update({ published: updatePublishedTo });
-        res.status(200).send();
+        res.status(200).json(questionInLecture);
     } catch (error) {
         next(error);
     }

@@ -17,8 +17,8 @@ const socket = io(url);
 function QuestionCard(props){
     const navigate = useNavigate()
     const dispatch = useDispatch()
-    const [ published, setPublished ] = useState(!!props.question.published)
-    const [ isLive, setIsLive ] = useState(!!props.question.isLive)
+    const [ published, setPublished ] = useState(false)
+    const [ isLive, setIsLive ] = useState(false)
     const { courseId, lectureId, sectionId } = useParams()
     const [ error, setError ] = useState(false)
     const [ message, setMessage ] = useState("")
@@ -26,9 +26,30 @@ function QuestionCard(props){
 
 
     useEffect(() => {
-        setPublished(!!props.question.published);
+        console.log("props.question:", props.question);
         setIsLive(!!props.question.isLive);
-    }, [props.question]);
+
+        async function fetchQuestionState() {
+            if (props.view === "teacher" && sectionId) {
+                setLoading(true);
+                const response = await apiUtil("get", `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${props.question.id}`, {
+                    dispatch,
+                    navigate,
+                });
+                setLoading(false);
+                console.log("response: ", response.data);
+                if (response.status === 200) {
+                    setPublished(!!response.data.published);
+                } else {
+                    setError(true);
+                    setMessage(response.message || "Failed to fetch question state");
+                }
+            } else {
+                setPublished(!!props.question.published);
+            }
+        }
+        fetchQuestionState();
+    }, [courseId, lectureId, sectionId, props.question.id, props.view]);
 
 
 
@@ -41,10 +62,12 @@ function QuestionCard(props){
         setLoading(false)
         setError(response.error)
         setMessage(response.message)
+        console.log("response: ", response.data);
 
-        if(response.status === 200) {
-            dispatch(togglePublishedForQuestionInLecture(lectureId, props.question.id))
-            setPublished(!published)
+
+        if (response.status === 200) {
+            setPublished(response.data.published);
+            dispatch(togglePublishedForQuestionInLecture(lectureId, response.data.id));
             socket.emit("setLiveQuestion", { lectureId });
         }
 
@@ -67,6 +90,7 @@ function QuestionCard(props){
             setIsLive(!isLive);
             socket.emit("setLiveQuestion", { lectureId });
         }
+        console.log("setting it to:", isLive);
     }
 
 
