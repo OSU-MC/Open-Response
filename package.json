@@ -9,10 +9,12 @@
     },
     "workspaces": [
         "core",
-        "client"
+        "client",
+        "socket"
     ],
     "scripts": {
-        "config": "npm run config -w=core && npm run config -w=client",
+        "init": "chmod +x ./docker/first_time_setup.sh && ./docker/first_time_setup.sh",
+        "config": "npm run config -w=core && npm run config -w=client && npm run config -w=socket",
         "start": "npm run build:containers && npm run deploy:stack",
         "stop": "npm run remove:stack",
         "build:containers": "docker build -t openresponse_backend ./core && docker build -t openresponse_frontend ./client",
