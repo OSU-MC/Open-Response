@@ -2,12 +2,7 @@
 Welcome to the Open-Response WebSocket! This README.md is dedicated to development guidance and information reguarding the websocket side of the application. For more information about contributing, or general user guides, please visit the [Open-Response Wiki](https://github.com/OSU-MC/Open-Response/wiki).
 
 ## Project Structure
-This WebSocket server is built using:
-
-Node.js
-Socket.IO
-Express
-[Docker](#docker)
+This WebSocket server is built using Node.js
 
 ## Dependencies
 
