@@ -1,3 +1,18 @@
+// StudentGradebook.jsx
+//
+// React component for displaying a student's grades for each lecture/assignment in a table format.
+//
+// Props:
+//   - grades: An array or object containing lecture grade information. The component expects either an array of lecture grades or an object with a 'lectures' array property.
+//
+// Behavior:
+//   - Renders a table with columns for Assignment, Questions Answered, and Grade.
+//   - If no grades are available, displays a message indicating so.
+//   - Each row shows the lecture title, number of questions answered out of total, and the grade (points received out of total points).
+//
+// Example usage:
+//   <StudentGradebook grades={grades} />
+
 import React from 'react';
 import { Table } from "react-bootstrap";
 

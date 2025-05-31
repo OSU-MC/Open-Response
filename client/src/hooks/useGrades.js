@@ -1,3 +1,31 @@
+// useGrades.js
+//
+// Custom React hook for fetching and managing grades data for a course section.
+//
+// Arguments:
+//   - courseId (string|number): The ID of the course.
+//   - sectionId (string|number): The ID of the section.
+//
+// Returns:
+//   [grades, message, error, loading]
+//     - grades: An object containing lecture grades and course grades, e.g.
+//         {
+//           lectures: [...], // array of lecture grade objects
+//           courseGrades: {...} // course grade(s) object or array
+//         }
+//     - message: Status or error message from the API.
+//     - error: Boolean indicating if there was an error.
+//     - loading: Boolean indicating if the data is being loaded.
+//
+// Behavior:
+//   - Fetches grades for the given course and section from the API on mount or when courseId/sectionId changes.
+//   - Fetches course-level grades and attaches them to the result.
+//   - Handles loading and error states.
+//   - Uses Redux dispatch and React Router navigation for side effects and error handling.
+//
+// Example usage:
+//   const [grades, message, error, loading] = useGrades(courseId, sectionId);
+
 import { useState, useEffect } from 'react';
 import { useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom';

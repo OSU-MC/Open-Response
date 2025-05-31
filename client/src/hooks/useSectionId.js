@@ -1,3 +1,21 @@
+// useSectionId.js
+//
+// Custom React hook to determine the section ID for the current course for a student.
+//
+// Returns:
+//   sectionId (number|null): The ID of the section the student is enrolled in for the given course, or null if not found.
+//
+// Behavior:
+//   - Uses React Router's useParams to get the current courseId from the URL.
+//   - Fetches the student's courses using the useCourses hook.
+//   - Searches for a section in the student's courses that matches the courseId.
+//   - Updates sectionId whenever the courses or courseId change.
+//
+// Example usage:
+//   const sectionId = useSectionId();
+//
+// This hook is useful for pages/components that need to know which section a student belongs to for a given course.
+
 import { useState, useEffect } from 'react';
 import useCourses from './useCourses';
 import { useParams } from 'react-router-dom';

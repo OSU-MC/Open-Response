@@ -1,3 +1,21 @@
+// TeacherGradebook.jsx
+//
+// React component for displaying a gradebook table for teachers, showing all students and their grades for each lecture/assignment.
+//
+// Props:
+//   - grades: An object containing:
+//       - lectures: Array of student grade objects, each with student info and an array of lecture grades.
+//       - courseGrades: (optional) Array of course grade objects, each with studentId and courseGrade.
+//
+// Behavior:
+//   - Renders a table with students as rows and lectures as columns, plus a column for the overall course grade.
+//   - Each cell shows the grade (points received out of total points) for a lecture.
+//   - The course grade column shows the normalized course grade percentage if available.
+//   - If no grades are available, the table will be empty.
+//
+// Example usage:
+//   <TeacherGradebook grades={grades} />
+
 import React from 'react';
 import { Table } from "react-bootstrap";
 
