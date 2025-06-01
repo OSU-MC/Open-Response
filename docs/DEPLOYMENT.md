@@ -18,7 +18,7 @@ Once AWS access has been granted, navigate through the AWS dashboard to the Ligh
 
 Now select "Create instance" at the bottom of this page.  
 
-Once the instance has been started, click on the shell icon. This should open a shell connecting you to the instance without having to setup any keys on your end.
+Once the instance has been started, click on the shell icon. This should open a shell connecting you to the instance without having to set up any keys on your end.
 
 ### Getting a Static IP
 
@@ -93,7 +93,7 @@ Unless the repository name has changed, enter the following:
 
 Then ```npm install``` in the main, client, and core directories.
 
-As long as the project name and ownership has remained the same, then DNS records should still exists for the core and client subdomains. If this is the case, be sure to replace the CLIENT_URL and VITE_API_URL in the core and client .env files with ```'http://client.open-response.org'``` and ```'http://core.open-response.org'``` respectively.
+As long as the project name and ownership has remained the same, then DNS records should still exist for the core and client subdomains. If this is the case, be sure to replace the CLIENT_URL and VITE_API_URL in the core and client .env files with ```'http://client.open-response.org'``` and ```'http://core.open-response.org'``` respectively.
 
 ### Configure Apache
 
@@ -109,14 +109,21 @@ With the LightSail instance, processes must be run as daemons in order to stay r
 
 To view the available commands with Forever, enter ```forever --help```.
 
-To start the client, cd to the client directory and run:
+To finish deploying the application, simply cd to the main folder and run:
 
-```forever start -c "npm run start" ./```  
-
-To start the core, cd to the core directory and run:
-
-```forever start -c "npm run start" ./```
+```sudo forever start -c "npm run start:dev" ./```  
 
 Now, verify that the site is up by going to the client url in your browser.
 
-That's it!
+That's it for the main deployment!
+
+### Note
+To stop the forever process, first enter the following:
+
+```sudo forever list```
+
+Then, use stop the process using the process id shown in the list like so:
+
+```sudo stop [pid]```
+
+Sometimes forever will fail to full stop a node process, which will cause issues in deploying the client to port 3000. To fix this, run ```sudo netstat -nlp```, find the pid of the troublesome node process, and kill it with ```sudo kill [pid]```.
