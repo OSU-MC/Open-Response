@@ -11,7 +11,7 @@ function DisplayCoursePage(){
 
     const { courseId } = useParams()
     let navigate = useNavigate()
-    const [ course, role, message, error, loading ] = useCourse()
+    const [ course, role, message, error, loading ] = useCourse();
     useEffect(() => {
         if (role === "student") {
             navigate(`/${courseId}/lectures`);

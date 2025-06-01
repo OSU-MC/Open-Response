@@ -33,14 +33,18 @@ function JoinCourse(props) {
 
     return (
         <div className="join-course-form">
-            <Form onSubmit={(e) => { handleJoinSubmit(e) }}>
+            <div className="join-course-submit">
+               <Form onSubmit={(e) => { handleJoinSubmit(e) }}>
                 <Form.Group controlId="formJoinCourse">
                     <Form.Control type="text" placeholder="Enter Join Code" value={joinCode} onChange={(e) => setJoinCode(e.target.value)} />
                 </Form.Group>
-                <button type="submit" className="join-course">
+                <button type="submit" className="join-course-button">
                     + Join Course
                 </button>
-            </Form>
+                </Form> 
+            </div>
+            
+            
             {message !== "" && <Notice status={error ? "error" : ""} message={message} />}
         </div>
     );

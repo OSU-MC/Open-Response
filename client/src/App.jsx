@@ -28,6 +28,9 @@ import SingleQuestion from "./pages/SingleQuestion";
 import Navigation from "./components/nav/Navigation";
 import useAuth from "./hooks/useAuth";
 import { TailSpin } from "react-loader-spinner";
+import Grades from "./pages/Grades";
+import LiveLecture from "./pages/LiveLecture";
+import PastLectureId from "./pages/PastLectureId";
 
 function App() {
 	const [loggedIn, message, error, loading] = useAuth();
@@ -81,6 +84,7 @@ function App() {
 									<Route path=':questionId' element={<SingleQuestion />} />
 									<Route path='add' element={<CreateQuestion />} />
 								</Route>
+								<Route path='live/:lectureId' element={<LiveLecture />} />
 								<Route path='lectures' element={<Outlet />}>
 									<Route path='' element={<Lectures />} />
 									<Route path=':lectureId' element={<Outlet />}>
@@ -92,21 +96,26 @@ function App() {
 										</Route>
 									</Route>
 								</Route>
+								<Route path='sections' element={<Outlet />}>
+									<Route path='' element={<Sections />} />
+									<Route path=':sectionId' element={<Outlet />}>
+										<Route path='' element={<Section />} />
+										<Route path='grades' element={<Grades />} /> {/* Updated route */}
+										<Route
+											path='lectures/:lectureId'
+											element={<LectureInSection />}
+										/>
+										<Route
+											path='lectures/past/:lectureId'
+											element={<PastLectureId />}
+										/>
+									</Route>
+								</Route>
 								<Route path='roster' element={<Outlet />}>
 									<Route path='' element={<Roster />} />
 									<Route path=':sectionId' element={<Enrollments />} />
 								</Route>
 								<Route path='createlecture' element={<AddLecture />} />
-								<Route path='sections' element={<Outlet />}>
-									<Route path='' element={<Sections />} />
-									<Route path=':sectionId' element={<Outlet />}>
-										<Route path='' element={<Section />} />
-										<Route
-											path='lectures/:lectureId'
-											element={<LectureInSection />}
-										/>
-									</Route>
-								</Route>
 								{/* TODO: the remainder of the nested routes should go here */}
 							</Route>
 						</Route>

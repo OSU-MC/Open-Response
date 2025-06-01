@@ -8,6 +8,8 @@ import useCourse from "../hooks/useCourse";
 import useLectures from '../hooks/useLectures';
 import QuestionCard from '../components/QuestionCard';
 
+// URL: :courseId/lectures/:lectureId 
+
 function Lecture() {
     const [ questions, message, error, loading ] = useLectureQuestions()
     const [ course, role, Cmessage, Cerror, Cloading ] = useCourse()
@@ -60,7 +62,7 @@ function Lecture() {
             {(role == "teacher") &&
                 <div className='lecture-container'>
                     <div className="lecture-header-btns">
-                        <Link to={`questions`}>
+                        <Link to={`questions/add`}>
                             <Button className="btn-add" variant="secondary">Add Questions</Button>
                         </Link>
                     </div>

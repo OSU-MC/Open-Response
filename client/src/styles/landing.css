@@ -12,14 +12,14 @@
                 font-weight: bold;
             }
             
-            .create-course, .join-course-form {
+            .create-course, .join-course {
                 display: inline;
                 position: absolute;
                 right: 75px;
                 border-radius: 25px;
             }
             
-            .create-course, .join-course {
+            .create-course, .join-course, .join-course-modal, .join-course-button {
                 /* Border */
                 border: 1px solid transparent;
                 background-color: var(--splash);
@@ -34,10 +34,23 @@
                     background-color: var(--primary);
                 }
             }
+
+            .join-course-form, .join-course-modal {
+                width: auto;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+            }
+
+            
             
             .join-course-form {
                 form div {
-                    display: inline-block;
+                    width: auto;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
                     
                     #formJoinCourse {
                         height: 50px;
@@ -46,8 +59,16 @@
                     }
                 }
                 
-                .join-course {
+                .join-course-button {
                     border-radius: 0 25px 25px 0;
+                }
+
+                .join-course-submit {
+                    width: auto;
+                    display: flex;
+                    flex-direction: row;
+                    align-items: center;
+                    justify-content: center;
                 }
             }
         }
@@ -71,8 +92,26 @@
             }
         }
 
+        .course-section {
+            margin: 0px 70px;
+            font-weight: bold;
+        }
+
         .courses {
-            margin: 0px 50px;
+            margin: 0px 20px;
+        }
+        .courses a {
+            text-decoration: none; /* Removes underline */
+            color: inherit; /* Ensures the text color stays the same as the parent */
+        }
+
+        .courses a {
+            text-decoration: none; /* Removes underline */
+            color: inherit; /* Ensures the text color stays the same as the parent */
+        }
+        .courses a {
+            text-decoration: none; /* Removes underline */
+            color: inherit; /* Ensures the text color stays the same as the parent */
         }
     }
 }

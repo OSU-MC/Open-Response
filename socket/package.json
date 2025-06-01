@@ -1,0 +1,22 @@
+{
+  "name": "socket-server",
+  "version": "1.0.0",
+  "main": "index.js",
+  "dependencies": {
+    "express": "^5.1.0",
+    "socket.io": "^4.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.7",
+    "dotenv": "^16.4.5",
+    "jest": "^29.7.0",
+    "socket.io": "4.8.1"
+  },
+  "scripts": {
+    "config": "copy .env.example .env && nano .env",
+    "start": "npm run start:dev",
+    "test": "jest --runInBand",
+    "start:dev": "nodemon index.js --NODE_ENV=development",
+    "start:prod": "node index.js --NODE_ENV=production"
+  }
+}

@@ -1,64 +1,98 @@
-# MyClassroom Client
-Welcome to the MyClassroom React.js Frontend Client! This README.md is dedicated to development guidance and information reguarding the client side of the application. For more information about contributing, or general user guides, please visit the [MyClassroom Wiki](https://github.com/OSU-MC/MyClassroom/wiki).
+# Open-Response Client
+Welcome to the Open-Response React.js Frontend Client! This README.md is dedicated to development guidance and information reguarding the client side of the application. For more information about contributing, or general user guides, please visit the [Open-Response Wiki](https://github.com/OSU-MC/Open-Response/wiki).
 
 ## Setup Application for Client Development
-This guide is specifically for local development of the MyClassroom Client. You may prefer to use the main [README.md](../README.md) install/setup instructions for other deployments.
+This guide is specifically for local development of the Open-Response Client. Please refer to the repository [README.md](../README.md) for installation and development environment setup instructions.
 
-Install and configure the Application according to the steps in the main README.md but do not start the application. Then run the following from the root directory.
+## Running the Frontend Client
+First, before running the Open-Response Client, ensure that the Open-Response Core is running. The Open-Response Core provides the backend services that the client will interact with. Additionally, please ensure that the Open-Response WebSocket server is running, as the client relies on it for real-time updates. Lastly, ensure that the MySQL database is running and accessible, so that the client can interact with it through the Open-Response Core.
 
-### Start Server and Client
-Start the MyClassroom Server with Docker:
+To start the Open-Response Core REST API, navigate to the `core` directory and run the following command:
+```bash
+cd ../core
 ```
-npm run start:server
-```
-
-Start the local development version of the MyClassroom Client:
-```
-npm run start -w=client
+Then, ensure that the Open-Response Core REST API is running by executing:
+```bash
+npm run start
 ```
 
-### Stop Server and Client
-The MyClassroom Client can be stopped by pressing **Ctrl+C** while the process is running in the shell.
+Next, navigate back to the `client` directory:
+```bash
+cd ../client
+```
 
-The MyClassroom Server can be stopped using the command:
+Then start the Open-Response Client development server. This will allow you to view the client in your web browser and see changes in real-time as you develop:
+```bash
+npm run start
 ```
-npm run stop
+
+To stop the Open-Response Core REST API, you simply need to stop the process running in the terminal where you executed `npm run start`. You can do this by pressing `Ctrl + C`.
+
+
+If you want to test the production build of the Open-Response Client, you can run the following command:
+```bash
+npm run deploy
 ```
+The production build will automatically served by Vite's built-in server.
 
 ## Update Client Configuration
-Modify `/client/.env` to update the MyClassroom Client configuration. The `VITE_API_URL` environment variable should be set to the MyClassroom Server URL. For basic testing, the default values can be used.
+Modify `/client/.env` to update the Open-Response Client configuration. The `VITE_API_URL` environment variable should be set to the Open-Response Core URL. For basic testing, the default values can be used.
 
 ## Tech Stack
-- React / React Native
-- Redux
-- Javascript
-![New Architecture](https://github.com/OSU-MC/MyClassroom/assets/25465133/633b6e2b-bbdd-4ff6-b986-f5d809c96a9b)
+The Open-Response Client is written in JavaScript and built using the following technologies:
+- React.js, bundled with Vite
+- CSS for styling
+- Redux for state management
+- Axios for API calls
+- React Router for navigation
+- Socket.IO for real-time communication with the WebSocket server
+
+As you can see in the system architecture diagram below, the Open-Response Client interacts with the Open-Response Core via API calls and uses WebSockets for real-time updates. The client is designed to be modular, allowing for easy development and maintenance of independent components.
+![New Architecture](../docs/images/systemArchitectureDiagram.png)
 
 ## Organization
 ```bash
-./src
-└── components                        # Independent components of react code such as Cards, Buttons, and Navigation
-│   └── nav
-│   └── questions
-│   └── SingleCoursePageComponents
-│   └── 2024
-└── hooks                             # Reusable API Calls
-└── pages                             # Full Application Pages Which App.js navigation links to
-└── redux                             # Application State Storage
-│   └── reducers
-└── styles                            # CSS styling
-└── utils                             # API utils
+Open-Response/
+├── client/                     # Frontend client code
+├── ├── public/                 # Public assets
+├── ├── src/                    # Source code
+├── ├── ├── __tests__/          # Test files (not unit or integration tests)
+├── ├── ├── components/         # React components
+├── ├── ├── hooks/              # Custom React hooks
+├── ├── ├── pages/              # Page components
+├── ├── ├── redux/              # Redux store and actions
+├── ├── ├── styles/             # CSS styles
+├── ├── ├── utils/              # Utility functions, API utilities, and constants
 ```
 
-## Interacting With the Database
-```
-Database <- apiUtil <- Hooks -> Redux
-                             -> Pages
+## Interacting with the Database
+
+```plaintext
+Database ← apiUtil ← Hooks ──→ Redux
+                         └──→ Pages
 ```
 
-- apiUtil: Interacts with the database
-  - **_Input:_** Takes the api call type (CRUD), the endpoint/route for the api, reactOpts, any body, and any params
-  - **_Ouput:_** CRUD response
-- Hooks: Handles calls to apiUtil and updates the application state
-  - **_Input:_** Takes no input other than url parameters
-  - **_Ouput:_** Formated responses from the api, error states, messages, and loading states. Also dispatches any new info to the Redux
+### apiUtil (API Utility Layer)
+Handles low-level API interaction logic.
+
+- **Input:**  
+  - API method (`GET`, `POST`, `PUT`, `DELETE`)  
+  - Endpoint/route  
+  - `reactOpts` (optional fetch options)  
+  - Request body (for `POST`/`PUT`)  
+  - URL params (e.g., `:id`)
+
+- **Output:**  
+  - Raw CRUD response (success or error)
+
+### Hooks (Data Coordination Layer)
+Bridges `apiUtil` and the application state/UI.
+
+- **Input:**  
+  - URL params or context
+
+- **Output:**  
+  - Formatted API responses  
+  - Loading and error states  
+  - User messages  
+  - State updates via Redux dispatch

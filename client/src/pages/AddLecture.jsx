@@ -23,9 +23,7 @@ function AddLecture(props){
         //make a POST course api call
         setLoading(true)
         const route = "/courses/" + courseId + "/lectures"
-        console.log("add lecture req body:", newLecturePayload)
         const response = await apiUtil("post", route, { dispatch: dispatch, navigate: navigate}, newLecturePayload)
-        console.log("add lecture response", response.data)
         setLoading(false)
 
         //update the redux
@@ -61,7 +59,7 @@ function AddLecture(props){
                             <div id="back-btn-image"/>
                         </Button>
                     </Link>
-                    <p className='create-subtitle'>Create Lecture</p>
+                    <h1 className='create-subtitle'>Create Lecture</h1>
                 </div>
                 <hr className='create-hr-bar'></hr>
                 <Form.Group className="inputTitleContainer">

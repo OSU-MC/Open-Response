@@ -6,6 +6,9 @@ import { useSelector, useDispatch } from 'react-redux';
 import { useNavigate } from 'react-router-dom'
 import Notice from '../components/Notice'
 import { TailSpin } from  'react-loader-spinner'
+import "../styles/auth.css"
+
+const VITE_NAME = import.meta.env.VITE_NAME;
 
 //we will need state variable to grab the email address.
 //onClick is going to redirect 
@@ -22,7 +25,6 @@ function ConfirmationCodePasswordRequest() {
         let response = {}
 
         response = await apiUtil('put', '/users/password', {}, emailPayload)
-        console.log(response);
 
         if(response.status == 200){
             navigate("/reset/password")
@@ -42,22 +44,46 @@ function ConfirmationCodePasswordRequest() {
     }
     
     return (
-    <div className="onfirmationCodeDivContainer">
-        <h1 className="confirmationCodePageh1">Confirmation Code</h1>
-        <p>Please enter in your email address related to your account. We will send a confirmation code to that email.</p>
-        <br/>
-        <div>
-            <form onSubmit={(event) => event.preventDefault()}>
-                <div>
-                    <input onChange={(input) => setEmail(input.target.value)} placeholder="Enter email address here..."/>
+        <div id="auth">
+            <div className='leftContainer'>
+                <div className='welcomeBox'>
+                    <span className='classroomLink'>
+                    {/*Image attr: Unknown, need to ask*/}
+                        <img className="classroomIcon" src="classroomIcon.png" alt="Classroom Icon" />
+                        {VITE_NAME}
+                    </span>
+                    <div className='textBox'>
+                        <h1>Welcome Back!</h1>
+                        <h2><a href="/create" className='subText'>New user?</a></h2>
+                    </div>
+                    <div className='linkBox'>
+                        <a href="/home" className='homeButton'><img src="/arrow-left-solid.svg" alt="Back" />Return to home</a>
+                    </div>
                 </div>
-                <br/>
-                <div>
-                    <button type="submit" onClick={emailObjectStaging}> Send Code </button>
+            </div>
+            <div className="rightContainer">
+                <div className="resetpassword">
+                    <div className="confirmationCodeDivContainer">
+                        <h1 className="confirmationCodePageh1">Forgot Password?</h1>
+                        <p>Please enter your email address related to your account.<br/>We will send a confirmation code to that email.</p>
+                        <br />
+                        <form onSubmit={(event) => event.preventDefault()}>
+                            <div>
+                                <input
+                                    onChange={(input) => setEmail(input.target.value)}
+                                    placeholder="test@test.com"
+                                />
+                            </div>
+                            <br />
+                            <div>
+                                <button type="submit" className="submitButtonReset" onClick={emailObjectStaging}>Get Code</button>
+                            </div>
+                        </form>
+                        {message && <p className={error ? 'errorMessage' : 'successMessage'}>{message}</p>}
+                    </div>
                 </div>
-            </form>
+            </div>
         </div>
-    </div>
     )
 }
 

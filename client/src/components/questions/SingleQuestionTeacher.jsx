@@ -31,6 +31,13 @@ function SingleQuestionTeacher(props) {
         2: false,
         3: false
     })
+    const [ points, setPoints ] = useState(question?.points || 1)
+    const [ weights, setWeights ] = useState(question?.weights || {
+        0: 1,
+        1: 1,
+        2: 1,
+        3: 1
+    })
 
     useEffect(() => {
         setStem(question?.stem || "")
@@ -47,8 +54,22 @@ function SingleQuestionTeacher(props) {
             2: false,
             3: false
         })
+        setPoints(question?.points || 1)
+        setWeights(question?.weights || {
+            0: 1,
+            1: 1,
+            2: 1,
+            3: 1
+        })
     }, [ question ])
     
+    const setWeightsHandler = (value, index) => {
+        setWeights({
+            ...weights,
+            [index]: value
+        })
+    }
+
     const addAnswer = (e) => {
         e.preventDefault()
         setOptions({
@@ -59,6 +80,10 @@ function SingleQuestionTeacher(props) {
             ...answers,
             [Object.keys(answers).length]: false
         })
+        setWeights({
+            ...weights,
+            [Object.keys(weights).length]: 1
+        })
     }
 
     const updateQuestion = async (e) => {
@@ -68,6 +93,9 @@ function SingleQuestionTeacher(props) {
             stem: stem,
             type: type,
             answers: answers,
+            lectureId: lectureId,
+            totalPoints: points,
+            weights: weights,
             content: {
                 options: options
             }
@@ -165,26 +193,41 @@ function SingleQuestionTeacher(props) {
                 newOptions[key - 1] = text
             }
         })
+        let newWeights = {}
+        Object.keys(weights).forEach((key) => {
+            let w = weights[key]
+            if (key < index) {
+                newWeights[key] = w
+            } else if (key > index) {
+                newWeights[key - 1] = w
+            }
+        })
         setAnswers(newAnswers)
         setOptions(newOptions)
+        setWeights(newWeights)
     }
 
     const moveAnswer = (e, index, value) => {
         e.preventDefault()
         let newAnswers = {...answers}
         let newOptions = {...options}
-        
+        let newWeights = {...weights}
         let movedAnswer = newAnswers[parseInt(index)]
         newAnswers[parseInt(index)] = newAnswers[parseInt(index) + value]
         newAnswers[parseInt(index) + value] = movedAnswer
-
         let movedOptions = newOptions[parseInt(index)]
         newOptions[parseInt(index)] = newOptions[parseInt(index) + value]
         newOptions[parseInt(index) + value] = movedOptions
-
+        let movedWeight = newWeights[parseInt(index)]
+        newWeights[parseInt(index)] = newWeights[parseInt(index) + value]
+        newWeights[parseInt(index) + value] = movedWeight
         setAnswers(newAnswers)
         setOptions(newOptions)
+        setWeights(newWeights)
     }
+
+    // TODO: Create setPoints function. to set the total points for the question
+    // TODO: Create setweights function. to set the weight of an answer
 
     if (editing) {
         return (<div className="vertical-container">
@@ -193,6 +236,8 @@ function SingleQuestionTeacher(props) {
                 <div className="question-subcontainer">
                     <label>Question Stem:</label>
                     <input className="question-text" type="text" placeholder="What is 1 + 1?" name="stem" id="stem" value={stem} onChange={(e) => setStem(e.target.value)}></input>
+                    <label>Points: </label> 
+                    <input className="question-points" type="number" placeholder="1" name="points" id="points" value={points} onChange={(e) => setPoints(Number(e.target.value))}></input>
                 </div>
                 <div className="question-subcontainer">
                     <label>Question Type:</label>
@@ -207,6 +252,7 @@ function SingleQuestionTeacher(props) {
                             let option = options[index]
                             return <div className="question-option" key={index}>
                                 <input className="question-select" type={type == 'multiple choice' ? 'radio' : 'checkbox'} name="answers" checked={answers[index]} onChange={(e) => updateAnswers(index)}></input>
+                                <input className="question-weight" type="number" placeholder='1' name="weights" id="weights" value={weights[index] || 1} onChange={(e) => setWeightsHandler(Number(e.target.value), index)}></input>
                                 <input className="question-text" type="text" value={option} onChange={(e) => updateOptions(e.target.value, index)}></input>
                                 <div className="question-reorder">
                                     <button className="btn btn-secondary question-arrow" disabled={index == 0} type="button" onClick={(e) => { moveAnswer(e, index, -1) }}>{'\u2191'}</button>
@@ -218,7 +264,6 @@ function SingleQuestionTeacher(props) {
                     }
                     { Object.keys(options).length < 10 && <button className="btn btn-secondary btn-add" type="button" onClick={(e) => { addAnswer(e) }}>+</button> }
                 </div>
-                    
                 { loading ? <TailSpin visible={true}/> : <button className="btn btn-secondary btn-add" type="submit" onClick={(e) => { updateQuestion(e) }}>{ question ? 'Save Question' : 'Create Question'}</button> }
             </form>
         </div>)

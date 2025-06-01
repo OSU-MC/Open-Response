@@ -2,25 +2,28 @@
 
 # dependencies
 /node_modules
-/server/node_modules
+/core/node_modules
 /client/node_modules
+/socket/node_modules
 /.pnp
 .pnp.js
 
 # testing
 /coverage
-/server/coverage
+/core/coverage
+.artifacts
 
 # production
 /client/build
-/server/dist
+/core/dist
 
 # misc
 .DS_Store
 *.log*
 .env*
-/server/.env
-/server/logs
+!.env.example
+/core/.env
+/core/logs
 
 # IDE & Editor configs
 .idea
@@ -40,6 +43,7 @@ Thumbs.db
 *.swo
 *.tmp
 *.temp
+*.rdb
 /temp
 /cache
 
@@ -55,3 +59,6 @@ yarn-error.log*
 *.seed
 *.pid.lock
 
+# Accessibility Test Results
+test-results/
+a11y-results/

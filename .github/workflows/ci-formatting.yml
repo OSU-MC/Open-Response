@@ -1,0 +1,57 @@
+name: Code Formatting & Linting
+
+on:
+  push:
+    branches: [main, development]
+  pull_request:
+    branches: [main, development]
+
+
+jobs:
+  formatting:
+    name: Prettier, ESLint & Auto-format
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out code
+        uses: actions/checkout@v3
+        with:
+          fetch-depth: 0               # get full history so we’re actually on a branch
+          persist-credentials: true    # allow pushes back
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Prettier (auto-format)
+        run: npx prettier --write "**/*.{js,jsx,ts,tsx,json,css,scss,md,yml,html}"
+
+      - name: Commit & Push formatted code
+        if: github.event_name == 'push'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add .
+          git commit -m "chore: auto-format with Prettier" || echo "No changes to commit"
+          git push
+
+      - name: Run ESLint
+        run: npx eslint "**/*.{js,jsx,ts,tsx}" --max-warnings 0
+
+  shellcheck:
+    name: ShellCheck (manual)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Install ShellCheck
+        run: sudo apt-get update && sudo apt-get install -y shellcheck
+
+      - name: Lint all scripts
+        run: |
+          git ls-files '*.sh' | xargs shellcheck -x

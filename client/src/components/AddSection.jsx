@@ -20,9 +20,7 @@ function AddSection(props) {
     async function postSection(sectionBody){
         //make a POST section api call
         setLoading(true)
-        console.log("section req body:", sectionBody)
         const response = await apiUtil("post", `/courses/${courseId}/sections`, { dispatch: dispatch, navigate: navigate}, sectionBody)
-        console.log("response section creation:", response.data)
         setLoading(false)
 
         //update the redux
