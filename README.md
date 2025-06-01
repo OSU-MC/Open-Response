@@ -70,25 +70,29 @@ npm run config
 # -----------------------------------------------
 
 # Connect to MySQL as root (you will be prompted for your MySQL root password)
-mysql -u root -p
-
 # Inside the MySQL shell, run the following SQL commands to set up both databases:
-CREATE DATABASE openresponse_development;
-CREATE USER 'dev_admin'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON openresponse_development.* TO 'dev_admin'@'localhost';
+mysql -u root -p -e "
+  CREATE DATABASE openresponse_development;
+  CREATE USER 'dev_admin'@'localhost' IDENTIFIED BY 'password';
+  GRANT ALL PRIVILEGES ON openresponse_development.* TO 'dev_admin'@'localhost';
 
-CREATE DATABASE openresponse_test;
-CREATE USER 'test_admin'@'localhost' IDENTIFIED BY 'password';
-GRANT ALL PRIVILEGES ON openresponse_test.* TO 'test_admin'@'localhost';
-
+  CREATE DATABASE openresponse_test;
+  CREATE USER 'test_admin'@'localhost' IDENTIFIED BY 'password';
+  GRANT ALL PRIVILEGES ON openresponse_test.* TO 'test_admin'@'localhost';
+"
 exit
 
 # -----------------------------------------------
 # Run Sequelize commands to initialize schema
 # -----------------------------------------------
+cd ./core
+
+# Install Sequelize CLI globally if not already installed
+npm install -g sequelize-cli
 
 # Migrate the development database
 npx sequelize-cli db:migrate --env development
+npx sequelize-cli db:seed:all --env development
 
 # Migrate and seed the test database
 npx sequelize-cli db:migrate --env test
@@ -102,6 +106,27 @@ npm run stop
 ```
 
 ## Development Information
+The Open Response project is divided into three main components: the client (frontend), the core (backend and database), and the websocket server. Each component has its own directory and can be developed independently.
+
+### System Architecture
+The system architecture consists of a client application that communicates with a backend server and a websocket server for real-time interactions. The backend handles data storage and business logic, while the websocket server manages real-time communication between clients.
+
+Data is stored in a MySQL database, with caching served by Redis, and the application is containerized using Docker for easy deployment and scalability. The architecture supports a modular approach, allowing for independent development and deployment of each component.
+
+![System Architecture](./docs/images/systemArchitectureDiagram.png)
+
+### Directory Structure
+```bash
+Open-Response/
+├── __tests__/               # Test files (not unit or integration tests)
+├── .github/                 # GitHub-related files
+├── client/                  # Frontend client code
+├── core/                    # Backend core and database code
+├── docker/                  # Docker-related files
+├── docs/                    # Documentation files
+├── socket/                  # Websocket server code
+```
+
 ### Client
 For more info about developing for the frontend client, visit [client/README.md](https://github.com/OSU-MC/Open-Response/tree/main/client).
 
@@ -161,6 +186,28 @@ For deployment instructions, please refer to [docs/DEPLOYMENT.md](https://github
 
 - **Environment Variables Missing**  
   Verify that your `.env` file is correctly set up and matches `.env.example`, with modifications made as needed for your specific system.
+
+## Features Implemented
+
+- Role-based access control for students, instructors, and admins
+- Real-time classroom polling with live feedback via WebSockets
+- Multiple question types (MCQ, MAQ), with grading and analytics
+- Lecture and section management, course rosters, and enrollment
+- CSV export of participation and grades; Canvas LMS compatibility
+- Responsive, mobile-ready UI with WCAG 2.1 AA accessibility in progress
+- Dockerized backend/frontend, deployed via Docker Swarm on AWS
+- RESTful API with MySQL database and Redis caching
+- GitHub Actions for CI/CD and automated testing
+
+## Known Issues & Future Enhancements
+
+- Incomplete test coverage (unit, integration, accessibility, E2E)
+- Roster management and email notification systems in development
+- WCAG 2.1 AA compliance pending full audit
+- Limited question types; open-ended/sketch/location not yet supported
+- Admin dashboards and monitoring tools under development
+- FERPA-compliant SSO integration (Google, Microsoft, ONID) pending
+- Mobile UX polish and expanded offline support planned
 
 ## Licensing
 

@@ -14,8 +14,9 @@
   },
   "scripts": {
     "config": "copy .env.example .env && nano .env",
-    "start": "node index.js",
+    "start": "npm run start:dev",
     "test": "jest --runInBand",
-    "start:dev": "nodemon index.js --NODE_ENV=development"
+    "start:dev": "nodemon index.js --NODE_ENV=development",
+    "start:prod": "node index.js --NODE_ENV=production"
   }
 }

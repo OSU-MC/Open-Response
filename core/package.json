@@ -12,13 +12,11 @@
     "scripts": {
         "config": "copy .env.example .env && nano .env",
         "test": "NODE_ENV=test jest --runInBand",
-        "start": "node app/core.js --NODE_ENV=production",
+        "start": "npm run start:dev",
         "start:dev": "nodemon app/core.js --NODE_ENV=development",
+        "start:prod": "node app/core.js --NODE_ENV=production",
         "seed": "npm exec -- sequelize-cli db:seed:all",
-        "unseed": "npm exec -- sequelize-cli db:seed:undo:all",
-        "redis:basics": "node redis/basics.js",
-        "notif:keygen": "node notif/vapid_keygen.js",
-        "notif:basics": "node notif/server.js"
+        "unseed": "npm exec -- sequelize-cli db:seed:undo:all"
     },
     "dependencies": {
         "@trycourier/courier": "^6.3.0",
@@ -35,7 +33,6 @@
         "moment": "^2.30.1",
         "morgan": "^1.10.0",
         "mysql2": "^3.11.3",
-        "redis": "^4.7.0",
         "socket.io-client": "^4.8.1",
         "supertest": "^7.0.0",
         "web-push": "^3.6.7",
