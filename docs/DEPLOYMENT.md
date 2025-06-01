@@ -111,14 +111,16 @@ To view the available commands with Forever, enter ```forever --help```.
 
 To finish deploying the application, simply cd to the main folder and run:
 
-```sudo forever start -c "npm run start:dev" ./```  
+```sudo forever start -c "npm run start" ./```  
 
 Now, verify that the site is up by going to the client url in your browser.
 
 That's it for the main deployment!
 
 ### Note
-To stop the forever process, first enter the following:
+For development purposes, know that any node command can be run in the above fashion, where the command is simply follows the -c flag.
+
+To stop a forever process, first enter the following:
 
 ```sudo forever list```
 
