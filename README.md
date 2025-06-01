@@ -187,6 +187,28 @@ For deployment instructions, please refer to [docs/DEPLOYMENT.md](https://github
 - **Environment Variables Missing**  
   Verify that your `.env` file is correctly set up and matches `.env.example`, with modifications made as needed for your specific system.
 
+## Features Implemented
+
+- Role-based access control for students, instructors, and admins
+- Real-time classroom polling with live feedback via WebSockets
+- Multiple question types (MCQ, MAQ), with grading and analytics
+- Lecture and section management, course rosters, and enrollment
+- CSV export of participation and grades; Canvas LMS compatibility
+- Responsive, mobile-ready UI with WCAG 2.1 AA accessibility in progress
+- Dockerized backend/frontend, deployed via Docker Swarm on AWS
+- RESTful API with MySQL database and Redis caching
+- GitHub Actions for CI/CD and automated testing
+
+## Known Issues & Future Enhancements
+
+- Incomplete test coverage (unit, integration, accessibility, E2E)
+- Roster management and email notification systems in development
+- WCAG 2.1 AA compliance pending full audit
+- Limited question types; open-ended/sketch/location not yet supported
+- Admin dashboards and monitoring tools under development
+- FERPA-compliant SSO integration (Google, Microsoft, ONID) pending
+- Mobile UX polish and expanded offline support planned
+
 ## Licensing
 
 This project is licensed under the [GNU General Public License v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html).  
