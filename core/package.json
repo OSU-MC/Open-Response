@@ -10,6 +10,7 @@
         "sequelize-cli": "^6.6.2"
     },
     "scripts": {
+        "config-unix": "cp .env.example .env && nano .env",
         "config": "copy .env.example .env && nano .env",
         "test": "NODE_ENV=test jest --runInBand",
         "start": "npm run start:dev",
