@@ -13,6 +13,7 @@
     "socket.io": "4.8.1"
   },
   "scripts": {
+    "config-unix": "cp .env.example .env && nano .env",
     "config": "copy .env.example .env && nano .env",
     "start": "npm run start:dev",
     "test": "jest --runInBand",

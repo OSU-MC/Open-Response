@@ -14,6 +14,7 @@
     ],
     "scripts": {
         "init": "chmod +x ./docker/first_time_setup.sh && ./docker/first_time_setup.sh",
+        "config-unix": "npm run config-unix -w=core && npm run config-unix -w=client && npm run config-unix -w=socket",
         "config": "npm run config -w=core && npm run config -w=client && npm run config -w=socket",
         "start": "npm run build:containers && npm run deploy:stack",
         "stop": "npm run remove:stack",
