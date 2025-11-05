@@ -11,6 +11,8 @@ jobs:
   formatting:
     name: Prettier, ESLint & Auto-format
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
 
     steps:
       - name: Check out code
