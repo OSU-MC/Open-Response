@@ -24,6 +24,13 @@
     "start:dev": "concurrently \"cd client && npm run start\" \"cd core && npm run start\" \"cd socket && npm run start\"",
     "prepare": "husky"
   },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css,scss,yml,yaml}": "prettier --write"
+  },
   "keywords": [],
   "author": "",
   "license": "GPL-3.0-or-later",
