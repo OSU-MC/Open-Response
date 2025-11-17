@@ -1,0 +1,32 @@
+# TODO: remove and format docs
+*.md
+
+# Node dependencies
+node_modules
+
+# Build output
+dist
+build
+out
+coverage
+
+# Generated files
+*.min.js
+*.bundle.js
+*.lock
+*.log
+*.tmp
+*.cache
+
+# Public assets
+public
+
+# Environment / config files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# npm logs
+npm-debug.log
