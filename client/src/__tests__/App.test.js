@@ -1,6 +1,6 @@
 // src/App.test.js
-import { render, screen } from '@testing-library/react';
+import { render, screen } from "@testing-library/react";
 
-test('simple test', () => {
-    expect(true).toBe(true);
+test("simple test", () => {
+  expect(true).toBe(true);
 });

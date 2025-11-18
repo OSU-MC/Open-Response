@@ -1,74 +1,77 @@
-const winston = require('winston')
-const morgan = require('morgan')
-require('winston-daily-rotate-file')
-const { combine, timestamp, printf, colorize, align, errors } = winston.format
+const winston = require("winston");
+const morgan = require("morgan");
+require("winston-daily-rotate-file");
+const { combine, timestamp, printf, colorize, align, errors } = winston.format;
 
-const env = process.env.NODE_ENV  || 'development'
-const dev = (env === 'development')
-const debug = (dev || env === 'test')
+const env = process.env.NODE_ENV || "development";
+const dev = env === "development";
+const debug = dev || env === "test";
 
-if (debug) { // dotenv file will only be used in dev and testing
-  require('dotenv').config({ override: false}); // will not override current environment variables if they exist
+if (debug) {
+  // dotenv file will only be used in dev and testing
+  require("dotenv").config({ override: false }); // will not override current environment variables if they exist
 }
 
 // LOG_LEVEL takes precedence. If development, the log level should be debug. Otherwise, default to info
-let logLevel = process.env.LOG_LEVEL || (debug ? 'debug' : 'info')
+let logLevel = process.env.LOG_LEVEL || (debug ? "debug" : "info");
 
 const logger = winston.createLogger({
   level: logLevel,
   format: combine(
-    winston.format(info => {
-        info.level = info.level.toUpperCase()
-        return info;
-      })(),
+    winston.format((info) => {
+      info.level = info.level.toUpperCase();
+      return info;
+    })(),
     errors({ stack: true }),
     colorize({ all: true }),
     timestamp({
-      format: 'YYYY-MM-DD hh:mm:ss.SSS A',
+      format: "YYYY-MM-DD hh:mm:ss.SSS A",
     }),
     align(),
     printf((info) => {
-        let stack
-        if (info.stack) {
-            stack = `\n${info.stack}`
-        }
+      let stack;
+      if (info.stack) {
+        stack = `\n${info.stack}`;
+      }
 
-        // stack will exist only for messages with error objects
-        return `[${info.timestamp}] ${info.level}: ${info.message}${stack ? stack : ''}`
+      // stack will exist only for messages with error objects
+      return `[${info.timestamp}] ${info.level}: ${info.message}${stack ? stack : ""}`;
     })
   ),
   // if dev, log to the console. Otherwise, use file logging
-  transports: dev ? [new winston.transports.Console()] : [
-    new winston.transports.DailyRotateFile({
-        filename: './logs/production-%DATE%.log',
-        datePattern: 'YYYY-MM-DD',
-        maxFiles: '14d',
-      }),
-    new winston.transports.DailyRotateFile({
-        filename: './logs/error-%DATE%.log',
-        datePattern: 'YYYY-MM-DD',
-        maxFiles: '14d',
-        level: 'error'
-    })
-  ],
-})
+  transports: dev
+    ? [new winston.transports.Console()]
+    : [
+        new winston.transports.DailyRotateFile({
+          filename: "./logs/production-%DATE%.log",
+          datePattern: "YYYY-MM-DD",
+          maxFiles: "14d",
+        }),
+        new winston.transports.DailyRotateFile({
+          filename: "./logs/error-%DATE%.log",
+          datePattern: "YYYY-MM-DD",
+          maxFiles: "14d",
+          level: "error",
+        }),
+      ],
+});
 
 const morganMiddleware = morgan(
-    ':method :url :status :res[content-length] - :response-time ms',
-    {
-      stream: {
-        // Configure Morgan to use our winston logger with the http severity
-        write: (message) =>  {
-            logger.http(message.trim())
-        }
+  ":method :url :status :res[content-length] - :response-time ms",
+  {
+    stream: {
+      // Configure Morgan to use our winston logger with the http severity
+      write: (message) => {
+        logger.http(message.trim());
       },
-    }
-  );
+    },
+  }
+);
 
 module.exports = {
-    logger,
-    morganMiddleware
-}
+  logger,
+  morganMiddleware,
+};
 
 /*
 

@@ -19,12 +19,12 @@
 // Example usage:
 //   const [questions, message, error, loading, reloadQuestions] = useLectureForSectionQuestions();
 
-import apiUtil from '../utils/apiUtil';
-import { addLectureQuestions } from '../redux/actions';
-import { useDispatch, useSelector } from 'react-redux';
-import { getLectureDetails } from '../redux/selectors';
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import apiUtil from "../utils/apiUtil";
+import { addLectureQuestions } from "../redux/actions";
+import { useDispatch, useSelector } from "react-redux";
+import { getLectureDetails } from "../redux/selectors";
+import { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 function useLectureForSectionQuestions() {
   const navigate = useNavigate();
@@ -34,17 +34,17 @@ function useLectureForSectionQuestions() {
 
   const [questions, setQuestions] = useState([]);
   const [error, setError] = useState(false);
-  const [message, setMessage] = useState('');
+  const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
   const reloadQuestions = async () => {
     setQuestions([]);
     setError(false);
-    setMessage('');
+    setMessage("");
     setLoading(true);
 
     const response = await apiUtil(
-      'get',
+      "get",
       `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions`,
       { dispatch, navigate }
     );

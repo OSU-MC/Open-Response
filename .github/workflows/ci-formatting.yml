@@ -6,7 +6,6 @@ on:
   pull_request:
     branches: [main, development]
 
-
 jobs:
   formatting:
     name: Prettier, ESLint Check
@@ -16,19 +15,20 @@ jobs:
       - name: Check out code
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0               # get full history so we’re actually on a branch
+          fetch-depth: 0 # get full history so we’re actually on a branch
 
       - name: Set up Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
-          cache: 'npm'
+          node-version: "18"
+          cache: "npm"
 
       - name: Install dependencies
         run: npm ci
 
       - name: Run Prettier
-        run: npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,scss,md,yml,html}"
+        run:
+          npx prettier --check "**/*.{js,jsx,ts,tsx,json,css,scss,md,yml,html}"
 
       - name: Run ESLint
         run: npx eslint "**/*.{js,jsx,ts,tsx}" --max-warnings 0

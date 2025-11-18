@@ -1,5 +1,5 @@
-import React from 'react';
-import '../../styles/PageButton.css'
+import React from "react";
+import "../../styles/PageButton.css";
 
 /**********************************************************************************************************************
     --PageButton Component--
@@ -16,42 +16,43 @@ import '../../styles/PageButton.css'
 
 **********************************************************************************************************************/
 
-export default class PageButton extends React.Component{
-    constructor(props){
-        super(props);
-        this.state={
-            viewForm: false
-        };
+export default class PageButton extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      viewForm: false,
+    };
 
-        this.handleClick = this.handleClick.bind(this);
-    }
+    this.handleClick = this.handleClick.bind(this);
+  }
 
-    handleClick()
-    {
+  handleClick() {
+    this.setState({
+      viewForm: !this.state.viewForm,
+    });
+  }
 
-        this.setState({
-            viewForm: !this.state.viewForm
-        })
-    }
+  render() {
+    return (
+      <>
+        <button onClick={this.handleClick} className={this.props.className}>
+          {this.props.children}
+        </button>
 
-    render(){
-        return(
-            <>
-                <button onClick={this.handleClick} className={this.props.className}>{this.props.children}</button>
-
-                {this.state.viewForm &&
-                <>
-                    <div className='backdrop' />
-                    <div className='centeredModal'>
-                        <div className='modalContents'>
-                            <button onClick={this.handleClick} className='xButton'>Close</button>
-                            {this.props.newPage}
-                        </div>
-                    </div>
-                </>
-                }
-                
-            </>
-        )
-    }
+        {this.state.viewForm && (
+          <>
+            <div className="backdrop" />
+            <div className="centeredModal">
+              <div className="modalContents">
+                <button onClick={this.handleClick} className="xButton">
+                  Close
+                </button>
+                {this.props.newPage}
+              </div>
+            </div>
+          </>
+        )}
+      </>
+    );
+  }
 }
