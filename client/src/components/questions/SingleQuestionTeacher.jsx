@@ -4,14 +4,18 @@ import Notice from "../Notice";
 import apiUtil from "../../utils/apiUtil";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
-import { addQuestion, stageQuestionInLecture } from "../../redux/actions";
+import {
+  addQuestion,
+  stageQuestionInLecture,
+  updateQuestionInLecture,
+} from "../../redux/actions";
 
 function SingleQuestionTeacher(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { courseId, lectureId } = useParams();
 
-  const editable = false; // TODO: update to props.editable || false once update API endpoint has been implemented
+  const editable = props.question ? true : false;
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -103,18 +107,40 @@ function SingleQuestionTeacher(props) {
       stem: stem,
       type: type,
       answers: answers,
-      lectureId: lectureId,
+      lectureId: question?.lectureId || lectureId, // Use existing lectureId if available
       totalPoints: points,
       weights: weights,
       content: {
         options: options,
       },
     };
+
+    // Line 104 Correction: Implement PUT request for updating an existing question
     if (question != null) {
-      // TODO: add update functionality once backend has implmented a put route for questions
-      setQuestion(questionBody);
-      setEditing(false);
+      const response = await apiUtil(
+        "put",
+        `courses/${courseId}/questions/${question.id}`,
+        { dispatch: dispatch, navigate: navigate },
+        questionBody
+      );
+
+      setError(response.error);
+      setMessage(response.message);
+      setLoading(false);
+
+      if (response.status === 200) {
+        // Update the local state with the newly fetched question data
+        setQuestion(response.data.question);
+        // Dispatch action to update the Redux store globally
+        dispatch(updateQuestionInLecture(question.id, response.data.question));
+        setEditing(false);
+      } else {
+        // Show an error message if the update failed
+        setError(true);
+        setMessage(response.message || "Failed to save question update.");
+      }
     } else {
+      // Existing POST logic for creating a new question
       const response = await apiUtil(
         "post",
         `courses/${courseId}/questions`,

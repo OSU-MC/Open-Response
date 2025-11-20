@@ -35,6 +35,7 @@ export const ADD_QUESTIONS = "ADD_QUESTIONS";
 export const ADD_LECTURES_IN_SECTION = "ADD_LECTURES_IN_SECTION";
 export const PUBLISH_LECTURE_IN_SECTION = "PUBLISH_LECTURE_IN_SECTION";
 export const ADD_QUESTION = "ADD_QUESTION";
+export const UPDATE_QUESTION_IN_LECTURE = "UPDATE_QUESTION_IN_LECTURE";
 
 export function setCourses(studentCourses, teacherCourses) {
   return { type: SET_COURSES, studentCourses, teacherCourses };
@@ -98,6 +99,10 @@ export const ADD_STAGED_QUESTION = "ADD_STAGED_QUESTION";
 export const ADD_LECTURE_QUESTIONS = "ADD_LECTURE_QUESTIONS";
 export const TOGGLE_PUBLISHED_FOR_QUESTION_IN_LECTURE =
   "TOGGLE_PUBLISHED_FOR_QUESTION_IN_LECTURE";
+
+export function updateQuestionInLecture(questionId, question) {
+  return { type: UPDATE_QUESTION_IN_LECTURE, questionId, question };
+}
 
 export function stageQuestionInLecture(lectureId, question) {
   return { type: STAGE_QUESTION_IN_LECTURE, lectureId, question };
