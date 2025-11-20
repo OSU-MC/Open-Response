@@ -1,8 +1,8 @@
-require('dotenv').config({ override: false})
-const db = require('../app/models')
+require("dotenv").config({ override: false });
+const db = require("../app/models");
 
 module.exports = async () => {
-   await db.sequelize.authenticate()
-}
+  await db.sequelize.authenticate();
+};
 
-module.exports.db = db
+module.exports.db = db;

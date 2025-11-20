@@ -1,117 +1,120 @@
 .landing-page {
-    width: 100%;
-    
-    .user-courses {
-        .landing-header {
-            margin-top: 32px;
-            
-            #landing-subtitle {
-                font-size: 27px;
-                margin-left: 70px;
-                display: inline;
-                font-weight: bold;
-            }
-            
-            .create-course, .join-course {
-                display: inline;
-                position: absolute;
-                right: 75px;
-                border-radius: 25px;
-            }
-            
-            .create-course, .join-course, .join-course-modal, .join-course-button {
-                /* Border */
-                border: 1px solid transparent;
-                background-color: var(--splash);
-                
-                /* Contents*/
-                height: 50px;
-                font-weight: bold;
-                padding: 10px 20px;
-                
-                &:hover {
-                    border: 1px solid black;
-                    background-color: var(--primary);
-                }
-            }
+  width: 100%;
 
-            .join-course-form, .join-course-modal {
-                width: auto;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-            }
+  .user-courses {
+    .landing-header {
+      margin-top: 32px;
 
-            
-            
-            .join-course-form {
-                form div {
-                    width: auto;
-                    display: flex;
-                    align-items: center;
-                    justify-content: center;
-                    
-                    #formJoinCourse {
-                        height: 50px;
-                        padding: 10px 20px;
-                        border-radius: 25px 0 0 25px;
-                    }
-                }
-                
-                .join-course-button {
-                    border-radius: 0 25px 25px 0;
-                }
+      #landing-subtitle {
+        font-size: 27px;
+        margin-left: 70px;
+        display: inline;
+        font-weight: bold;
+      }
 
-                .join-course-submit {
-                    width: auto;
-                    display: flex;
-                    flex-direction: row;
-                    align-items: center;
-                    justify-content: center;
-                }
-            }
+      .create-course,
+      .join-course {
+        display: inline;
+        position: absolute;
+        right: 75px;
+        border-radius: 25px;
+      }
+
+      .create-course,
+      .join-course,
+      .join-course-modal,
+      .join-course-button {
+        /* Border */
+        border: 1px solid transparent;
+        background-color: var(--splash);
+
+        /* Contents*/
+        height: 50px;
+        font-weight: bold;
+        padding: 10px 20px;
+
+        &:hover {
+          border: 1px solid black;
+          background-color: var(--primary);
+        }
+      }
+
+      .join-course-form,
+      .join-course-modal {
+        width: auto;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+
+      .join-course-form {
+        form div {
+          width: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+
+          #formJoinCourse {
+            height: 50px;
+            padding: 10px 20px;
+            border-radius: 25px 0 0 25px;
+          }
         }
 
-        .course-sort {
-            margin: 15px 70px;
-            
-            span {
-                /* Position */
-                margin-right: 12px;
-
-                /* Contents */
-                font-size: 18px;
-                font-weight: 500;
-                color: var(--accent);
-                cursor: pointer;
-
-                &.selected {
-                    color: black;
-                }
-            }
+        .join-course-button {
+          border-radius: 0 25px 25px 0;
         }
 
-        .course-section {
-            margin: 0px 70px;
-            font-weight: bold;
+        .join-course-submit {
+          width: auto;
+          display: flex;
+          flex-direction: row;
+          align-items: center;
+          justify-content: center;
         }
-
-        .courses {
-            margin: 0px 20px;
-        }
-        .courses a {
-            text-decoration: none; /* Removes underline */
-            color: inherit; /* Ensures the text color stays the same as the parent */
-        }
-
-        .courses a {
-            text-decoration: none; /* Removes underline */
-            color: inherit; /* Ensures the text color stays the same as the parent */
-        }
-        .courses a {
-            text-decoration: none; /* Removes underline */
-            color: inherit; /* Ensures the text color stays the same as the parent */
-        }
+      }
     }
+
+    .course-sort {
+      margin: 15px 70px;
+
+      span {
+        /* Position */
+        margin-right: 12px;
+
+        /* Contents */
+        font-size: 18px;
+        font-weight: 500;
+        color: var(--accent);
+        cursor: pointer;
+
+        &.selected {
+          color: black;
+        }
+      }
+    }
+
+    .course-section {
+      margin: 0px 70px;
+      font-weight: bold;
+    }
+
+    .courses {
+      margin: 0px 20px;
+    }
+    .courses a {
+      text-decoration: none; /* Removes underline */
+      color: inherit; /* Ensures the text color stays the same as the parent */
+    }
+
+    .courses a {
+      text-decoration: none; /* Removes underline */
+      color: inherit; /* Ensures the text color stays the same as the parent */
+    }
+    .courses a {
+      text-decoration: none; /* Removes underline */
+      color: inherit; /* Ensures the text color stays the same as the parent */
+    }
+  }
 }

@@ -1,29 +1,35 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.addConstraint('Enrollments', {
-      fields: ['userId', 'courseId'],
-      type: 'unique',
-      name: 'custom_unique_teacher_constraint',
-      onDelete: 'CASCADE'
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addConstraint("Enrollments", {
+      fields: ["userId", "courseId"],
+      type: "unique",
+      name: "custom_unique_teacher_constraint",
+      onDelete: "CASCADE",
     });
-    await queryInterface.addConstraint('Enrollments', {
-      fields: ['userId', 'sectionId'],
-      type: 'unique',
-      name: 'custom_unique_student_constraint',
-      onDelete: 'CASCADE'
-    })
+    await queryInterface.addConstraint("Enrollments", {
+      fields: ["userId", "sectionId"],
+      type: "unique",
+      name: "custom_unique_student_constraint",
+      onDelete: "CASCADE",
+    });
   },
 
-  async down (queryInterface, Sequelize) {
+  async down(queryInterface, Sequelize) {
     await queryInterface.sequelize.query(
-      'ALTER TABLE Enrollments ADD KEY `Enrollments_userId_foreign_idx`(`userId`);'
-    )
-    await queryInterface.removeConstraint(`Enrollments`, 'custom_unique_teacher_constraint')
-    await queryInterface.removeConstraint('Enrollments', 'custom_unique_student_constraint')
-  }
+      "ALTER TABLE Enrollments ADD KEY `Enrollments_userId_foreign_idx`(`userId`);"
+    );
+    await queryInterface.removeConstraint(
+      `Enrollments`,
+      "custom_unique_teacher_constraint"
+    );
+    await queryInterface.removeConstraint(
+      "Enrollments",
+      "custom_unique_student_constraint"
+    );
+  },
 };
 
 /*

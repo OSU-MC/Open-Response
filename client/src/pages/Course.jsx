@@ -1,5 +1,5 @@
 function Course(props) {
-    return <div>Course Page</div>
+  return <div>Course Page</div>;
 }
 
-export default Course
+export default Course;

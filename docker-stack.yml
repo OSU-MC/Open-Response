@@ -1,4 +1,4 @@
-version: '3.8'
+version: "3.8"
 
 services:
   frontend:
@@ -62,7 +62,11 @@ services:
       - db_data:/var/lib/mysql
       - ./core/db/init.sql:/docker-entrypoint-initdb.d/init.sql
     healthcheck:
-      test: ["CMD-SHELL", "mysqladmin ping -h localhost -u root -prootpassword || exit 1"]
+      test:
+        [
+          "CMD-SHELL",
+          "mysqladmin ping -h localhost -u root -prootpassword || exit 1",
+        ]
       interval: 10s
       timeout: 5s
       retries: 5

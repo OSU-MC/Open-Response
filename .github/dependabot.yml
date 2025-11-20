@@ -14,7 +14,7 @@ updates:
       - "OSU-MC/frontend-team"
     reviewers:
       - "OSU-MC/frontend-team"
-      
+
   - package-ecosystem: "npm"
     directory: "/core"
     schedule:

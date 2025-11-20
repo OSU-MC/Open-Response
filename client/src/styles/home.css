@@ -1,65 +1,65 @@
 #home {
-    width: 100%;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  .section {
     display: flex;
     flex-direction: column;
     align-items: center;
-    
-    .section {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        margin-top: 50px;
-        
-        .homeHeader {
-            font-weight: bold;
-            font-size: 28px;
-            margin-bottom: 0.5rem;
-        }
-    }
-    
-    .infoContainer {
-        width: 100vw;
-        display: flex;
-        flex-direction: column;
-        position: relative;
-        
-        .infoConnector {
-            width: 3px;
-            background-color: #ccc;
-            position: absolute;
-            left: 50%;
-            top: 0;
-            bottom: 0;
-        }
-        
-        .infoBox {
-            background-color: #D2DFD3;
-            border-radius: 24px;
-            margin: 16px 0;
-            z-index: 1;
-            
-            img {
-                width: 100px;
-                padding: 20px;
-            }
-            
-            .infoText {
-                font-weight: 500;
-                margin: 0;
-                padding: 20px;
-                padding-top: 0;
-            }
-        }
-        
-        .infoBox.leftBox {
-            flex-direction: row-reverse;
-            margin-left: 20vw;
-            margin-right: calc(50vw - 50px);
-        }
+    margin-top: 50px;
 
-        .infoBox.rightBox {
-            margin-left: calc(50vw - 50px);
-            margin-right: 20vw;
-        }
+    .homeHeader {
+      font-weight: bold;
+      font-size: 28px;
+      margin-bottom: 0.5rem;
     }
+  }
+
+  .infoContainer {
+    width: 100vw;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+
+    .infoConnector {
+      width: 3px;
+      background-color: #ccc;
+      position: absolute;
+      left: 50%;
+      top: 0;
+      bottom: 0;
+    }
+
+    .infoBox {
+      background-color: #d2dfd3;
+      border-radius: 24px;
+      margin: 16px 0;
+      z-index: 1;
+
+      img {
+        width: 100px;
+        padding: 20px;
+      }
+
+      .infoText {
+        font-weight: 500;
+        margin: 0;
+        padding: 20px;
+        padding-top: 0;
+      }
+    }
+
+    .infoBox.leftBox {
+      flex-direction: row-reverse;
+      margin-left: 20vw;
+      margin-right: calc(50vw - 50px);
+    }
+
+    .infoBox.rightBox {
+      margin-left: calc(50vw - 50px);
+      margin-right: 20vw;
+    }
+  }
 }

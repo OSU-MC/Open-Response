@@ -24,6 +24,7 @@ Our development process involves the following branch structure:
 1. Fork the repository.
 2. Create a new branch from `main` for your feature. Branch name should be descriptive of the feature.
 3. Commit your changes. Write meaningful commit messages that explains what you've done and why.
+All code is autoformatted on commit with prettier, husky, and lint-staged. To check if the repository aligns with the Code Formatting & Linting workflow expecatations, use `npm run format:check`. 
 4. Push your changes to your fork.
 5. Submit a pull request from your feature branch to the `main` branch.
 
