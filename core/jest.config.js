@@ -59,10 +59,10 @@ module.exports = {
   // forceCoverageMatch: [],
 
   // A path to a module which exports an async function that is triggered once before all test suites
-  globalSetup: './__tests__/setup.js',
+  globalSetup: "./__tests__/setup.js",
 
   // A path to a module which exports an async function that is triggered once after all test suites
-  globalTeardown: './__tests__/teardown.js',
+  globalTeardown: "./__tests__/teardown.js",
 
   // A set of global variables that need to be available in all test environments
   // globals: {},
@@ -132,7 +132,7 @@ module.exports = {
   // runner: "jest-runner",
 
   // The paths to modules that run some code to configure or set up the testing environment before each test
-  setupFiles: ['<rootDir>/.jest/setEnvVars.js'],
+  setupFiles: ["<rootDir>/.jest/setEnvVars.js"],
 
   // A list of paths to modules that run some code to configure or set up the testing framework before each test
   // setupFilesAfterEnv: [],
@@ -153,15 +153,13 @@ module.exports = {
   // testLocationInResults: false,
 
   // The glob patterns Jest uses to detect test files
-  testMatch: [
-    "**/__tests__/**/*.[jt]s?(x)"
-  ],
+  testMatch: ["**/__tests__/**/*.[jt]s?(x)"],
 
   // An array of regexp pattern strings that are matched against all test paths, matched tests are skipped
   testPathIgnorePatterns: [
-     "/node_modules/",
-     "/__tests__/setup.js",
-     "/__tests__/teardown.js"
+    "/node_modules/",
+    "/__tests__/setup.js",
+    "/__tests__/teardown.js",
   ],
 
   // The regexp pattern or array of patterns that Jest uses to detect test files

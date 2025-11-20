@@ -3,7 +3,7 @@
 */
 
 export function getUserState(state) {
-    return state.user
+  return state.user;
 }
 
 /*
@@ -11,27 +11,27 @@ export function getUserState(state) {
 */
 
 export function getCourses(state) {
-    return state.courses
+  return state.courses;
 }
 
 export function getEnrollments(state) {
-    return state.courses.enrollments
+  return state.courses.enrollments;
 }
 
 export function getSections(state) {
-    return state.courses.sections
+  return state.courses.sections;
 }
 
 export function getLectures(state) {
-    return state.courses.lectures
+  return state.courses.lectures;
 }
 
 export function getQuestions(state) {
-    return state.courses.questions
+  return state.courses.questions;
 }
 
 export function getLecturesInSection(state) {
-    return state.courses.lecturesInSection
+  return state.courses.lecturesInSection;
 }
 
 /*
@@ -39,5 +39,5 @@ export function getLecturesInSection(state) {
 */
 
 export function getLectureDetails(state) {
-    return state.lectures
+  return state.lectures;
 }

@@ -22,7 +22,8 @@
     "deploy:stack": "docker stack deploy -c docker-stack.yml openresponse",
     "remove:stack": "docker stack rm openresponse",
     "start:dev": "concurrently \"cd client && npm run start\" \"cd core && npm run start\" \"cd socket && npm run start\"",
-    "prepare": "husky"
+    "prepare": "husky",
+    "format": "prettier --write ."
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
