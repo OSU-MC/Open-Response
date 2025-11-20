@@ -31,9 +31,11 @@ function LiveLecture() {
       socket.off("questionUpdated");
     };
   }, [lectureId, getLecture]);
+
   const liveQuestions = lecture?.questions?.filter(
     (question) => question.isLive
   );
+
   const closedQuestions = lecture?.questions?.filter(
     (question) => !question.isLive
   );

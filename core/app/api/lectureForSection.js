@@ -97,7 +97,7 @@ router.get("/live", requireAuthentication, async function (req, res, next) {
     }
     const filteredLecture = {
       name: liveLecture.Lecture.dataValues.title,
-      id: liveLecture.id,
+      id: liveLecture.lectureId,
       isLive: liveLecture.isLive,
       closedAt: liveLecture.closedAt,
     };
