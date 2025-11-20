@@ -81,7 +81,7 @@ function QuestionCard(props) {
     const liveStatus = isLive ? "0" : "1";
     const response = await apiUtil(
       "put",
-      `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/live/${liveStatus}`,
+      `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${props.question.id}/live/${liveStatus}`,
       {
         dispatch: dispatch,
         navigate: navigate,
@@ -92,11 +92,15 @@ function QuestionCard(props) {
     setError(response.error);
     setMessage(response.message);
 
+    if (response.error) {
+      console.error("Error:", response.message);
+    }
+
     if (response.status === 200 && response.data?.isLive !== undefined) {
       setIsLive(!isLive);
       socket.emit("setLiveQuestion", { lectureId });
     }
-    console.log("setting it to:", isLive);
+    console.log("setting live status to:", isLive);
   }
 
   return (
