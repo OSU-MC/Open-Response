@@ -1,325 +1,317 @@
 #auth {
-    display: flex;
-    width: 100%;
-    
-    .leftContainer {
-        position: relative;
-        width: 50%;
+  display: flex;
+  width: 100%;
+
+  .leftContainer {
+    position: relative;
+    width: 50%;
+    background-color: var(--splash);
+    border-radius: 0 50px 50px 0;
+
+    .welcomeBox {
+      position: relative;
+      padding: 10vh 5vw;
+      height: 100%;
+
+      .classroomLink {
+        font-size: 36px;
+        font-weight: bold;
+        color: black;
+
+        .classroomIcon {
+          margin-right: 8px;
+        }
+      }
+
+      .textBox {
+        margin-top: 3vh;
+        width: 70%;
+
+        .subText {
+          font-size: 30px;
+          color: gray;
+        }
+      }
+
+      .homeButton {
+        position: absolute;
+        bottom: 5vw;
+        font-size: 18px;
+        color: black;
+        text-decoration: none;
+        border-radius: 13px;
         background-color: var(--splash);
-        border-radius: 0 50px 50px 0;
-        
-        .welcomeBox {
-            position: relative;
-            padding: 10vh 5vw;
-            height: 100%;
-            
-            .classroomLink {
-                font-size: 36px;
-                font-weight: bold;
-                color: black;
-                
-                .classroomIcon {
-                    margin-right: 8px;
-                }
-            }
-            
-            .textBox {
-                margin-top: 3vh;
-                width: 70%;
-                
-                .subText {
-                    font-size: 30px;
-                    color: gray;
-                }
-            }
+        padding: 15px;
 
-            .homeButton {
-                position: absolute;
-                bottom: 5vw;
-                font-size: 18px;
-                color: black;
-                text-decoration: none;
-                border-radius: 13px;
-                background-color: var(--splash);
-                padding: 15px;
-                
-                img {
-                    padding: 0px 10px 3px 5px;
-                    height: 18px;
-                }
-                
-                &:hover {
-                    background-color: var(--primary);
-                    transition: .4s ease;
-                }
-            }
+        img {
+          padding: 0px 10px 3px 5px;
+          height: 18px;
         }
+
+        &:hover {
+          background-color: var(--primary);
+          transition: 0.4s ease;
+        }
+      }
+    }
+  }
+
+  .rightContainer {
+    width: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    .formContainer {
+      width: 100%;
+      max-width: 400px;
+      margin: 0 auto;
+      padding: 20px;
+      background-color: #fff;
+      border-radius: 10px;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .rightContainer {
-        width: 50%;
+    .formGroup {
+      margin-bottom: 20px;
+    }
+
+    .formGroup label {
+      display: block;
+      margin-bottom: 8px;
+      font-size: 14px;
+      color: #333;
+    }
+
+    .inputField {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--accent);
+      border-radius: 5px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.3s;
+    }
+
+    .inputField:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 4px var(--primary);
+    }
+
+    .submitButtonReset {
+      display: block;
+      width: 100%;
+      padding: 10px;
+      font-size: 16px;
+      font-weight: bold;
+      color: #fff;
+      background-color: var(--splash);
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+    }
+
+    .submitButtonReset:hover {
+      background-color: var(--primary);
+    }
+
+    .resetpassword {
+      align-items: flex-start;
+      padding: 0 15%;
+      padding-top: 50;
+      display: block;
+
+      .submitButtonReset {
+        display: block;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 1px solid var(--splash);
+        border-radius: 9px;
+        width: 256px;
+        height: 48px;
+        transition: 0.4s;
+        background-color: var(--splash);
+
+        &:hover {
+          border: 1px solid black;
+          background-color: var(--primary);
+        }
+      }
+    }
+
+    .loginSection {
+      padding: 0 15%;
+
+      .userTypeSelector {
         display: flex;
+        justify-content: flex-start;
         align-items: center;
-        justify-content: center;
-        
-        .formContainer {
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            padding: 20px;
-            background-color: #fff;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        margin-bottom: 15px;
+        margin-left: 0 !important;
+        align-self: flex-start;
+      }
+      .switch {
+        left: 50%;
+        transform: translateX(-50%);
+        margin-top: 32px;
+        position: relative;
+        display: inline-block;
+        width: 400px;
+        height: 56px;
+        border: 2px var(--accent) solid;
+        border-radius: 15px;
+
+        #studentText,
+        #teacherText {
+          cursor: pointer;
+          z-index: 99;
+          color: black;
+          position: absolute;
+          top: 50%;
+          transform: translate(0%, -50%);
         }
-        
-        .formGroup {
-            margin-bottom: 20px;
+
+        #studentText {
+          left: 12%;
         }
-        
-        .formGroup label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: #333;
+
+        #teacherText {
+          right: 12%;
         }
-        
-        .inputField {
-            width: 100%;
-            padding: 10px;
-            border: 1px solid var(--accent);
-            border-radius: 5px;
-            font-size: 14px;
-            outline: none;
-            transition: border-color 0.3s;
+
+        .teacherCheck {
+          opacity: 0;
+          width: 0;
+          height: 0;
+
+          &:checked + .slider:before {
+            transform: translateX(196px);
+          }
         }
-        
-        .inputField:focus {
-            border-color: var(--primary);
-            box-shadow: 0 0 4px var(--primary);
-        }
-        
-        .submitButtonReset {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            font-size: 16px;
-            font-weight: bold;
-            color: #fff;
+
+        .slider {
+          position: absolute;
+          cursor: pointer;
+          top: 0;
+          left: 0;
+          right: 0;
+          bottom: 0;
+          border-radius: 15px;
+
+          &:before {
+            position: absolute;
+            content: "";
+            height: 56px;
+            width: 208px;
+            left: -2px;
+            bottom: -2px;
             background-color: var(--splash);
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            transition: background-color 0.3s;
+            transition: 0.4s;
+            border-radius: 13px;
+          }
         }
-        
-        .submitButtonReset:hover {
-            background-color: var(--primary);
+      }
+
+      .inputContainer {
+        margin-top: 40px;
+        background: transparent;
+        border: none;
+        border-bottom: 1px solid var(--accent);
+        padding-left: 6px;
+        width: 100%;
+      }
+
+      .firstNameContainer {
+        width: 45% !important;
+        float: left;
+      }
+
+      .lastNameContainer {
+        width: 45% !important;
+        margin-left: 10%;
+      }
+
+      .changePasswordLink {
+        display: block;
+        margin-top: 20px;
+        color: gray;
+        text-decoration: none;
+
+        &:hover {
+          text-decoration: underline;
         }
+      }
 
-        .resetpassword {
-            align-items: flex-start;
-            padding: 0 15%;
-            padding-top: 50;
-            display: block;
+      .submitButton {
+        margin-top: 10vh;
+      }
 
-            .submitButtonReset {
-                display: block;
-                position: relative;
-                left: 50%;
-                transform: translateX(-50%);
-                border: 1px solid var(--splash);
-                border-radius: 9px;
-                width: 256px;
-                height: 48px;
-                transition: 0.4s;
-                background-color: var(--splash);
-                
-                &:hover {
-                    border: 1px solid black;
-                    background-color: var(--primary);
-                }
-            }
+      .submitButton,
+      .ssoButton {
+        display: block;
+        position: relative;
+        left: 50%;
+        transform: translateX(-50%);
+        border: 1px solid var(--splash3);
+        border-radius: 9px;
+        width: 256px;
+        height: 48px;
+        transition: 0.4s;
+        background-color: var(--splash3);
+        color: white;
+        font-weight: bold;
+        font-size: 16px;
 
-
+        &:hover {
+          border: 1px solid var(--splash3);
+          background-color: var(--primary);
+          color: var(--splash3);
         }
+      }
 
-        
+      .orSSOText {
+        margin: 10px 0;
+        color: gray;
+        display: flex;
+        justify-content: center;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        position: relative;
+        align-items: center;
+      }
+      .orSSOText::before,
+      .orSSOText::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background-color: gray;
+        margin: 0 10px;
+      }
 
-
-
-        .loginSection {
-            padding: 0 15%;
-
-            .userTypeSelector {
-                display: flex;
-                justify-content: flex-start;
-                align-items: center;
-                margin-bottom: 15px;
-                margin-left: 0 !important;
-                align-self: flex-start;
-            }
-            .switch {
-                left: 50%;
-                transform: translateX(-50%);
-                margin-top: 32px;
-                position: relative;
-                display: inline-block;
-                width: 400px;
-                height: 56px;
-                border: 2px var(--accent) solid;
-                border-radius: 15px;
-                
-                #studentText, #teacherText {
-                    cursor: pointer;
-                    z-index: 99;
-                    color: black;
-                    position: absolute;
-                    top: 50%;
-                    transform: translate(0%, -50%);
-                }
-
-                #studentText {
-                    left: 12%;
-                }
-
-                #teacherText {
-                    right: 12%;
-                }
-                
-                .teacherCheck {
-                    opacity: 0;
-                    width: 0;
-                    height: 0;
-                    
-                    &:checked + .slider:before {
-                        transform: translateX(196px);
-                    }
-                }
-                
-                .slider {
-                    position: absolute;
-                    cursor: pointer;
-                    top: 0;
-                    left: 0;
-                    right: 0;
-                    bottom: 0;
-                    border-radius: 15px;
-                    
-                    &:before {
-                        position: absolute;
-                        content: "";
-                        height: 56px;
-                        width: 208px;
-                        left: -2px;
-                        bottom: -2px;
-                        background-color: var(--splash);
-                        transition: 0.4s;
-                        border-radius: 13px;
-                    }
-                }
-            }
-            
-            .inputContainer {
-                margin-top: 40px;
-                background:transparent;
-                border: none;
-                border-bottom: 1px solid var(--accent);
-                padding-left: 6px;
-                width: 100%;
-            }
-            
-            .firstNameContainer {
-                width: 45% !important;
-                float: left;
-            }
-
-            .lastNameContainer {
-                width: 45% !important;
-                margin-left: 10%;
-            }
-            
-            .changePasswordLink {
-                display: block;
-                margin-top: 20px;
-                color: gray;
-                text-decoration: none;
-                
-                &:hover {
-                    text-decoration: underline;
-                }
-            }
-            
-            .submitButton {
-                margin-top: 10vh;
-            }
-            
-            .submitButton, .ssoButton {
-                display: block;
-                position: relative;
-                left: 50%;
-                transform: translateX(-50%);
-                border: 1px solid var(--splash3);
-                border-radius: 9px;
-                width: 256px;
-                height: 48px;
-                transition: 0.4s;
-                background-color: var(--splash3);
-                color: white;
-                font-weight: bold;
-                font-size: 16px;
-                
-                &:hover {
-                    border: 1px solid var(--splash3);
-                    background-color: var(--primary);
-                    color: var(--splash3);
-                }
-            }
-            
-            .orSSOText {
-                margin: 10px 0;
-                color: gray;
-                display: flex;
-                justify-content: center;
-                text-align: center;
-                font-size: 14px;
-                font-weight: bold;
-                position: relative;
-                align-items: center;
-            }
-            .orSSOText::before,
-            .orSSOText::after {
-                content: "";
-                flex: 1;
-                height: 1px;
-                background-color: gray;
-                margin: 0 10px;
-            }
-
-            .orSSOTextSignup {
-                margin: 10px auto;
-                color: gray;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                text-align: center;
-                font-size: 14px;
-                font-weight: bold;
-                position: relative;
-                width: 256px;
-            }
-            .orSSOTextSignup::before,
-            .orSSOTextSignup::after {
-                content: "";
-                flex: 1;
-                height: 1px;
-                background-color: gray;
-                max-width: 100px;
-                margin: 0 10px;
-            }
-
-
-
-        }
+      .orSSOTextSignup {
+        margin: 10px auto;
+        color: gray;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        font-size: 14px;
+        font-weight: bold;
+        position: relative;
+        width: 256px;
+      }
+      .orSSOTextSignup::before,
+      .orSSOTextSignup::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background-color: gray;
+        max-width: 100px;
+        margin: 0 10px;
+      }
     }
+  }
 }
-

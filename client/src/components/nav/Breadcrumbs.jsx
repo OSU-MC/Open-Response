@@ -1,6 +1,6 @@
-import React from 'react';
-import { Link } from 'react-router-dom';
-import PropTypes from 'prop-types';
+import React from "react";
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
 import "../../styles/Sections.css";
 
 const Breadcrumbs = ({ breadcrumbs }) => {
@@ -18,7 +18,7 @@ const Breadcrumbs = ({ breadcrumbs }) => {
             <span className="no-link-style">{label}</span>
           )}
           {/* Add the separator except for the last item */}
-          {index < breadcrumbs.length - 1 && ' > '}
+          {index < breadcrumbs.length - 1 && " > "}
         </React.Fragment>
       ))}
     </div>

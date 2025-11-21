@@ -1,16 +1,16 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up (queryInterface, Sequelize) {
-    await queryInterface.addColumn('Questions', 'isLive', {
+  async up(queryInterface, Sequelize) {
+    await queryInterface.addColumn("Questions", "isLive", {
       type: Sequelize.BOOLEAN,
       allowNull: false,
-      defaultValue: false
+      defaultValue: false,
     });
   },
 
-  async down (queryInterface, Sequelize) {
-    await queryInterface.removeColumn('Questions', 'isLive');
-  }
+  async down(queryInterface, Sequelize) {
+    await queryInterface.removeColumn("Questions", "isLive");
+  },
 };

@@ -12,7 +12,7 @@
  *
  * Usage Example:
  * ```
- * <Tabs 
+ * <Tabs
  *   courseId="cs101"
  *   tabs={[
  *     ["Sections", "sections"],
@@ -31,29 +31,33 @@ import { Link, useLocation } from "react-router-dom";
 import "../../styles/Tabs.css";
 
 const Tabs = ({ courseId, tabs }) => {
-    const location = useLocation(); // Get current URL path
+  const location = useLocation(); // Get current URL path
 
-    // Determine the active tab dynamically
-    const getActiveTab = () => {
-        return tabs.find(([_, path]) => location.pathname.includes(path))?.[1] || "";
-    };
-
+  // Determine the active tab dynamically
+  const getActiveTab = () => {
     return (
-        <>
-            <div className="tabs">
-                {tabs.map(([displayName, pageToLinkTo]) => (
-                    <Link key={pageToLinkTo} to={`/${courseId}/${pageToLinkTo}`}>
-                        <span className={getActiveTab() === pageToLinkTo ? "active-tab" : "no-link-style"}>
-                            {displayName}
-                        </span>
-                    </Link>
-                ))}
-            </div>
-            <hr />
-        </>
+      tabs.find(([_, path]) => location.pathname.includes(path))?.[1] || ""
     );
+  };
+
+  return (
+    <>
+      <div className="tabs">
+        {tabs.map(([displayName, pageToLinkTo]) => (
+          <Link key={pageToLinkTo} to={`/${courseId}/${pageToLinkTo}`}>
+            <span
+              className={
+                getActiveTab() === pageToLinkTo ? "active-tab" : "no-link-style"
+              }
+            >
+              {displayName}
+            </span>
+          </Link>
+        ))}
+      </div>
+      <hr />
+    </>
+  );
 };
 
-
 export default Tabs;
-

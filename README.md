@@ -26,6 +26,11 @@ Install the following:
 - [Grafana k6](https://k6.io/docs/getting-started/installation/) – for performance/load testing
 
 ### Setup & Run
+> [!IMPORTANT]
+> Some steps will vary between Windows and UNIX systems (Linux and macOS). These will be noted in the script.
+
+> [!IMPORTANT]
+> Some commands may require administrator privileges.
 
 ```bash
 # === Open Response First-Time Setup Script ===
@@ -59,7 +64,15 @@ npm run init
 # Generate and configure local .env files
 # This will set up required environment variables
 # -----------------------------------------------
+# WINDOWS
+# -----------------------------------------------
 npm run config
+
+# -----------------------------------------------
+# LINUX / MAC
+# -----------------------------------------------
+npm run config-unix
+
 # This modifies:
 # - /core/.env (Open Response Core)
 # - /client/.env (Open Response Client)

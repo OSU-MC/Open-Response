@@ -1,42 +1,43 @@
 nav {
-    position: sticky;
-    top: 0;
-    z-index: 99;
-    height: 57px;
-    border-bottom: 3px solid var(--splash);
-    background-color: var(--primary);
-    
-    a {
-        float: left;
-        display: flex;
-        height: 100%;
-        align-items: center;
-        justify-content: center;
-        text-decoration: none;
-        color: black;
-        padding: 0 22px;
-        font-weight: bold;
-        transition: 250ms;
-        
-        #classroomIcon {
-            height: 32px;
-            width: auto;
-            vertical-align: middle;
-            margin-right: 4px;
-        }
+  position: sticky;
+  top: 0;
+  z-index: 99;
+  height: 57px;
+  border-bottom: 3px solid var(--splash);
+  background-color: var(--primary);
+
+  a {
+    float: left;
+    display: flex;
+    height: 100%;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+    color: black;
+    padding: 0 22px;
+    font-weight: bold;
+    transition: 250ms;
+
+    #classroomIcon {
+      height: 32px;
+      width: auto;
+      vertical-align: middle;
+      margin-right: 4px;
     }
-    
-    .curr {
-        border-bottom: 3px solid var(--splash2);
-        box-sizing: content-box;
-        color: var(--splash2);
-    }
-    
-    .curr, .page:hover {
-        background-color: var(--accent2);
-    }
-    
-    .right {
-        float: right;
-    }
+  }
+
+  .curr {
+    border-bottom: 3px solid var(--splash2);
+    box-sizing: content-box;
+    color: var(--splash2);
+  }
+
+  .curr,
+  .page:hover {
+    background-color: var(--accent2);
+  }
+
+  .right {
+    float: right;
+  }
 }

@@ -1,21 +1,21 @@
 // vite.config.js
-import { defineConfig } from 'vite';
-import react from '@vitejs/plugin-react';
+import { defineConfig } from "vite";
+import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
   resolve: {
     alias: {
-      '@': '/src',
+      "@": "/src",
     },
   },
   optimizeDeps: {
-    include: ['react', 'react-dom']
+    include: ["react", "react-dom"],
   },
   test: {
     globals: true,
-    environment: 'jsdom',
-    setupFiles: './src/setupTests.js',
+    environment: "jsdom",
+    setupFiles: "./src/setupTests.js",
   },
   // added to specify client side port so that CORS will work
   // ../core/.env CLIENT_URL should be specified as
@@ -25,6 +25,6 @@ export default defineConfig({
   },
 
   preview: {
-    port:3000,
+    port: 3000,
   },
 });
