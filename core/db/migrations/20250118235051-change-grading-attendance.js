@@ -244,7 +244,7 @@ module.exports = {
       );
       // Delete the old QuestionInLectures.order column. This was moved
       // down because otherwise MariaDB would have a fit.
-      await queryInterface.removeColumn('QuestionInLectures', 'order');
+      await queryInterface.removeColumn("QuestionInLectures", "order");
 
       // Add missing LectureForSections columns
       await queryInterface.addColumn(
