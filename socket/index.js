@@ -18,7 +18,7 @@ const server = http.createServer();
 const io = new Server(server, {
   cors: {
     origin: [process.env.CLIENT_URL || "http://localhost:3000"],
-    methods: ["GET", "PUT", "POST", "DELETE"],
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
     optionsSuccessStatus: 200,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],
