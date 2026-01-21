@@ -7,6 +7,7 @@ import apiUtil from "../../utils/apiUtil";
 import { useDispatch } from "react-redux";
 import { useNavigate } from "react-router-dom";
 
+// Store the answers payload stored in the server.
 function SingleQuestionStudent(props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
@@ -21,9 +22,55 @@ function SingleQuestionStudent(props) {
     false,
     false,
     false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
   ]);
   const [radioChecked, setRadioChecked] = useState();
   const [checkboxOptionsSelected, setCheckboxOptionsSelected] = useState([
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
+    false,
     false,
     false,
     false,
