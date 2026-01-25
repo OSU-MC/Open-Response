@@ -105,6 +105,7 @@ async function setupAccount(user) {
       message: {
         to: {
           data: {
+            tempPassword: user.tempPassword,
             application: applicationName,
           },
           email: user.email,
@@ -122,7 +123,7 @@ async function setupAccount(user) {
     return requestId;
   } else {
     logger.debug(
-      `Account setup email skipped send to ${user.firstName} ${user.lastName}`
+      `Account setup email skipped send to ${user.firstName} ${user.lastName}, tempPassword: ${user.tempPassword}`
     );
     return;
   }
