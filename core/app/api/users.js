@@ -127,7 +127,6 @@ router.post(
       newUser.tempPassword = generateOTP(16);
       newUser.rawPassword = newUser.tempPassword;
       newUser.confirmedPassword = newUser.tempPassword;
-      console.log("newUser:", newUser);
       // prompts user to change password later
 
       // validate row data
@@ -184,7 +183,6 @@ router.post(
       results.failedEnrollmentCreations = 0;
       results.newlyCreatedEnrollments = [];
       for (const newUser of newUsersAllInfo) {
-        // console.log(newUser);
         try {
           results.totalEnrollmentAttempts++;
           const enrollment = await db.Enrollment.create({
