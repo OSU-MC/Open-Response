@@ -17,67 +17,19 @@ function SingleQuestionStudent(props) {
   const answers = props.question.answers
     ? Object.values(props.question.answers)
     : [];
-  const [radioOptionSelected, setRadioOptionSelected] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
+
+  // Use the content array to determine the length the array needs to be.
+  const [radioOptionSelected, setRadioOptionSelected] = useState(
+    Array(content.length).fill(false)
+  );
+  const [checkboxOptionsSelected, setCheckboxOptionsSelected] = useState(
+    Array(content.length).fill(false)
+  );
+
   const [radioChecked, setRadioChecked] = useState();
-  const [checkboxOptionsSelected, setCheckboxOptionsSelected] = useState([
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-    false,
-  ]);
   const [submissionError, setSubmissionError] = useState();
 
+  // Handle the submission of a question
   const createResponse = async (e) => {
     e.preventDefault();
     if (props.question.type === "multiple choice" && radioChecked == null) {
