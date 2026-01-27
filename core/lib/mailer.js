@@ -5,7 +5,7 @@ let courier;
 const applicationName = process.env.APP_NAME || "Open Response";
 const email_enabled = process.env.ENABLE_EMAIL === "true";
 if (email_enabled) {
-  courier = CourierClient(); // creates the client and uses the COURIER_AUTH_TOKEN env variable as authorization
+  courier = new CourierClient(); // creates the client and uses the COURIER_AUTH_TOKEN env variable as authorization
 }
 
 // welcome email sent to the user
@@ -99,6 +99,36 @@ async function passwordReset(user) {
   }
 }
 
+async function setupAccount(user) {
+  if (email_enabled) {
+    const { requestId } = await courier.send({
+      message: {
+        to: {
+          data: {
+            application: applicationName,
+          },
+          email: user.email,
+        },
+        content: {
+          title: "{{application}}: Setup account",
+          body: "Your temporary password is {{tempPassword}}",
+        },
+        routing: {
+          method: "single",
+          channels: ["email"],
+        },
+      },
+    });
+    return requestId;
+  } else {
+    logger.debug(
+      `Account setup email skipped send to ${user.firstName} ${user.lastName}`
+    );
+    return;
+  }
+}
+
 module.exports.welcome = welcome;
 module.exports.confirmation = confirmation;
 module.exports.passwordReset = passwordReset;
+module.exports.setupAccount = setupAccount;

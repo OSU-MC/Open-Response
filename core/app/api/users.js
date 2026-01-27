@@ -3,6 +3,7 @@ const { logger } = require("../../lib/logger");
 const router = require("express").Router();
 const { UniqueConstraintError, ValidationError } = require("sequelize");
 const UserService = require("../services/user_service");
+const EnrollmentService = require("../services/enrollment_service");
 const {
   serializeSequelizeErrors,
   serializeStringArray,
@@ -12,6 +13,16 @@ const {
   requireAuthentication,
   removeUserAuthCookie,
 } = require("../../lib/auth");
+const mailer = require("../../lib/mailer");
+const { generateOTP } = require("../../lib/password_gen");
+const csv = require("csv-parser");
+const { isValidCsv, validateHeaders } = require("../../lib/file_validation");
+const { Readable } = require("stream");
+const multer = require("multer");
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 /*
   path: '/users
@@ -55,6 +66,160 @@ router.post("", async function (req, res, next) {
     });
   }
 });
+
+// POST '/users/import-by-csv' create multiple users from imported student list
+router.post(
+  "/import-by-csv",
+  upload.single("file"),
+  async function (req, res, next) {
+    const fileMetadata = req.file;
+    console.log("fileMetaData:", fileMetadata);
+
+    const validationParamsCSV = {
+      maxFileSize: 5 * 1024 * 1024,
+      acceptedTypes: ["text/csv"],
+      acceptedExtension: "csv",
+      csvHeaders: ["firstName", "lastName", "email"], // must be updated if csv format changes
+    };
+    // does not guarantee file is safe
+    if (!isValidCsv(fileMetadata, validationParamsCSV)) {
+      res.status(400).send({ error: "Bad file" });
+      return;
+    }
+
+    const results = {
+      totalUserCreationAttempts: 0,
+      successfulUserCreations: 0,
+      failedUserCreations: 0,
+      newlyCreatedUsers: [],
+      errors: [],
+    };
+    const newUsersAllInfo = [];
+
+    const file = req.file.buffer;
+    const stream = Readable.from(file).pipe(csv());
+    let isValidHeaders = false;
+
+    // loop through all users from the file
+    for await (const row of stream) {
+      results.totalUserCreationAttempts++;
+
+      // validate csv headers
+      if (!isValidHeaders) {
+        validateHeadersOutput = validateHeaders(
+          Object.keys(row),
+          validationParamsCSV.csvHeaders
+        );
+        isValidHeaders = validateHeadersOutput.isValid;
+        if (isValidHeaders !== true) {
+          res.status(400).json({ error: validateHeadersOutput.error });
+          return;
+        }
+      }
+
+      // do not need to sanitize csv rows on import
+      // would change values inputted into db
+      // safe from csv injection since db uses parameterized queries
+
+      // setup user object
+      const newUser = row;
+      newUser.isTeacher = false;
+      newUser.tempPassword = generateOTP(16);
+      newUser.rawPassword = newUser.tempPassword;
+      newUser.confirmedPassword = newUser.tempPassword;
+      // prompts user to change password later
+
+      // validate row data
+      const missingFields =
+        await UserService.validateUserCreationRequest(newUser);
+      if (missingFields.length !== 0) {
+        results.failedUserCreations++;
+        results.errors.push({
+          row: results.totalUserCreationAttempts,
+          status: 400,
+          error: `Missing fields: ${missingFields.join(", ")}`,
+        });
+        continue;
+      }
+
+      // insert to database
+      try {
+        const user = await db.User.create(
+          UserService.extractUserCreationFields(newUser)
+        );
+        results.successfulUserCreations++;
+        results.newlyCreatedUsers.push(UserService.filterUserFields(user));
+        newUsersAllInfo.push(user);
+
+        // TODO: delay sending emails till teacher hits button
+        mailer.setupAccount(newUser);
+      } catch (e) {
+        if (e instanceof UniqueConstraintError) {
+          results.failedUserCreations++;
+          results.errors.push({
+            row: results.totalUserCreationAttempts,
+            status: 400,
+            error: `An account associated with the email '${newUser.email}' already exists`,
+          });
+        } else if (e instanceof ValidationError) {
+          results.failedUserCreations++;
+          results.errors.push({
+            row: results.totalUserCreationAttempts,
+            status: 400,
+            error: serializeSequelizeErrors(e),
+          });
+        } else {
+          next(e);
+        }
+      }
+    }
+
+    // insert students into enrollments if sectionId is provided
+    const sectionId = req.query.sectionId;
+    console.log("sectionId:", sectionId);
+    if (sectionId) {
+      results.totalEnrollmentAttempts = 0;
+      results.successfulEnrollmentCreations = 0;
+      results.failedEnrollmentCreations = 0;
+      results.newlyCreatedEnrollments = [];
+      for (const newUser of newUsersAllInfo) {
+        try {
+          results.totalEnrollmentAttempts++;
+          const enrollment = await db.Enrollment.create({
+            role: "student",
+            sectionId: sectionId,
+            userId: newUser.dataValues.id,
+          });
+          results.successfulEnrollmentCreations++;
+          results.newlyCreatedEnrollments.push(
+            EnrollmentService.extractEnrollmentFields(enrollment)
+          );
+        } catch (e) {
+          if (e instanceof UniqueConstraintError) {
+            results.failedEnrollmentCreations++;
+            results.errors.push({
+              row: results.totalEnrollmentAttempts,
+              status: 400,
+              error: `The user with email '${newUser.email}' could not be added to section '${sectionId}'`,
+            });
+          } else if (e instanceof ValidationError) {
+            results.failedEnrollmentCreations++;
+            results.errors.push({
+              row: results.totalEnrollmentAttempts,
+              status: 400,
+              error: serializeSequelizeErrors(e),
+            });
+          } else {
+            next(e);
+          }
+        }
+      }
+    }
+
+    // does not mean that each create query was successful (must check results obj)
+    res.status(200).json({ results });
+  }
+);
 
 // PUT 'users' reset a password
 router.put("", async function (req, res, next) {
