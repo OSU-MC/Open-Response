@@ -6,6 +6,7 @@ import useSections from "@/hooks/useSections";
 import Notice from "@/components/Notice";
 import SectionCard from "@/components/SectionCard";
 import ImportStudentList from "@/components/ImportStudentList";
+import ExportStudentGrades from "@/components/ExportStudentGrades";
 
 function Roster() {
   const { courseId } = useParams();
@@ -15,7 +16,10 @@ function Roster() {
     <>
       <div className="contentbody">
         <div className="allstudents">
-          <ImportStudentList />
+          <div className="button-spacing">
+            <ImportStudentList />
+            <ExportStudentGrades />
+          </div>
         </div>
 
         {message ? (
