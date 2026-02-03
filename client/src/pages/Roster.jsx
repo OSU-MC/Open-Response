@@ -18,7 +18,7 @@ function Roster() {
         <div className="allstudents">
           <div className="button-spacing">
             <ImportStudentList />
-            <ExportStudentGrades />
+            <ExportStudentGrades courseId={Number(courseId)} />
           </div>
         </div>
 

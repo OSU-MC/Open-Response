@@ -20,8 +20,8 @@ const FileUpload = ({
     }
     const file = files[0];
     setSelectedFile(file);
-    console.log(files);
-    console.log(file);
+    // console.log(files);
+    // console.log(file);
   }
 
   async function onFileUpload() {
@@ -29,9 +29,10 @@ const FileUpload = ({
       return;
     }
     const resp = await handleUpload(selectedFile);
+    // console.log(resp);
     setUploadResponse(resp);
     if (resp.errors.length <= 0) {
-      if (callback) callback();
+      if (callback) callback(resp.saveInState);
     }
   }
 
