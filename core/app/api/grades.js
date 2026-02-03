@@ -9,6 +9,17 @@ const csv = require("csv-parser");
 const fs = require("fs");
 const { Parser } = require("json2csv");
 const { Op } = require("sequelize");
+const { Readable } = require("stream");
+const {
+  isValidCsv,
+  validateHeaders,
+  sanitizeString,
+} = require("../../lib/file_validation");
+const multer = require("multer");
+const upload = multer({
+  storage: multer.memoryStorage(),
+  limits: { fileSize: 5 * 1024 * 1024 },
+});
 
 // URL: /courses/course_id/grades
 // teacher wants to get grades for each student in the course
@@ -616,39 +627,206 @@ router.get(
   }
 );
 
-// // URL: /courses/:course_id/sections/:section_id/grades/export
-// router.get("/export", requireAuthentication, async function (req, res, next) {
-// 	const courseId = parseInt(req.params["course_id"]);
-// 	const sectionId = parseInt(req.params["section_id"]);
+// URL: /courses/:course_id/sections/:section_id/grades/export/validate-canvas-csv
+router.post(
+  "/export/validate-canvas-csv",
+  upload.single("file"),
+  requireAuthentication,
+  async function (req, res, next) {
+    const fileMetadata = req.file;
 
-// 	try {
-// 		const grades = await db.Grade.findAll({
-// 			where: { sectionId },
-// 			include: [
-// 				{
-// 					model: db.User,
-// 					as: 'student',
-// 					attributes: ['firstName', 'lastName']
-// 				},
-// 				{
-// 					model: db.Lecture,
-// 					attributes: ['title']
-// 				}
-// 			]
-// 		});
+    const validationParamsCSV = {
+      maxFileSize: 5 * 1024 * 1024,
+      acceptedTypes: ["text/csv"],
+      acceptedExtension: "csv",
+      csvHeaders: [
+        "Student",
+        "ID",
+        "SIS User ID",
+        "SIS Login ID",
+        "Root Account",
+        "Section",
+      ], // must be updated if csv format changes
+    };
 
-// 		const fields = ['student.firstName', 'student.lastName', 'lecture.title', 'grade'];
-// 		const json2csvParser = new Parser({ fields });
-// 		const csv = json2csvParser.parse(grades);
+    // does not guarantee file is safe
+    if (!isValidCsv(fileMetadata, validationParamsCSV)) {
+      res.status(400).send({ error: "Bad file" });
+      return;
+    }
 
-// 		res.header('Content-Type', 'text/csv');
-// 		res.attachment('grades.csv');
-// 		res.send(csv);
-// 	} catch (e) {
-// 		console.error("Error exporting grades:", e);
-// 		next(e);
-// 	}
-// });
+    const results = {
+      saveInState: null,
+      errors: [],
+    };
+    let isValidHeaders = false;
+    const rows = [];
+
+    // read file
+    const file = req.file.buffer;
+    const stream = Readable.from(file).pipe(csv());
+    for await (const row of stream) {
+      // validate csv headers
+      if (!isValidHeaders) {
+        const headersArr = Object.keys(row);
+        validateHeadersOutput = validateHeaders(
+          headersArr,
+          validationParamsCSV.csvHeaders
+        );
+        isValidHeaders = validateHeadersOutput.isValid;
+        if (isValidHeaders !== true) {
+          res.status(400).json({ error: validateHeadersOutput.error });
+          return;
+        }
+      }
+
+      // make sure there is no csv injection
+      for (const key of Object.keys(row)) {
+        row[key] = sanitizeString(row[key]);
+      }
+
+      rows.push(row);
+    }
+
+    results.saveInState = rows;
+    res.status(200).json({ results });
+  }
+);
+
+// URL: /courses/:course_id/sections/:section_id/grades/export/canvas
+// assumes client is on teacher role
+router.post(
+  "/export/canvas",
+  requireAuthentication,
+  async function (req, res, next) {
+    // get all sectionIds from url
+    const sectionId = parseInt(req.params["section_id"]);
+    let whereCond = sectionId;
+    if (sectionId === 0) {
+      whereCond = req.query.sectionIds?.split(",").map((id) => parseInt(id));
+    }
+
+    // organize data by studentName: obj
+    const rows = req.body.rows;
+    let csvHeaders;
+    const studentDict = {};
+    for (const [i, row] of rows.entries()) {
+      if (i === 0) {
+        csvHeaders = row;
+        continue;
+      }
+      studentDict[row.Student] = row;
+    }
+
+    // query database for grades, student, and lecture info
+    let grades = undefined;
+    try {
+      grades = await db.Grades.findAll({
+        include: [
+          {
+            model: db.User,
+            attributes: ["firstName", "lastName"],
+            as: "student",
+          },
+          {
+            model: db.LectureForSection,
+            attributes: ["lectureId", "sectionId"],
+            where: { sectionId: whereCond },
+            include: [
+              {
+                model: db.Lecture,
+                attributes: ["title"],
+              },
+            ],
+          },
+        ],
+      });
+    } catch (e) {
+      console.error("Error exporting grades:", e);
+      next(e);
+    }
+
+    const output = [...Object.values(studentDict)];
+
+    // TODO: overwrites data if two students have the exact same name
+
+    // formats data depending on type of export
+    const exportGradeType = req.body.exportGradeType;
+    if (exportGradeType === "section") {
+      // get grade for each student
+      const gradeByStudent = {};
+      for (const grade of grades) {
+        const data = grade.dataValues;
+        const studentData = data.student;
+        const fullName = `${studentData.firstName}, ${studentData.lastName}`;
+        // checks if student has a counting grade already
+        if (!Object.hasOwn(gradeByStudent, fullName)) {
+          // creates new if not
+          gradeByStudent[fullName] = { points: 0, totalPoints: 0 };
+        }
+        // adds to it if so
+        gradeByStudent[fullName].points += data.points;
+        gradeByStudent[fullName].totalPoints += data.totalPoints;
+      }
+
+      // put grade into original data as one assignment
+      const assignmentName = "Open Response Points";
+      csvHeaders[assignmentName] = 0;
+      for (const [studentName, val] of Object.entries(gradeByStudent)) {
+        const student = studentDict[studentName];
+        student[assignmentName] = val.points.toString();
+        csvHeaders[assignmentName] += val.totalPoints;
+      }
+
+      // combine with headers
+      csvHeaders[assignmentName] = csvHeaders[assignmentName].toString();
+      output.unshift(csvHeaders);
+    }
+
+    if (exportGradeType === "lecture") {
+      // get grade for each student by lecture
+      const gradeByStudent = {};
+      for (const grade of grades) {
+        const data = grade.dataValues;
+        const studentData = data.student;
+        const fullName = `${studentData.firstName}, ${studentData.lastName}`;
+        const title = grade.LectureForSection.Lecture.dataValues.title;
+        gradeByStudent[fullName] ??= {}; // makes new object if it doesn't exist
+        gradeByStudent[fullName][title] = {
+          points: data.points,
+          totalPoints: data.totalPoints,
+        };
+      }
+
+      // put grades into original data for each lecture
+      const lectureTitles = new Set();
+      for (const [studentName, lectures] of Object.entries(gradeByStudent)) {
+        const student = studentDict[studentName];
+        for (const [lectureTitle, lecturePoints] of Object.entries(lectures)) {
+          student[lectureTitle] = lecturePoints.points.toString();
+          if (!Object.hasOwn(csvHeaders, lectureTitle)) {
+            csvHeaders[lectureTitle] = 0;
+            lectureTitles.add(lectureTitle);
+          }
+          csvHeaders[lectureTitle] += lecturePoints.totalPoints;
+        }
+      }
+
+      // combine with headers
+      for (const lectureTitle of Array.from(lectureTitles)) {
+        csvHeaders[lectureTitle] = csvHeaders[lectureTitle].toString();
+      }
+      output.unshift(csvHeaders);
+    }
+
+    // takes array of objs and converts to csv format
+    const json2csvParser = new Parser();
+    const csv = json2csvParser.parse(output);
+
+    // sends output
+    res.status(200).send(csv);
+  }
+);
 
 // // URL: /courses/:course_id/sections/:section_id/grades/import
 // router.post("/import", requireAuthentication, async function (req, res, next) {
