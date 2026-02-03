@@ -26,131 +26,141 @@ const ExportStudentGrades = ({ courseId }) => {
     setStepCounter(1);
     setUploadedFile(null);
     setSectionSelection([]);
+    setExportGradeType("section");
     setShowUpload((curr) => !curr);
   }
 
   function successfulImport(res) {
-    console.log("successful import:", res);
     setStepCounter(2);
     setUploadedFile(res);
+    // console.log("successful import:", res);
   }
 
   async function handleSubmit() {
+    // query backend
     const sectionPayload = sectionSelection.sort((a, b) => a - b);
-    const response = await exportStudentGrades(sectionPayload, exportGradeType);
-    console.log("response:", response);
+    const csvText = await exportStudentGrades(sectionPayload, exportGradeType);
+    // console.log("csv:", csvText);
 
-    // prompt to download with temporary a tag
-    // const blob = new Blob([csvText], { type: "text/csv" });
-    // const url = window.URL.createObjectURL(blob);
-    // const a = document.createElement("a");
-    // a.href = url;
-    // a.download = "grades.csv"; // filename
-    // document.body.appendChild(a);
-    // a.click();
-    // document.body.removeChild(a);
-    // window.URL.revokeObjectURL(url);
+    // prompt to download with temporary <a> tag
+    const filename = `OpenResponseGrades_${courseId}_${sectionPayload.join("-")}.csv`;
+    const blob = new Blob([csvText], { type: "text/csv" });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+
+    setStepCounter(4);
   }
+
+  const step2Content = (
+    <>
+      <p>2. Select sections to export</p>
+      <p>Sections</p>
+
+      <div className="button-spacing">
+        <label className="button-spacing">
+          <input
+            type="checkbox"
+            checked={sectionSelection.length === sections[courseId]?.length}
+            onChange={(e) => {
+              const checked = e.target.checked;
+              setStepCounter(3);
+              setSectionSelection(() => {
+                return checked
+                  ? sections[courseId]?.map((section) => section.id)
+                  : [];
+              });
+            }}
+          />
+          All sections
+        </label>
+        {sections[courseId]?.map((section) => {
+          return (
+            <label key={section.id} className="button-spacing">
+              <input
+                type="checkbox"
+                checked={sectionSelection.includes(section.id)}
+                onChange={(e) => {
+                  const checked = e.target.checked;
+                  setStepCounter(3);
+                  setSectionSelection((old) => {
+                    return checked
+                      ? [...old, section.id]
+                      : old.filter((id) => id !== section.id);
+                  });
+                }}
+              />
+              Section #{section.number}
+            </label>
+          );
+        })}
+      </div>
+    </>
+  );
+
+  const step3Content = (
+    <>
+      <p>3. How to group grades?</p>
+
+      <div className="button-spacing">
+        <label className="button-spacing">
+          <input
+            type="radio"
+            name="export-grade-type"
+            value="section"
+            checked={exportGradeType === "section"}
+            onChange={() => setExportGradeType("section")}
+          />
+          Each section is a grade
+        </label>
+        <label className="button-spacing">
+          <input
+            type="radio"
+            name="export-grade-type"
+            value="lecture"
+            checked={exportGradeType === "lecture"}
+            onChange={() => setExportGradeType("lecture")}
+          />
+          Each lecture is a grade
+        </label>
+      </div>
+
+      {isExportingGrades && <TailSpin visible={true} />}
+
+      <button onClick={handleSubmit}>Download</button>
+    </>
+  );
+
+  const popupContent = (
+    <>
+      <p>Export Student Grades</p>
+      <p>1. Upload grades export from Canvas as &quot;.csv&quot; file</p>
+      <FileUpload
+        handleUpload={validateCanvasCSV}
+        isImporting={isExportingGrades}
+        isError={isErrorExportingGrades}
+        allowedTypes={["text/csv"]}
+        callback={successfulImport}
+      />
+      {uploadedFile && <p>File uploaded</p>}
+      {stepCounter >= 2 && step2Content}
+      {stepCounter >= 3 && step3Content}
+      {stepCounter >= 4 && <button onClick={handlePopupVisible}>Done</button>}
+      <button onClick={handlePopupVisible}>Cancel</button>
+    </>
+  );
 
   return (
     <>
       <button className="btn btn-primary" onClick={handlePopupVisible}>
         Export Student Grades
       </button>
-      {showUpload && (
-        <Popup close={handlePopupVisible}>
-          <p>Export Student Grades</p>
-          <p>1. Upload grades export from Canvas as &quot;.csv&quot; file</p>
-          <FileUpload
-            handleUpload={validateCanvasCSV}
-            isImporting={isExportingGrades}
-            isError={isErrorExportingGrades}
-            allowedTypes={["text/csv"]}
-            callback={successfulImport}
-          />
-          {uploadedFile && <p>File uploaded</p>}
-          {stepCounter >= 2 && (
-            <>
-              <p>2. Select sections to export</p>
-              <p>Sections</p>
-
-              <div className="button-spacing">
-                <label className="button-spacing">
-                  <input
-                    type="checkbox"
-                    checked={
-                      sectionSelection.length === sections[courseId]?.length
-                    }
-                    onChange={(e) => {
-                      const checked = e.target.checked;
-                      setStepCounter(3);
-                      setSectionSelection(() => {
-                        return checked
-                          ? sections[courseId]?.map((section) => section.id)
-                          : [];
-                      });
-                    }}
-                  />
-                  All sections
-                </label>
-                {sections[courseId]?.map((section) => {
-                  return (
-                    <label key={section.id} className="button-spacing">
-                      <input
-                        type="checkbox"
-                        checked={sectionSelection.includes(section.id)}
-                        onChange={(e) => {
-                          const checked = e.target.checked;
-                          setStepCounter(3);
-                          setSectionSelection((old) => {
-                            return checked
-                              ? [...old, section.id]
-                              : old.filter((id) => id !== section.id);
-                          });
-                        }}
-                      />
-                      Section #{section.number}
-                    </label>
-                  );
-                })}
-              </div>
-            </>
-          )}
-          {stepCounter >= 3 && (
-            <>
-              <p>3. How to group grades?</p>
-
-              <div className="button-spacing">
-                <label className="button-spacing">
-                  <input
-                    type="radio"
-                    name="export-grade-type"
-                    value="section"
-                    checked={exportGradeType === "section"}
-                    onChange={() => setExportGradeType("section")}
-                  />
-                  Each section is a grade
-                </label>
-                <label className="button-spacing">
-                  <input
-                    type="radio"
-                    name="export-grade-type"
-                    value="lecture"
-                    checked={exportGradeType === "lecture"}
-                    onChange={() => setExportGradeType("lecture")}
-                  />
-                  Each lecture is a grade
-                </label>
-              </div>
-
-              {isExportingGrades && <TailSpin visible={true} />}
-
-              <button onClick={handleSubmit}>Download</button>
-            </>
-          )}
-          <button onClick={handlePopupVisible}>Cancel</button>
-        </Popup>
-      )}
+      {showUpload && <Popup close={handlePopupVisible}>{popupContent}</Popup>}
     </>
   );
 };
