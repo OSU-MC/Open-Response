@@ -706,7 +706,7 @@ router.post(
       whereCond = req.query.sectionIds?.split(",").map((id) => parseInt(id));
     }
 
-    // organize data by studentName: obj
+    // organize data by email: obj
     const rows = req.body.rows;
     let csvHeaders;
     const studentDict = {};
@@ -715,7 +715,7 @@ router.post(
         csvHeaders = row;
         continue;
       }
-      studentDict[row.Student] = row;
+      studentDict[row["SIS Login ID"]] = row;
     }
 
     // query database for grades, student, and lecture info
@@ -725,7 +725,7 @@ router.post(
         include: [
           {
             model: db.User,
-            attributes: ["firstName", "lastName"],
+            attributes: ["firstName", "lastName", "email"],
             as: "student",
           },
           {
@@ -746,9 +746,11 @@ router.post(
       next(e);
     }
 
+    const results = {
+      successMessage: "",
+      errors: [],
+    };
     const output = [...Object.values(studentDict)];
-
-    // TODO: overwrites data if two students have the exact same name
 
     // formats data depending on type of export
     const exportGradeType = req.body.exportGradeType;
@@ -758,25 +760,25 @@ router.post(
       for (const grade of grades) {
         const data = grade.dataValues;
         const studentData = data.student;
-        const fullName = `${studentData.lastName}, ${studentData.firstName}`;
+        const email = studentData.email;
         // checks if student has a counting grade already
-        if (!Object.hasOwn(gradeByStudent, fullName)) {
+        if (!Object.hasOwn(gradeByStudent, email)) {
           // creates new if not
-          gradeByStudent[fullName] = { points: 0, totalPoints: 0 };
+          gradeByStudent[email] = { points: 0, totalPoints: 0 };
         }
         // adds to it if so
-        gradeByStudent[fullName].points += data.points;
-        gradeByStudent[fullName].totalPoints += data.totalPoints;
+        gradeByStudent[email].points += data.points;
+        gradeByStudent[email].totalPoints += data.totalPoints;
       }
 
       // put grade into original data as one assignment
       const assignmentName = "Open Response Points";
       csvHeaders[assignmentName] = 0;
-      for (const [studentName, val] of Object.entries(gradeByStudent)) {
-        const student = studentDict[studentName];
+      for (const [email, val] of Object.entries(gradeByStudent)) {
+        const student = studentDict[email];
         if (!student) {
-          console.log(
-            "Student in Open Response grades but not in provided Canvas import"
+          results.errors.push(
+            `Student with email '${email}' in Open Response grades but not in provided Canvas import`
           );
           continue;
         }
@@ -795,10 +797,10 @@ router.post(
       for (const grade of grades) {
         const data = grade.dataValues;
         const studentData = data.student;
-        const fullName = `${studentData.firstName}, ${studentData.lastName}`;
+        const email = studentData.email;
         const title = grade.LectureForSection.Lecture.dataValues.title;
-        gradeByStudent[fullName] ??= {}; // makes new object if it doesn't exist
-        gradeByStudent[fullName][title] = {
+        gradeByStudent[email] ??= {}; // makes new object if it doesn't exist
+        gradeByStudent[email][title] = {
           points: data.points,
           totalPoints: data.totalPoints,
         };
@@ -806,8 +808,14 @@ router.post(
 
       // put grades into original data for each lecture
       const lectureTitles = new Set();
-      for (const [studentName, lectures] of Object.entries(gradeByStudent)) {
-        const student = studentDict[studentName];
+      for (const [email, lectures] of Object.entries(gradeByStudent)) {
+        const student = studentDict[email];
+        if (!student) {
+          results.errors.push(
+            `Student with email '${email}' in Open Response grades but not in provided Canvas import`
+          );
+          continue;
+        }
         for (const [lectureTitle, lecturePoints] of Object.entries(lectures)) {
           student[lectureTitle] = lecturePoints.points.toString();
           if (!Object.hasOwn(csvHeaders, lectureTitle)) {
@@ -827,10 +835,11 @@ router.post(
 
     // takes array of objs and converts to csv format
     const json2csvParser = new Parser();
-    const csv = json2csvParser.parse(output);
+    results.csv = json2csvParser.parse(output);
+    results.successMessage = `Export successful`;
 
     // sends output
-    res.status(200).send(csv);
+    res.status(200).send(results);
   }
 );
 

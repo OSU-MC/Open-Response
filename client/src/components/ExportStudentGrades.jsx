@@ -21,6 +21,8 @@ const ExportStudentGrades = ({ courseId }) => {
   const [uploadedFile, setUploadedFile] = useState(null);
   const [sectionSelection, setSectionSelection] = useState([]);
   const [exportGradeType, setExportGradeType] = useState("section");
+  const [successMessage, setSuccessMessage] = useState(false);
+  const [errors, setErrors] = useState(false);
 
   function handlePopupVisible() {
     setStepCounter(1);
@@ -39,7 +41,8 @@ const ExportStudentGrades = ({ courseId }) => {
   async function handleSubmit() {
     // query backend
     const sectionPayload = sectionSelection.sort((a, b) => a - b);
-    const csvText = await exportStudentGrades(sectionPayload, exportGradeType);
+    const resp = await exportStudentGrades(sectionPayload, exportGradeType);
+    const csvText = resp.csv;
     // console.log("csv:", csvText);
 
     // prompt to download with temporary <a> tag
@@ -55,6 +58,8 @@ const ExportStudentGrades = ({ courseId }) => {
     window.URL.revokeObjectURL(url);
 
     setStepCounter(4);
+    setSuccessMessage(resp.successMessage);
+    setErrors(resp.errors);
   }
 
   const step2Content = (
@@ -150,6 +155,15 @@ const ExportStudentGrades = ({ courseId }) => {
       {uploadedFile && <p>File uploaded</p>}
       {stepCounter >= 2 && step2Content}
       {stepCounter >= 3 && step3Content}
+      {stepCounter >= 4 && successMessage && <p>{successMessage}</p>}
+      {stepCounter >= 4 && errors?.length > 0 && (
+        <>
+          <p>Errors</p>
+          {errors.map((error) => (
+            <p key={error}>{error}</p>
+          ))}
+        </>
+      )}
       {stepCounter >= 4 && <button onClick={handlePopupVisible}>Done</button>}
       <button onClick={handlePopupVisible}>Cancel</button>
     </>
