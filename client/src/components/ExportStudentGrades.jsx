@@ -30,10 +30,10 @@ const ExportStudentGrades = ({ courseId }) => {
     setShowUpload((curr) => !curr);
   }
 
-  function successfulImport(res) {
+  function successfulImport(resp) {
     setStepCounter(2);
-    setUploadedFile(res);
-    // console.log("successful import:", res);
+    setUploadedFile(resp.saveInState);
+    // console.log("successful import:", resp);
   }
 
   async function handleSubmit() {
@@ -116,7 +116,7 @@ const ExportStudentGrades = ({ courseId }) => {
             checked={exportGradeType === "section"}
             onChange={() => setExportGradeType("section")}
           />
-          Each section is a grade
+          Overall grade (each section is a grade)
         </label>
         <label className="button-spacing">
           <input
@@ -126,7 +126,7 @@ const ExportStudentGrades = ({ courseId }) => {
             checked={exportGradeType === "lecture"}
             onChange={() => setExportGradeType("lecture")}
           />
-          Each lecture is a grade
+          Every lecture assignment (each lecture is a grade)
         </label>
       </div>
 

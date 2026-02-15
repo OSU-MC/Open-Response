@@ -675,7 +675,7 @@ router.post(
         );
         isValidHeaders = validateHeadersOutput.isValid;
         if (isValidHeaders !== true) {
-          res.status(400).json({ error: validateHeadersOutput.error });
+          res.status(400).send({ error: validateHeadersOutput.error });
           return;
         }
       }
@@ -689,7 +689,7 @@ router.post(
     }
 
     results.saveInState = rows;
-    res.status(200).json({ results });
+    res.status(200).send(results);
   }
 );
 
@@ -758,7 +758,7 @@ router.post(
       for (const grade of grades) {
         const data = grade.dataValues;
         const studentData = data.student;
-        const fullName = `${studentData.firstName}, ${studentData.lastName}`;
+        const fullName = `${studentData.lastName}, ${studentData.firstName}`;
         // checks if student has a counting grade already
         if (!Object.hasOwn(gradeByStudent, fullName)) {
           // creates new if not
@@ -774,6 +774,12 @@ router.post(
       csvHeaders[assignmentName] = 0;
       for (const [studentName, val] of Object.entries(gradeByStudent)) {
         const student = studentDict[studentName];
+        if (!student) {
+          console.log(
+            "Student in Open Response grades but not in provided Canvas import"
+          );
+          continue;
+        }
         student[assignmentName] = val.points.toString();
         csvHeaders[assignmentName] += val.totalPoints;
       }

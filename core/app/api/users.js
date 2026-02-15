@@ -112,7 +112,7 @@ router.post(
         );
         isValidHeaders = validateHeadersOutput.isValid;
         if (isValidHeaders !== true) {
-          res.status(400).json({ error: validateHeadersOutput.error });
+          res.status(400).send({ error: validateHeadersOutput.error });
           return;
         }
       }
@@ -216,8 +216,20 @@ router.post(
       }
     }
 
+    results.successMessage = `
+      Sucessfully imported ${results.successfulUserCreations} users.\n
+      Failed to import ${results.failedUserCreations} users.
+    `;
+
+    if (results.totalEnrollmentAttempts > 0) {
+      results.successMessage += `
+        Successfully added ${results.successfulEnrollmentCreations} users to section.\n
+        Failed to add ${results.failedEnrollmentCreations} users to section.
+      `;
+    }
+
     // does not mean that each create query was successful (must check results obj)
-    res.status(200).json({ results });
+    res.status(200).send(results);
   }
 );
 

@@ -39,7 +39,7 @@ function useExportStudentGrades(courseId) {
     const formData = new FormData();
     formData.append("file", file);
     const response = await apiUtil("post", endpoint, {}, formData);
-    const save = response.data.results.saveInState;
+    const save = response.data.saveInState;
 
     // handle response
     setFile(save);
@@ -50,7 +50,7 @@ function useExportStudentGrades(courseId) {
     }
 
     if (response.status === 200) {
-      return response.data.results;
+      return response.data;
     }
 
     return undefined;

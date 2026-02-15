@@ -49,7 +49,7 @@ function useImportedStudents(sectionId = undefined) {
     }
 
     if (response.status === 200) {
-      return response.data.results;
+      return response.data;
     }
 
     return undefined;
