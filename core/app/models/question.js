@@ -85,6 +85,13 @@ module.exports = (sequelize, DataTypes) => {
                   }
                 }
                 break;
+
+              case "written response":
+                if (value != null)
+                  throw new Error(
+                    `${this.type} question must not have weights`
+                  );
+                break;
               default:
                 break;
             }
@@ -129,6 +136,16 @@ module.exports = (sequelize, DataTypes) => {
                   }
                 }
                 break;
+
+              // Written response questions have no options.
+              case "written response":
+                let option = value.options;
+                if (option != null) {
+                  // the options object must exist
+                  throw new Error(
+                    `${this.type} question must not have options`
+                  );
+                }
               default:
                 break;
             }
@@ -180,6 +197,12 @@ module.exports = (sequelize, DataTypes) => {
                   );
                 }
                 break;
+
+              // Written response questions
+              case "written response":
+                if (value == null) {
+                  throw new Error(`${this.type} question must have weights`);
+                }
               default:
                 break;
             }
@@ -274,5 +297,13 @@ module.exports = (sequelize, DataTypes) => {
             ....
         }
 
+    Written Response:
 
+        content: {
+          [empty]
+        }
+
+        answers: {
+          [empty]
+        }
 */
