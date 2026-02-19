@@ -5,6 +5,7 @@ const jwtUtils = require("../../../lib/jwt_utils");
 const request = require("supertest");
 const moment = require("moment");
 const { generateUserSession } = require("../../../lib/auth");
+const path = require("node:path");
 
 describe("POST /users", () => {
   it("should respond with 201 and user information", async () => {
@@ -943,5 +944,38 @@ describe("/users/:userId", () => {
   afterAll(async () => {
     await user.destroy();
     await admin.destroy();
+  });
+});
+
+describe("POST /users/import-by-csv", () => {
+  it("should respond with 200 and user information", async () => {
+    const filePath = path.join(__dirname, "../fixtures/studentlist.csv");
+    const resp = await request(app)
+      .post("/users/import-by-csv")
+      .attach("file", filePath);
+    expect(resp.statusCode).toEqual(200);
+  });
+
+  it("should respond with 400 and missing headers", async () => {
+    const filePath = path.join(
+      __dirname,
+      "../fixtures/missingHeadersStudentlist.csv"
+    );
+    const resp = await request(app)
+      .post("/users/import-by-csv")
+      .attach("file", filePath);
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error).toEqual(
+      "Missing headers: firstName, lastName, email"
+    );
+  });
+
+  it("should respond with 400 and bad file", async () => {
+    const filePath = path.join(__dirname, "../fixtures/badfileStudentlist.csv");
+    const resp = await request(app)
+      .post("/users/import-by-csv")
+      .attach("file", filePath);
+    expect(resp.statusCode).toEqual(400);
+    expect(resp.body.error).toEqual("Bad file");
   });
 });

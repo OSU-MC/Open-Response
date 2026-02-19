@@ -73,7 +73,7 @@ router.post(
   upload.single("file"),
   async function (req, res, next) {
     const fileMetadata = req.file;
-    console.log("fileMetaData:", fileMetadata);
+    // console.log("fileMetaData:", fileMetadata);
 
     const validationParamsCSV = {
       maxFileSize: 5 * 1024 * 1024,
