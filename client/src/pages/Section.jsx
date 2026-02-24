@@ -16,7 +16,8 @@ TODO: make it so that on the delete or add of a lecture, the page refreshes
 
 function Section() {
   const { sectionId, courseId } = useParams();
-  const [lecturesInSection, message, error, loading] = useLecturesInSection();
+  const [lecturesInSection, message, error, loading, refreshLectures] =
+    useLecturesInSection();
   const [course, role, courseMessage, courseError, courseLoading] = useCourse();
   const [showModal, setShowModal] = useState(false);
 
@@ -63,6 +64,7 @@ function Section() {
         handleClose={handleCloseModal}
         courseId={courseId}
         sectionId={sectionId}
+        onUpdate={refreshLectures}
       />
 
       {message ? (
