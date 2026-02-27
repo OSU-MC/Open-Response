@@ -1,181 +1,78 @@
-import React, { useRef, useState } from "react";
-import apiUtil from "../utils/apiUtil";
-import Notice from "../components/Notice";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
-import "../styles/home.css";
+import apiUtil from "@/utils/apiUtil";
+import "@/styles/home.css";
 
 const VITE_NAME = import.meta.env.VITE_NAME;
 
-function Signup(props) {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [isTeacher, setIsTeacher] = useState(false);
+function Signup() {
+  const [showForm, setShowForm] = useState(true);
+  const [formData, setFormData] = useState({
+    email: "",
+    rawPassword: "",
+    confirmedPassword: "",
+    firstName: "",
+    lastName: "",
+    isTeacher: false,
+  });
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
-  const emailInput = useRef(null);
-  const passwordInput = useRef(null);
-  const confirmPasswordInput = useRef(null);
-  const firstNameInput = useRef(null);
-  const lastNameInput = useRef(null);
   const navigate = useNavigate();
 
   async function CreateAccountRequest(accountPayload) {
     let response = {};
-
     response = await apiUtil("post", "/users", {}, accountPayload);
 
     setError(response.error);
     setMessage(response.message);
-    setEmail("");
-    setPassword("");
-    setConfirmPassword("");
-    setFirstName("");
-    setLastName("");
-    setIsTeacher(false);
+    setFormData({
+      email: "",
+      rawPassword: "",
+      confirmedPassword: "",
+      firstName: "",
+      lastName: "",
+      isTeacher: false,
+    });
 
     if (response.status == 201) {
-      navigate("/login");
+      setShowForm(false);
+      setMessage(
+        "Account signup successful, redirecting to login page in the next 3 seconds..."
+      );
+      setTimeout(() => {
+        navigate("/login");
+      }, 3000);
     }
   }
 
-  function createAccountStaging() {
+  function handleChange(event) {
+    const { name, value, type, checked } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: type === "checkbox" ? checked : value,
+    }));
+  }
+
+  function handleSubmit(event) {
     event.preventDefault();
 
-    const accountInformation = {
-      email: email,
-      rawPassword: password,
-      confirmedPassword: confirmPassword,
-      firstName: firstName,
-      lastName: lastName,
-      isTeacher: isTeacher,
-    };
+    // TODO: temporary check for oregonstate.edu email
+    const email = formData.email;
+    const lastAtSignIdx = email.lastIndexOf("@");
+    if (lastAtSignIdx === -1) {
+      setError(true);
+      setMessage("Invalid email format");
+      return;
+    }
+    const emailProvider = email.slice(lastAtSignIdx + 1);
+    if (!formData.isTeacher & (emailProvider !== "oregonstate.edu")) {
+      setError(true);
+      setMessage("Not a valid 'oregonstate.edu' email");
+      return;
+    }
 
+    const accountInformation = formData;
     CreateAccountRequest(accountInformation);
-    emailInput.current.value = "";
-    passwordInput.current.value = "";
-    confirmPasswordInput.current.value = "";
-    firstNameInput.current.value = "";
-    lastNameInput.current.value = "";
-  }
-
-  class SignupForm extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        email: "",
-        rawPassword: "",
-        confirmedPassword: "",
-        firstName: "",
-        lastName: "",
-        isTeacher: false,
-      };
-
-      this.handleChange = this.handleChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
-    }
-
-    // every time a text box is updated, it's react state is updated as well.
-    handleChange(event) {
-      const target = event.target;
-      const value = target.type === "checkbox" ? target.checked : target.value;
-      const name = target.name;
-      this.setState({
-        [name]: value,
-      });
-    }
-
-    //input React states to CreateAccountRequest function.
-    handleSubmit() {
-      event.preventDefault();
-
-      const accountInformation = {
-        email: this.state.email,
-        rawPassword: this.state.rawPassword,
-        confirmedPassword: this.state.confirmedPassword,
-        firstName: this.state.firstName,
-        lastName: this.state.lastName,
-        isTeacher: this.state.isTeacher,
-      };
-
-      CreateAccountRequest(accountInformation);
-    }
-
-    render() {
-      return (
-        <form onSubmit={this.handleSubmit}>
-          <div className="userTypeSelector">
-            <label className="switch">
-              <p id="studentText">
-                I am a <b>student</b>
-              </p>
-              <p id="teacherText">
-                I am a <b>teacher</b>
-              </p>
-              <input
-                type="checkbox"
-                name="isTeacher"
-                className="teacherCheck"
-                checked={this.state.isTeacher}
-                onChange={this.handleChange}
-              />
-              <span className="slider"></span>
-            </label>
-          </div>
-          {/*Input fields: value mapped to React state through handleChange*/}
-          <input
-            type="text"
-            name="firstName"
-            value={this.state.firstName}
-            onChange={this.handleChange}
-            className="inputContainer firstNameContainer"
-            placeholder="First Name"
-          />
-          <input
-            type="text"
-            name="lastName"
-            value={this.state.lastName}
-            onChange={this.handleChange}
-            className="inputContainer lastNameContainer"
-            placeholder="Last Name"
-          />
-          <input
-            type="text"
-            name="email"
-            value={this.state.email}
-            onChange={this.handleChange}
-            className="inputContainer emailContainer"
-            placeholder="Email Address"
-          />
-          <input
-            type="password"
-            name="rawPassword"
-            value={this.state.rawPassword}
-            onChange={this.handleChange}
-            className="inputContainer passwordContainer"
-            placeholder="Password"
-          />
-          <input
-            type="password"
-            name="confirmedPassword"
-            value={this.state.confirmedPassword}
-            onChange={this.handleChange}
-            className="inputContainer passwordContainer"
-            placeholder="Confirm Password"
-          />
-          <input type="submit" value="Sign Up" className="submitButton" />
-          <p className="orSSOTextSignup"> or </p>
-          <input
-            type="submit"
-            value="Continue with SSO"
-            className="ssoButton"
-          />
-        </form>
-      );
-    }
   }
 
   return (
@@ -204,7 +101,80 @@ function Signup(props) {
       <div className="rightContainer">
         <div className="loginSection">
           <h1>Sign Up</h1>
-          <SignupForm />
+          {showForm && (
+            <>
+              <form onSubmit={handleSubmit}>
+                <div className="userTypeSelector">
+                  <label className="switch">
+                    <p id="studentText">
+                      I am a <b>student</b>
+                    </p>
+                    <p id="teacherText">
+                      I am a <b>teacher</b>
+                    </p>
+                    <input
+                      type="checkbox"
+                      name="isTeacher"
+                      className="teacherCheck"
+                      checked={formData.isTeacher}
+                      onChange={handleChange}
+                    />
+                    <span className="slider"></span>
+                  </label>
+                </div>
+                <input
+                  type="text"
+                  name="firstName"
+                  value={formData.firstName}
+                  onChange={handleChange}
+                  className="inputContainer firstNameContainer"
+                  placeholder="First Name"
+                />
+                <input
+                  type="text"
+                  name="lastName"
+                  value={formData.lastName}
+                  onChange={handleChange}
+                  className="inputContainer lastNameContainer"
+                  placeholder="Last Name"
+                />
+                <input
+                  type="text"
+                  name="email"
+                  value={formData.email}
+                  onChange={handleChange}
+                  className="inputContainer emailContainer"
+                  placeholder="Email Address"
+                />
+                <input
+                  type="password"
+                  name="rawPassword"
+                  value={formData.rawPassword}
+                  onChange={handleChange}
+                  className="inputContainer passwordContainer"
+                  placeholder="Password"
+                />
+                <input
+                  type="password"
+                  name="confirmedPassword"
+                  value={formData.confirmedPassword}
+                  onChange={handleChange}
+                  className="inputContainer passwordContainer"
+                  placeholder="Confirm Password"
+                />
+                {error && <p>{error}</p>}
+                {message && <p>{message}</p>}
+                <input type="submit" value="Sign Up" className="submitButton" />
+                <p className="orSSOTextSignup"> or </p>
+                <input
+                  type="submit"
+                  value="Continue with SSO"
+                  className="ssoButton"
+                />
+              </form>
+            </>
+          )}
+          {!showForm && message && <p>{message}</p>}
         </div>
       </div>
     </div>
