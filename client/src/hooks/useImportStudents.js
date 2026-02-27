@@ -4,7 +4,7 @@
 //
 // Returns:
 //   [importStudents, isImporting, error]
-//     - importStudents: Function that triggers the studnet import for the optional section.
+//     - importStudents: Function that triggers the student import for the optional section.
 //     - isImporting: Boolean indicating whether the import request is currently in progress.
 //     - error: Boolean indicating if there was an error.
 //

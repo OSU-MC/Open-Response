@@ -1,20 +1,20 @@
 // useExportStudentGrades.js
 //
-// Custom React hook for fetching and managing imported new student data.
+// Custom React hook for fetching and exporting student grade data.
 //
 // Returns:
-//   [exportStudentGrades, isExporting, error]
-//     - exportStudentGrades: Function that triggers the studnet import for the optional section.
-//     - isExporting: Boolean indicating whether the import request is currently in progress.
-//     - error: Boolean indicating if there was an error.
+//   [validateCanvasCSV, exportStudentGrades, isExporting, isError]
+//     - validateCanvasCSV: Function that checks if CSV is safe and contains required Canvas columns.
+//     - exportStudentGrades: Function that triggers the fetch of student grade data.
+//     - isExporting: Boolean indicating whether the export request is currently in progress.
+//     - isError: Boolean indicating if there was an error.
 //
 // Behavior:
-//   - Fetches students for the given course and section from the API on upload button press.
-//   - Handles loading and error states.
+//   - Allows for CSV to be uploaded to verify Canvas format and safe
+//   - Fetches grades prepped for CSV download
 //
 // Example usage:
-//   const [exportStudentGrades, isExportingGrades, isErrorExportingGrades] = useExportStudentGrades();
-// TODO: fill this out ^
+//   const [validateCanvasCSV, exportStudentGrades, isExporting, isError] = useExportStudentGrades();
 
 import { useState } from "react";
 import apiUtil from "@/utils/apiUtil";
