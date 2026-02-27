@@ -26,18 +26,21 @@
  * The component does not apply role-based filtering; ensure tabs are pre-filtered before passing them in.
  */
 
-import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import "../../styles/Tabs.css";
+import "@/styles/Tabs.css";
+import PropTypes from "prop-types";
 
 const Tabs = ({ courseId, tabs }) => {
   const location = useLocation(); // Get current URL path
 
   // Determine the active tab dynamically
   const getActiveTab = () => {
-    return (
-      tabs.find(([_, path]) => location.pathname.includes(path))?.[1] || ""
-    );
+    for (const tab of tabs) {
+      const path = `/${courseId}/${tab[1]}`;
+      if (location.pathname === path) {
+        return tab[1];
+      }
+    }
   };
 
   return (
@@ -58,6 +61,11 @@ const Tabs = ({ courseId, tabs }) => {
       <hr />
     </>
   );
+};
+
+Tabs.propTypes = {
+  courseId: PropTypes.string,
+  tabs: PropTypes.arrayOf(PropTypes.arrayOf(PropTypes.string)),
 };
 
 export default Tabs;
