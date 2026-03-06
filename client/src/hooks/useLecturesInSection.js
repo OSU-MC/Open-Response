@@ -14,6 +14,21 @@ function useLecturesInSection() {
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(true);
 
+  const fetchLectures = async () => {
+    setLoading(true);
+    const response = await apiUtil(
+      "get",
+      `courses/${courseId}/sections/${sectionId}`,
+      { dispatch: dispatch, navigate: navigate }
+    );
+    setMessage(response.message);
+    setError(response.error);
+    if (response.status === 200) {
+      dispatch(addLecturesInSection(sectionId, response.data.lectures));
+    }
+    setLoading(false);
+  };
+
   useEffect(() => {
     async function getSection() {
       setLoading(true);
@@ -36,7 +51,7 @@ function useLecturesInSection() {
     }
   }, []);
 
-  return [lecturesInSection[sectionId], message, error, loading];
+  return [lecturesInSection[sectionId], message, error, loading, fetchLectures];
 }
 
 export default useLecturesInSection;
