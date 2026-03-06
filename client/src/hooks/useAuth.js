@@ -33,12 +33,28 @@ function useAuth() {
     }
   }, []);
 
-  return [
-    user && user.user ? user.user.id != null : false,
+  async function refresh() {
+    setLoading(true);
+    const response = await apiUtil("get", "users/authenticate", {
+      dispatch: dispatch,
+      navigate: navigate,
+      overrideRedirect: true,
+    });
+    setError(response.error);
+    setMessage(response.message);
+    if (response.status === 200) {
+      dispatch(login(response.data.user, response.data.status));
+    }
+    setLoading(false);
+  }
+
+  return {
+    loggedIn: user && user.user ? user.user.id != null : false,
     message,
     error,
     loading,
-  ];
+    refresh,
+  };
 }
 
 export default useAuth;

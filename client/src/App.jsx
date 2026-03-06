@@ -33,7 +33,7 @@ import LiveLecture from "./pages/LiveLecture";
 import PastLectureId from "./pages/PastLectureId";
 
 function App() {
-  const [loggedIn, message, error, loading] = useAuth();
+  const { loggedIn, loading } = useAuth();
 
   return (
     <>

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import useAuth from "@/hooks/useAuth";
 import apiUtil from "@/utils/apiUtil";
 import "@/styles/home.css";
 
@@ -17,7 +17,7 @@ function Signup() {
   });
   const [message, setMessage] = useState("");
   const [error, setError] = useState(false);
-  const navigate = useNavigate();
+  const { refresh } = useAuth();
 
   async function CreateAccountRequest(accountPayload) {
     let response = {};
@@ -37,10 +37,10 @@ function Signup() {
     if (response.status == 201) {
       setShowForm(false);
       setMessage(
-        "Account signup successful, redirecting to login page in the next 3 seconds..."
+        "Account signup successful, redirecting to home page in the next 3 seconds..."
       );
       setTimeout(() => {
-        navigate("/login");
+        refresh();
       }, 3000);
     }
   }
