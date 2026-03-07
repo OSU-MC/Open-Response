@@ -80,6 +80,7 @@ module.exports = (sequelize, DataTypes) => {
     Grades.belongsTo(models.User, {
       foreignKey: "userId",
       onDelete: "CASCADE",
+      as: "student",
     });
     Grades.belongsTo(models.LectureForSection, {
       foreignKey: "lectureForSectionId",

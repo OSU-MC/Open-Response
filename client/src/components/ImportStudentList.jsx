@@ -16,7 +16,6 @@ const ImportStudentList = ({ callback, sectionId }) => {
   }
 
   function successfulImport() {
-    setShowUpload((curr) => !curr);
     if (callback && showUpload) callback();
   }
 

@@ -11,7 +11,7 @@ const FileUpload = ({
 }) => {
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadResponse, setUploadResponse] = useState(null);
-  const maxDisplayedErrors = 10;
+  const maxDisplayedErrors = 5;
 
   function onFileChange(event) {
     const files = event.target.files;
@@ -20,8 +20,8 @@ const FileUpload = ({
     }
     const file = files[0];
     setSelectedFile(file);
-    console.log(files);
-    console.log(file);
+    // console.log(files);
+    // console.log(file);
   }
 
   async function onFileUpload() {
@@ -29,9 +29,10 @@ const FileUpload = ({
       return;
     }
     const resp = await handleUpload(selectedFile);
+    // console.log("fileupload:", resp);
     setUploadResponse(resp);
     if (resp.errors.length <= 0) {
-      if (callback) callback();
+      if (callback) callback(resp);
     }
   }
 
@@ -52,6 +53,11 @@ const FileUpload = ({
           {isError && (
             <div className="mb-3">
               <p>Bad request</p>
+            </div>
+          )}
+          {uploadResponse && uploadResponse.successMessage && (
+            <div className="mb-3" style={{ whiteSpace: "pre-line" }}>
+              {uploadResponse.successMessage}
             </div>
           )}
           {uploadResponse && uploadResponse.errors.length > 0 && (
