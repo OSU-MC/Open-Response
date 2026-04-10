@@ -176,7 +176,6 @@ describe("Test api/questionsInLecture", () => {
       expect(resp.statusCode).toEqual(400);
     });
 
-    // TODO need to correct
     it("should respond with 404 for getting a question that does not exist in this course", async () => {
       const tempCourse = await db.Course.create({
         name: "Temp Course",
@@ -201,7 +200,7 @@ describe("Test api/questionsInLecture", () => {
       });
       // create question that is not in course1
       const qsNotInCourse = await db.Question.create({
-        lectureId: lecture.id,
+        lectureId: lecture1.id,
         type: "multiple choice",
         stem: "was this in the course",
       });
