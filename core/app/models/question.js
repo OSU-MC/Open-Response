@@ -319,5 +319,11 @@ module.exports = (sequelize, DataTypes) => {
             ....
         }
 
+    Range Response:
+        content: {}
 
+        answers:{
+          range_min: -1
+          range_max: 1
+        }
 */
