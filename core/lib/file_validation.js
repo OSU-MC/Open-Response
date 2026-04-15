@@ -26,20 +26,18 @@ function isValidCsv(file, expected) {
   return true;
 }
 
-// Upload file
-// → Check size
-// → Check extension + content type
-// → Inspect raw bytes (text only)
-// → Parse with CSV library
-// → Validate headers
-// → Validate rows
-// → Escape CSV injection vectors
-// → Insert with parameterized queries
-// → Delete file
+const sanitizeString = (str) => {
+  // adds a ' in front of symbols that could execute
+  if (["=", "+", "-", "@"].includes(str[0])) {
+    return "'" + str;
+  }
+  return str;
+};
 
 module.exports = {
   isValidFileSize,
   isValidFileType,
   isValidCsv,
   validateHeaders,
+  sanitizeString,
 };

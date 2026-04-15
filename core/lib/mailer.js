@@ -106,6 +106,7 @@ async function setupAccount(user) {
         to: {
           data: {
             application: applicationName,
+            tempPassword: user.tempPassword,
           },
           email: user.email,
         },
