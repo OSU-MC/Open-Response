@@ -1,6 +1,6 @@
 "use strict";
 
-const question_types = ["multiple choice", "multiple answer"];
+const question_types = ["multiple choice", "multiple answer", "range answer"];
 
 module.exports = (sequelize, DataTypes) => {
   const Question = sequelize.define(
@@ -194,8 +194,37 @@ module.exports = (sequelize, DataTypes) => {
                 }
                 break;
               case "range response":
-              // Make sure each of the three values exists.
-
+                if (value == null) {
+                  throw new Error(
+                    `${this.type} question must have a range answer`
+                  );
+                }
+                if (typeof value !== "object" || Array.isArray(value)) {
+                  throw new Error(
+                    `${this.type} question answer must be an object`
+                  );
+                }
+                if (
+                  value.range_min === undefined ||
+                  value.range_max === undefined
+                ) {
+                  throw new Error(
+                    `${this.type} question must have both range_min and range_max`
+                  );
+                }
+                if (
+                  typeof value.range_min !== "number" ||
+                  typeof value.range_max !== "number"
+                ) {
+                  throw new Error(
+                    `${this.type} question range_min and range_max must be numeric values`
+                  );
+                }
+                if (value.range_min > value.range_max) {
+                  throw new Error(
+                    `${this.type} question range_min must be less than or equal to range_max`
+                  );
+                }
               default:
                 break;
             }
