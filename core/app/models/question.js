@@ -85,6 +85,13 @@ module.exports = (sequelize, DataTypes) => {
                   }
                 }
                 break;
+              case "range answer":
+                if (value != null) {
+                  throw new Error(
+                    `${this.type} question must not have weights`
+                  );
+                }
+                break;
               default:
                 break;
             }
@@ -129,6 +136,12 @@ module.exports = (sequelize, DataTypes) => {
                   }
                 }
                 break;
+              case "range answer":
+                if (value.options != null) {
+                  throw new Error(
+                    `${this.type} question does not have any options`
+                  );
+                }
               default:
                 break;
             }
@@ -180,6 +193,9 @@ module.exports = (sequelize, DataTypes) => {
                   );
                 }
                 break;
+              case "range response":
+              // Make sure each of the three values exists.
+
               default:
                 break;
             }
