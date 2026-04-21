@@ -76,7 +76,6 @@ router.get("/", requireAuthentication, async function (req, res, next) {
       const lectureForSections = await db.LectureForSection.findAll({
         where: {
           sectionId: sectionId,
-          published: true,
         },
         include: [
           {
@@ -112,6 +111,7 @@ router.get("/", requireAuthentication, async function (req, res, next) {
           let lectureQuestionsAsked = 0;
           let lectureQuestionsAnswered = 0;
           let lectureTotalPoints = 0;
+          lectureGradeObj.published = lfs.published;
           // Sum totalPoints for all questions in this lecture
           for (let k = 0; k < questionsInLecture.length; k++) {
             const question = await db.Question.findOne({

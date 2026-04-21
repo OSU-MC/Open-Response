@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+import { Form } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import useGrades from "../hooks/useGrades";
 // import useExportGrades from '../hooks/useExportGrades';
 // import useImportGrades from '../hooks/useImportGrades';
 import Notice from "../components/Notice";
-import { Table } from "react-bootstrap";
 import useCourse from "../hooks/useCourse";
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
@@ -15,15 +15,11 @@ import StudentGradebook from "../components/StudentGradebook";
 
 // URL for this page: /:courseId/sections/:sectionId/grades
 
-/*
-TODO: make it so that instruct sees all lecures regardless of published or not
-TODO: make it so that studet sees only the published lectures
-*/
-
-function Grades(props) {
+function Grades() {
   const { courseId, sectionId } = useParams();
   const [grades, message, error, loading] = useGrades(courseId, sectionId);
   const [course, role, Cmessage, Cerror, Cloading] = useCourse();
+  const [showPublishedLectures, setShowPublishedLectures] = useState(false);
   // const [exportGrades, exporting, exportError] = useExportGrades(courseId, sectionId);
   // const [importGrades, importing, importError] = useImportGrades(courseId, sectionId);
   const courseName =
@@ -64,6 +60,18 @@ function Grades(props) {
           <div className="grades-actions">
             <button className="btn btn-primary">Export</button>
             <button className="btn btn-primary">Import</button>
+            <Form>
+              <Form.Group className="mb-3" controlId="toggleCreate">
+                <Form.Check
+                  type="switch"
+                  label="Show unpublished courses"
+                  checked={showPublishedLectures}
+                  onChange={() =>
+                    setShowPublishedLectures(!showPublishedLectures)
+                  }
+                />
+              </Form.Group>
+            </Form>
           </div>
         )}
       </div>
@@ -87,9 +95,15 @@ function Grades(props) {
       ) : null}
 
       {isInstructor ? (
-        <TeacherGradebook grades={grades} />
+        <TeacherGradebook
+          grades={grades}
+          showPublishedLectures={showPublishedLectures}
+        />
       ) : (
-        <StudentGradebook grades={grades} />
+        <StudentGradebook
+          grades={grades}
+          showPublishedLectures={showPublishedLectures}
+        />
       )}
     </div>
   );
