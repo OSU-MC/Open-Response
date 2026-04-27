@@ -81,6 +81,7 @@ function Section() {
             view={role}
             section={sectionId}
             course={courseId}
+            onDelete={refreshLectures}
           />
         ))}
       </div>
