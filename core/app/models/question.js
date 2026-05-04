@@ -142,6 +142,7 @@ module.exports = (sequelize, DataTypes) => {
                     `${this.type} question does not have any options`
                   );
                 }
+                break;
               default:
                 break;
             }
