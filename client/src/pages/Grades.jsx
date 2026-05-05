@@ -37,8 +37,13 @@ function Grades() {
     [courseName, `/${courseId}/sections`],
     [`Section ${sectionId}`, null],
   ];
-  const tabs_o = [
+  const tabs_o_teacher = [
     ["Lectures", `sections/${sectionId}`],
+    ["Gradebook", `sections/${sectionId}/grades`],
+    ["Settings", "settings"],
+  ];
+  const tabs_o_student = [
+    ["Lectures", `lectures`],
     ["Gradebook", `sections/${sectionId}/grades`],
     ["Settings", "settings"],
   ];
@@ -54,7 +59,10 @@ function Grades() {
           <Breadcrumbs breadcrumbs={breadcrumbs_object} />
         </div>
         <h1 className="course-title">{`${courseName} Section ${sectionId} Grades`}</h1>
-        <Tabs courseId={courseId} tabs={tabs_o} />
+        <Tabs
+          courseId={courseId}
+          tabs={isInstructor ? tabs_o_teacher : tabs_o_student}
+        />
 
         {isInstructor && (
           <div className="grades-actions">
