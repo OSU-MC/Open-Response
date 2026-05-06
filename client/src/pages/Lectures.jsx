@@ -68,12 +68,12 @@ function Lectures(props) {
       ? [
           ["Sections", "sections"],
           ["Lecture Templates", "lectures"],
-          ["Settings", null],
+          ["Settings", "settings"],
         ]
       : [
           ["Lectures", "lectures"],
           ["Gradebook", `sections/${sectionId}/grades`],
-          ["Settings", null],
+          ["Settings", "settings"],
         ];
 
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -92,8 +92,8 @@ function Lectures(props) {
         <div>
           <Breadcrumbs breadcrumbs={breadcrumbs_object} />
         </div>
-        <p id="lectures-subtitle">{course.name} Lectures</p>
-        {<Tabs courseId={courseId} tabs={tabs_o} />}
+        <h1 id="lectures-subtitle">{course.name} Lectures</h1>
+        <Tabs courseId={courseId} tabs={tabs_o} />
 
         {/*Join Live Lecture Button - ONLY if enrollment != teacher and a live lecture exists*/}
         {role !== "teacher" && liveLecture && (

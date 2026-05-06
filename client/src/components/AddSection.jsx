@@ -65,7 +65,7 @@ function AddSection(props) {
               <Form.Label>Section Number:</Form.Label>
               <Form.Control
                 type="number"
-                defaultValue="0"
+                defaultValue="1"
                 min="0"
                 max="10000"
                 onChange={(e) => setNumber(e.target.value)}

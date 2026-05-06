@@ -16,10 +16,9 @@
 // Example usage:
 //   <TeacherGradebook grades={grades} />
 
-import React from "react";
 import { Table } from "react-bootstrap";
 
-function TeacherGradebook({ grades }) {
+function TeacherGradebook({ grades, showPublishedLectures }) {
   // Use grades.lectures as the array of student grade objects
   const students = grades.lectures || [];
   // Try to get courseGrades by studentId for fast lookup if provided
@@ -27,6 +26,7 @@ function TeacherGradebook({ grades }) {
     acc[cg.studentId] = cg.courseGrade;
     return acc;
   }, {});
+
   return (
     <div
       className="grades-container"
@@ -52,11 +52,19 @@ function TeacherGradebook({ grades }) {
             >
               Student
             </th>
-            {students[0]?.lectures.map((lecture) => (
-              <th key={lecture.lectureId} className="grades-lecture-column">
-                {lecture.lectureTitle}
-              </th>
-            ))}
+            {students[0]?.lectures.map((lecture) =>
+              showPublishedLectures ? (
+                <th key={lecture.lectureId} className="grades-lecture-column">
+                  {lecture.lectureTitle}
+                </th>
+              ) : (
+                lecture.published && (
+                  <th key={lecture.lectureId} className="grades-lecture-column">
+                    {lecture.lectureTitle}
+                  </th>
+                )
+              )
+            )}
             <th className="grades-course-column">Course Grade</th>
           </tr>
         </thead>
@@ -74,11 +82,19 @@ function TeacherGradebook({ grades }) {
               >
                 {grade.studentName}
               </td>
-              {grade.lectures.map((lecture) => (
-                <td key={lecture.lectureId} className="grades-grade">
-                  {lecture.lectureGrade} / {lecture.totalPoints}
-                </td>
-              ))}
+              {grade.lectures.map((lecture) =>
+                showPublishedLectures ? (
+                  <td key={lecture.lectureId} className="grades-grade">
+                    {lecture.lectureGrade} / {lecture.totalPoints}
+                  </td>
+                ) : (
+                  lecture.published && (
+                    <td key={lecture.lectureId} className="grades-grade">
+                      {lecture.lectureGrade} / {lecture.totalPoints}
+                    </td>
+                  )
+                )
+              )}
               <td className="grades-course-grade">
                 {courseGradesMap[grade.studentId] !== undefined
                   ? `${courseGradesMap[grade.studentId]}%`
