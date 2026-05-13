@@ -5,11 +5,13 @@ import apiUtil from "../../utils/apiUtil";
 import { useDispatch } from "react-redux";
 import { useNavigate, useParams } from "react-router-dom";
 import { addQuestion, stageQuestionInLecture } from "../../redux/actions";
+import useLectureQuestions from "@/hooks/useLectureQuestions";
 
 function SingleQuestionTeacher(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { courseId, lectureId } = useParams();
+  const [, , , , refreshLectureQuestions] = useLectureQuestions();
 
   const editable = false; // TODO: update to props.editable || false once update API endpoint has been implemented
   const [message, setMessage] = useState("");
@@ -131,6 +133,7 @@ function SingleQuestionTeacher(props) {
         if (lectureId) {
           dispatch(stageQuestionInLecture(lectureId, response.data.question));
         }
+        refreshLectureQuestions();
       }
     }
   };
