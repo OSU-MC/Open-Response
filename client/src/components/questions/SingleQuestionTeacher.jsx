@@ -119,7 +119,7 @@ function SingleQuestionTeacher(props) {
     } else {
       const response = await apiUtil(
         "post",
-        `courses/${courseId}/questions`,
+        `courses/${courseId}/questions?checklectureinsection=true`,
         { dispatch: dispatch, navigate: navigate },
         questionBody
       );
