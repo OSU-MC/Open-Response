@@ -11,13 +11,15 @@ import QuestionCard from "../components/QuestionCard";
 // URL: :courseId/lectures/:lectureId
 
 function Lecture() {
-  const [questions, message, error, loading] = useLectureQuestions();
+  const [questions, message, error, loading, refreshLectureQuestions] =
+    useLectureQuestions();
   const [course, role, Cmessage, Cerror, Cloading] = useCourse();
   const [lectures, Lmessage, Lerror, Lloading] = useLectures();
   const { courseId, lectureId } = useParams();
   const [lecture, setLecture] = useState({});
 
   useEffect(() => {
+    refreshLectureQuestions();
     if (lectures[courseId] != null) {
       let foundLecture = null;
       lectures[courseId].forEach((lecture) => {

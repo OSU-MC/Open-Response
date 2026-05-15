@@ -2,6 +2,7 @@ const router = require("express").Router({ mergeParams: true });
 const db = require("../models/index");
 const { Op, ValidationError } = require("sequelize");
 const questionService = require("../services/question_service");
+const lectureService = require("../services/lecture_service");
 const { requireAuthentication } = require("../../lib/auth");
 const string_helpers = require("../../lib/string_helpers");
 
@@ -138,8 +139,30 @@ router.post("/", requireAuthentication, async function (req, res, next) {
     const question = await db.Question.create(
       questionService.extractQuestionUpdateFields(questionToInsert)
     );
+
+    let questionInLecture = null;
+    if (req.query.checklectureinsection === "true") {
+      // add the question to lectureInSection if the lecture template
+      // has already been attached to a section
+      const lecture = await lectureService.getLectureInCourse(
+        question.lectureId,
+        courseId
+      );
+
+      const existingLectureForSection = await db.LectureForSection.findOne({
+        where: { lectureId: lecture.id },
+      });
+
+      questionInLecture = await db.QuestionInLecture.create({
+        lectureForSectionId: existingLectureForSection.id,
+        questionId: question.id,
+        published: false,
+      });
+    }
+
     return res.status(201).send({
       question: questionService.extractQuestionFields(question),
+      questionInLecture,
     });
   } catch (e) {
     // console.error("Error creating question:", e);
