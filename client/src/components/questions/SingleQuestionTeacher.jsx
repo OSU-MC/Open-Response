@@ -20,8 +20,8 @@ function SingleQuestionTeacher(props) {
   const [stem, setStem] = useState("");
   const [type, setType] = useState("multiple choice");
 
-  const [minValue, setMinValue] = useState(question?.content?.min || 0);
-  const [maxValue, setMaxValue] = useState(question?.content?.max || 100);
+  const [minValue, setMinValue] = useState(question?.content?.range_min || 0);
+  const [maxValue, setMaxValue] = useState(question?.content?.range_max || 100);
 
   const [options, setOptions] = useState({
     0: "",
@@ -79,8 +79,8 @@ function SingleQuestionTeacher(props) {
       );
     } else {
       // For range answer, set min/max
-      setMinValue(question?.content?.min || 0);
-      setMaxValue(question?.content?.max || 100);
+      setMinValue(question?.content?.range_min || 0);
+      setMaxValue(question?.content?.range_max || 100);
     }
 
     setPoints(question?.points || 1);
@@ -124,7 +124,7 @@ function SingleQuestionTeacher(props) {
         min: minValue,
         max: maxValue,
       };
-      questionBody.answers = { min: minValue, max: maxValue }; // or similar structure
+      questionBody.answers = { range_min: minValue, range_max: maxValue }; // or similar structure
     } else {
       questionBody.answers = answers;
       questionBody.weights = weights;
@@ -426,7 +426,15 @@ function SingleQuestionTeacher(props) {
       <div className="vertical-container">
         <h1 className="question-stem">{question.stem}</h1>
         {question.type === "range answer" ? (
-          <p>dummyfum</p>
+          <form className="student-question-response-form">
+            <input
+              className="student-question-text"
+              type="text"
+              id="choice"
+              value={question.answers.range_min}
+              readOnly={true}
+            ></input>
+          </form>
         ) : (
           <form className="student-question-response-form">
             {Object.keys(options).map((index) => {

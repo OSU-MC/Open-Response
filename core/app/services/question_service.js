@@ -93,7 +93,7 @@ const getQuestionScore = function (question, submission) {
     case "multiple answer":
       grade = scoreMultipleQuestion(question, submission);
       break;
-    case "range response":
+    case "range answer":
       grade = scoreRangeResponse(question, submission);
       break;
   }
