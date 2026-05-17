@@ -73,7 +73,7 @@ export default function AddCourse(props) {
             value={this.state.name}
             onChange={this.handleChange}
             className="inputContainer"
-            placeholder="Class Name"
+            placeholder="Class Name (required)"
           />
           <input
             type="text"
@@ -81,7 +81,7 @@ export default function AddCourse(props) {
             value={this.state.description}
             onChange={this.handleChange}
             className="inputContainer"
-            placeholder="Class Description"
+            placeholder="Class Description (required)"
           />
 
           <input

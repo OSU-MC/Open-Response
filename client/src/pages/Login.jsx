@@ -1,42 +1,28 @@
-import React, { useState } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
-import Form from "react-bootstrap/Form";
-import {
-  Container,
-  Row,
-  Col,
-  Dropdown,
-  NavLink,
-  Button,
-} from "react-bootstrap";
-import apiUtil from "../utils/apiUtil";
-import { useDispatch } from "react-redux";
-import { login } from "../redux/actions";
-import Notice from "../components/Notice";
-import { Link } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate, useSearchParams, Link } from "react-router-dom";
 import { TailSpin } from "react-loader-spinner";
-import "../styles/auth.css";
+import { useDispatch } from "react-redux";
+
+import Notice from "@/components/Notice";
+import apiUtil from "@/utils/apiUtil";
+import { login } from "@/redux/actions";
+import "@/styles/auth.css";
 
 const VITE_NAME = import.meta.env.VITE_NAME;
 
-export default function Login(props) {
+function Login() {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const [params] = useSearchParams();
 
-  //form fields
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [formData, setFormData] = useState({
+    email: "",
+    rawPassword: "",
+  });
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
   const [loading, setLoading] = useState(false);
 
-  // TODO: expand this validation & use it
-  function validateForm() {
-    return email.length > 0 && password.length > 0;
-  }
-
-  // TODO: add some sort of loading symbol when waiting for a response
   async function authenticateUser(user) {
     const response = await apiUtil(
       "post",
@@ -44,92 +30,60 @@ export default function Login(props) {
       { dispatch: dispatch, navigate: navigate },
       user
     );
-    setLoading(false);
-    setMessage(response.message ? response.message : "");
-    setError(response.error);
-    if (response.status === 200) {
-      dispatch(login(response.data.user, response.data.status));
-      try {
-        navigate(params.get("redirect"));
-      } catch (e) {
-        navigate("/");
+    setTimeout(() => {
+      setLoading(false);
+      setMessage(response.message ? response.message : "");
+      setError(response.error);
+      setFormData((prev) => ({
+        ...prev,
+        rawPassword: "",
+      }));
+      if (response.status === 200) {
+        dispatch(login(response.data.user, response.data.status));
+        try {
+          navigate(params.get("redirect"));
+        } catch {
+          navigate("/");
+        }
       }
-    }
+    }, 1000);
   }
 
-  /* LoginForm component
-Could maybe be moved to its own component file.
+  function handleChange(event) {
+    const { name, value } = event.target;
+    setFormData((prev) => ({
+      ...prev,
+      [name]: value,
+    }));
+  }
 
-  This component is an email and password login with non-functional SSO button
-  logins are handled on submit through authenticateUser function
-*/
-  class LoginForm extends React.Component {
-    constructor(props) {
-      super(props);
-      this.state = {
-        email: "",
-        rawPassword: "",
-      };
+  const isValidForm = (form) => {
+    const email = form.email;
+    const password = form.rawPassword;
+    const re = /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/i; // check email format
+    return email.length > 0 && password.length > 0 && re.test(email);
+  };
 
-      this.handleChange = this.handleChange.bind(this);
-      this.handleSubmit = this.handleSubmit.bind(this);
+  function handleSubmit(event) {
+    event.preventDefault();
+    setLoading(true);
+
+    const user = {
+      email: formData.email.trim(),
+      rawPassword: formData.rawPassword,
+    };
+    if (!isValidForm(user)) {
+      setTimeout(() => {
+        setLoading(false);
+        setFormData((prev) => ({
+          ...prev,
+          rawPassword: "",
+        }));
+        return;
+      }, 1000);
     }
 
-    // every time a text box is updated, it's react state is updated as well.
-    handleChange(event) {
-      const { name, value } = event.target;
-      this.setState({
-        [name]: value,
-      });
-    }
-
-    //input React states to authenticateUser function.
-    handleSubmit() {
-      event.preventDefault();
-      setLoading(true);
-      const user = {
-        email: this.state.email,
-        rawPassword: this.state.rawPassword,
-      };
-      authenticateUser(user);
-    }
-
-    render() {
-      return (
-        <form onSubmit={this.handleSubmit}>
-          {/*Input fields: value mapped to React state through handleChange*/}
-          <input
-            type="text"
-            name="email"
-            value={this.state.email}
-            onChange={this.handleChange}
-            className="inputContainer emailContainer"
-            placeholder="Email Address"
-          />
-          <input
-            type="password"
-            name="rawPassword"
-            value={this.state.rawPassword}
-            onChange={this.handleChange}
-            className="inputContainer passwordContainer"
-            placeholder="Password"
-          />
-          <Link className="changePasswordLink" to="/reset">
-            Forgot your password?
-          </Link>
-          {message != "" && error && (
-            <Notice message={message} error={error ? "error" : ""} />
-          )}
-          <input type="submit" value="Log in" className="submitButton" />
-          <p className="orSSOText">or</p>
-          <input
-            type="submit"
-            value="Continue with SSO"
-            className="ssoButton"
-          />
-        </form>
-      );
-    }
+    authenticateUser(user);
   }
 
   return (
@@ -137,7 +91,6 @@ Could maybe be moved to its own component file.
       <div className="leftContainer">
         <div className="welcomeBox">
           <span className="classroomLink">
-            {/*Image attr: Unknown, need to ask*/}
             <img className="classroomIcon" src="classroomIcon.png" />
             {VITE_NAME}
           </span>
@@ -160,9 +113,48 @@ Could maybe be moved to its own component file.
       <div className="rightContainer">
         <div className="loginSection">
           <h1>Log in</h1>
-          <LoginForm />
+          <form onSubmit={handleSubmit}>
+            <input
+              type="text"
+              name="email"
+              value={formData.email}
+              onChange={handleChange}
+              className="inputContainer emailContainer"
+              placeholder="Email Address"
+              disabled={loading}
+            />
+            <input
+              type="password"
+              name="rawPassword"
+              value={formData.rawPassword}
+              onChange={handleChange}
+              className="inputContainer passwordContainer"
+              placeholder="Password"
+              disabled={loading}
+            />
+            <Link className="changePasswordLink" to="/reset">
+              Forgot your password?
+            </Link>
+            {message != "" && error && (
+              <Notice message={message} error={error ? "error" : ""} />
+            )}
+            {loading && (
+              <div className="center-div">
+                <TailSpin />
+              </div>
+            )}
+            <input type="submit" value="Log in" className="submitButton" />
+            <p className="orSSOText">or</p>
+            <input
+              type="submit"
+              value="Continue with SSO"
+              className="ssoButton"
+            />
+          </form>
         </div>
       </div>
     </div>
   );
 }
+
+export default Login;

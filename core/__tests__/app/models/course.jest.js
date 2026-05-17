@@ -22,7 +22,6 @@ describe("Course model", () => {
       await course.destroy();
     });
 
-    //TODO: fix api
     it("should create a valid course record with a published course", async () => {
       const course = await db.Course.create({
         name: "PH201: Introduction to Physics",
