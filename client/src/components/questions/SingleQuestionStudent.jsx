@@ -68,10 +68,11 @@ function SingleQuestionStudent(props) {
       responsePayload
     );
 
-    if (response.status != 201) {
+    if (response.status !== 201) {
       setSubmissionError(response.message);
+    } else {
+      window.location.reload(false);
     }
-    window.location.reload(false);
   };
 
   const onValueChangeRadio = (e) => {
@@ -170,16 +171,12 @@ function SingleQuestionStudent(props) {
               </>
             )}
           </form>
-          <Link
-            to={`/${props.courseId}/lectures/${props.lectureId}/questions/${props.questionId}`}
+          <button
+            className="btn btn-primary student-question-response-submit-button"
+            onClick={(e) => createResponse(e)}
           >
-            <button
-              className="btn btn-primary student-question-response-submit-button"
-              onClick={(e) => createResponse(e)}
-            >
-              Submit
-            </button>
-          </Link>
+            Submit
+          </button>
         </>
       ) : (
         <>
@@ -189,6 +186,8 @@ function SingleQuestionStudent(props) {
               <p className="student-question-range-response">
                 Your answer: <strong>{props.response.submission}</strong>
               </p>
+              <p>Minimum: {props.question.answers.range_min}</p>
+              <p>Maximum: {props.question.answers.range_max}</p>
               <p
                 className={
                   props.response.score > 0 ? "right-answer" : "wrong-answer"

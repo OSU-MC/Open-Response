@@ -426,15 +426,10 @@ function SingleQuestionTeacher(props) {
       <div className="vertical-container">
         <h1 className="question-stem">{question.stem}</h1>
         {question.type === "range answer" ? (
-          <form className="student-question-response-form">
-            <input
-              className="student-question-text"
-              type="text"
-              id="choice"
-              value={question.answers.range_min}
-              readOnly={true}
-            ></input>
-          </form>
+          <>
+            <p>Minimum: {props.question.answers.range_min}</p>
+            <p>Maximum: {props.question.answers.range_max}</p>
+          </>
         ) : (
           <form className="student-question-response-form">
             {Object.keys(options).map((index) => {

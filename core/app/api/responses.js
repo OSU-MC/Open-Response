@@ -7,24 +7,17 @@ const questionService = require("../services/question_service");
 const responseService = require("../services/response_service");
 const gradeService = require("../services/grade_service");
 const { log } = require("winston");
-const yellow = "\x1b[33;1m";
-const none = "\x1b[0m";
 
-function dbgpt(rin) {
-  console.log(yellow + rin + none);
-}
 // student is answering a question
 // Path is /courses/:course_id/lectures/:lecture_id/questions/:question_id/responses
 router.post("/", requireAuthentication, async function (req, res, next) {
   try {
-    console.log();
     // Parse route parameters
     const courseId = parseInt(req.params["course_id"], 10);
     const lectureId = parseInt(req.params["lecture_id"], 10);
     const questionId = parseInt(req.params["question_id"], 10);
     const user = await db.User.findByPk(req.payload.sub);
     if (!user || !courseId || !lectureId || !questionId) {
-      dbgpt("Bad user");
       return res.status(400).send({ error: "Invalid request parameters" });
     }
 
@@ -63,7 +56,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
     }
 
     // Get the question type from the course directly. It needs to be up here now that there can be multiple different types that behave differently.
-    dbgpt("Getting the question");
     const question = await db.Question.findOne({
       where: { id: questionId },
     });
@@ -73,7 +65,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
       case "multiple choice":
       case "multiple answer":
         if (!req.body.answers || Object.keys(req.body.answers).length < 2) {
-          dbgpt("failed validation");
           return res.status(400).send({
             error:
               "Submission must be present and must contain at least two options",
@@ -82,7 +73,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
         break;
       case "range answer":
         if (!(req.body.answers || typeof req.body.answers !== Number)) {
-          dbgpt("failed validation");
           return res.status(400).send({
             error: "Submission must be present and must contain a number.",
           });
@@ -90,9 +80,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
         break;
     }
 
-    console.log(
-      yellow + "is there a question in this lecture that exists?" + none
-    );
     // Find the question in lecture by joining LectureForSection filtering on lectureId.
     const questionInLecture = await db.QuestionInLecture.findOne({
       attributes: [
@@ -141,7 +128,10 @@ router.post("/", requireAuthentication, async function (req, res, next) {
 
     let computedScore = 0;
 
-    if (question.type === "multiple choice" || "multiple answer") {
+    if (
+      question.type === "multiple choice" ||
+      question.type === "multiple answer"
+    ) {
       // Calculate points: totalPoints is the total possible points for the question (question.totalPoints)
       // points is the amount the user receives for this question (response.score * question.totalPoints)
       let totalCorrectWeight = 0;
@@ -163,8 +153,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
           }
         }
       }
-
-      console.log(yellow + "grading" + none);
 
       // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
       computedScore =
@@ -204,7 +192,6 @@ router.post("/", requireAuthentication, async function (req, res, next) {
       totalPoints: totalPointsForThisQuestion,
     };
 
-    console.log(yellow + "Creating response record" + none);
     // Create the Response record
     const responseRecord = await db.Response.create(
       responseService.extractResponseInsertFields(responseToInsert)
