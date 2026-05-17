@@ -1,10 +1,10 @@
-import React, { useEffect, useState } from "react";
+import { useState } from "react";
+import { Form } from "react-bootstrap";
 import { useParams } from "react-router-dom";
 import useGrades from "../hooks/useGrades";
 // import useExportGrades from '../hooks/useExportGrades';
 // import useImportGrades from '../hooks/useImportGrades';
 import Notice from "../components/Notice";
-import { Table } from "react-bootstrap";
 import useCourse from "../hooks/useCourse";
 import Breadcrumbs from "../components/nav/Breadcrumbs.jsx";
 import Tabs from "../components/nav/Tabs.jsx";
@@ -15,15 +15,11 @@ import StudentGradebook from "../components/StudentGradebook";
 
 // URL for this page: /:courseId/sections/:sectionId/grades
 
-/*
-TODO: make it so that instruct sees all lecures regardless of published or not
-TODO: make it so that studet sees only the published lectures
-*/
-
-function Grades(props) {
+function Grades() {
   const { courseId, sectionId } = useParams();
   const [grades, message, error, loading] = useGrades(courseId, sectionId);
   const [course, role, Cmessage, Cerror, Cloading] = useCourse();
+  const [showPublishedLectures, setShowPublishedLectures] = useState(false);
   // const [exportGrades, exporting, exportError] = useExportGrades(courseId, sectionId);
   // const [importGrades, importing, importError] = useImportGrades(courseId, sectionId);
   const courseName =
@@ -41,8 +37,13 @@ function Grades(props) {
     [courseName, `/${courseId}/sections`],
     [`Section ${sectionId}`, null],
   ];
-  const tabs_o = [
+  const tabs_o_teacher = [
     ["Lectures", `sections/${sectionId}`],
+    ["Gradebook", `sections/${sectionId}/grades`],
+    ["Settings", "settings"],
+  ];
+  const tabs_o_student = [
+    ["Lectures", `lectures`],
     ["Gradebook", `sections/${sectionId}/grades`],
     ["Settings", "settings"],
   ];
@@ -58,12 +59,27 @@ function Grades(props) {
           <Breadcrumbs breadcrumbs={breadcrumbs_object} />
         </div>
         <h1 className="course-title">{`${courseName} Section ${sectionId} Grades`}</h1>
-        <Tabs courseId={courseId} tabs={tabs_o} />
+        <Tabs
+          courseId={courseId}
+          tabs={isInstructor ? tabs_o_teacher : tabs_o_student}
+        />
 
         {isInstructor && (
           <div className="grades-actions">
             <button className="btn btn-primary">Export</button>
             <button className="btn btn-primary">Import</button>
+            <Form>
+              <Form.Group className="mb-3" controlId="toggleCreate">
+                <Form.Check
+                  type="switch"
+                  label="Show unpublished courses"
+                  checked={showPublishedLectures}
+                  onChange={() =>
+                    setShowPublishedLectures(!showPublishedLectures)
+                  }
+                />
+              </Form.Group>
+            </Form>
           </div>
         )}
       </div>
@@ -87,9 +103,15 @@ function Grades(props) {
       ) : null}
 
       {isInstructor ? (
-        <TeacherGradebook grades={grades} />
+        <TeacherGradebook
+          grades={grades}
+          showPublishedLectures={showPublishedLectures}
+        />
       ) : (
-        <StudentGradebook grades={grades} />
+        <StudentGradebook
+          grades={grades}
+          showPublishedLectures={showPublishedLectures}
+        />
       )}
     </div>
   );

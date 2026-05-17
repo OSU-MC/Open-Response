@@ -23,7 +23,7 @@ Install the following:
 - [Node.js & npm via NVM](https://github.com/nvm-sh/nvm) — for managing Node versions (recommended)
 - [Docker](https://docs.docker.com/get-docker/) — Docker Desktop recommended for Windows
 - [MySQL Server](https://dev.mysql.com/doc/mysql-installation-excerpt/8.0/en/) – required for data storage
-- [Grafana k6](https://k6.io/docs/getting-started/installation/) – for performance/load testing
+- [Grafana k6](https://grafana.com/docs/k6/latest/set-up/install-k6/) – for performance/load testing
 
 ### Setup & Run
 > [!IMPORTANT]

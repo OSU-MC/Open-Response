@@ -3,9 +3,9 @@ const questionInsertSchema = {
   lectureId: { required: true },
   type: { required: true },
   stem: { required: true },
-  content: { required: true },
+  content: { required: false },
   answers: { required: true },
-  weights: { required: true },
+  weights: { required: false },
   totalPoints: { required: true },
 };
 
@@ -85,29 +85,32 @@ exports.extractCompleteQuestionInLectureFields = (body) => {
   return extractValidFields(body, completeQuestionInLectureInformationSchema);
 };
 
+// Add scoring logic for range response
 const getQuestionScore = function (question, submission) {
   let grade = 0;
   switch (question.type) {
     case "multiple choice":
     case "multiple answer":
       grade = scoreMultipleQuestion(question, submission);
+      break;
+    case "range answer":
+      grade = scoreRangeResponse(question, submission);
+      break;
   }
   return Math.round((grade + Number.EPSILON) * 100) / 100;
 };
 
-const scoreMultipleQuestion = function (question, submission) {
-  const answers = submission.answers;
-  if (answers == null) {
-    // no answers in the submission? The score must be 0
+// Add the scoring function
+const scoreRangeResponse = function (question, submission) {
+  const userAnswer = submission.answers;
+  if (userAnswer == null || typeof userAnswer !== "number") {
     return 0;
   }
-  const matchResults = getMatchResults(question, answers);
-  const positiveFraction = 1.0 / matchResults.numTrueAnswers;
-  let score =
-    positiveFraction * matchResults.truePositives -
-    positiveFraction * matchResults.falsePositives;
-  if (score < 0) score = 0;
-  return score;
+  const { range_min, range_max } = question.answers;
+  if (userAnswer >= range_min && userAnswer <= range_max) {
+    return 1; // Full points if within range
+  }
+  return 0; // No points if outside range
 };
 
 const getMatchResults = function (question, answers) {

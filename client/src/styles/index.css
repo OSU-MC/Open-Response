@@ -29,6 +29,12 @@ body {
   flex-direction: row;
 }
 
+.center-div {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 /* Profile Pages */
 .profileInfo {
   display: flex;

@@ -11,9 +11,11 @@ import { useNavigate } from "react-router-dom";
 function SingleQuestionStudent(props) {
   const navigate = useNavigate();
   const dispatch = useDispatch();
-  const content = props.question.content
-    ? Object.values(props.question.content.options)
-    : [];
+
+  const content =
+    props.question.content && props.question.type !== "range answer"
+      ? Object.values(props.question.content.options)
+      : [];
   const answers = props.question.answers
     ? Object.values(props.question.answers)
     : [];
@@ -36,15 +38,17 @@ function SingleQuestionStudent(props) {
     e.preventDefault();
     if (props.question.type === "multiple choice" && radioChecked == null) {
       alert("Please select an answer to the question before submitting");
+      return;
     } else if (
-      props.question.type === "range response" &&
+      props.question.type === "range answer" &&
       rangeResponseValue === ""
     ) {
       alert("Please enter a number before submitting");
+      return;
     }
 
     let responsePayload;
-    if (props.question.type === "range response") {
+    if (props.question.type === "range answer") {
       responsePayload = {
         answers: parseFloat(rangeResponseValue),
       };
@@ -64,10 +68,11 @@ function SingleQuestionStudent(props) {
       responsePayload
     );
 
-    if (response.status != 201) {
+    if (response.status !== 201) {
       setSubmissionError(response.message);
+    } else {
+      window.location.reload(false);
     }
-    window.location.reload(false);
   };
 
   const onValueChangeRadio = (e) => {
@@ -96,7 +101,7 @@ function SingleQuestionStudent(props) {
         <>
           <h1 className="question-stem">{props.question.stem}</h1>
           <form className="student-question-response-form">
-            {props.question.type === "range response" ? (
+            {props.question.type === "range answer" ? (
               <div className="student-question-answer-option">
                 <label
                   className="student-question-option-label"
@@ -166,25 +171,23 @@ function SingleQuestionStudent(props) {
               </>
             )}
           </form>
-          <Link
-            to={`/${props.courseId}/lectures/${props.lectureId}/questions/${props.questionId}`}
+          <button
+            className="btn btn-primary student-question-response-submit-button"
+            onClick={(e) => createResponse(e)}
           >
-            <button
-              className="btn btn-primary student-question-response-submit-button"
-              onClick={(e) => createResponse(e)}
-            >
-              Submit
-            </button>
-          </Link>
+            Submit
+          </button>
         </>
       ) : (
         <>
           <h1 className="question-stem">{props.question.stem}</h1>
-          {props.question.type === "range response" ? (
+          {props.question.type === "range answer" ? (
             <div className="student-question-response-form">
               <p className="student-question-range-response">
                 Your answer: <strong>{props.response.submission}</strong>
               </p>
+              <p>Minimum: {props.question.answers.range_min}</p>
+              <p>Maximum: {props.question.answers.range_max}</p>
               <p
                 className={
                   props.response.score > 0 ? "right-answer" : "wrong-answer"

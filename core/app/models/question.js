@@ -142,6 +142,7 @@ module.exports = (sequelize, DataTypes) => {
                     `${this.type} question does not have any options`
                   );
                 }
+                break;
               default:
                 break;
             }
@@ -193,7 +194,7 @@ module.exports = (sequelize, DataTypes) => {
                   );
                 }
                 break;
-              case "range response":
+              case "range answer":
                 if (value == null) {
                   throw new Error(
                     `${this.type} question must have a range answer`

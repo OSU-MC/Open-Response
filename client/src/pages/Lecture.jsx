@@ -69,6 +69,14 @@ function Lecture() {
               <div className="questions">
                 {loading ? (
                   <TailSpin visible={true} />
+                ) : questions.questions.length === 0 ? (
+                  <>
+                    <h3>No Questions Available</h3>
+                    <p>
+                      Sit tight! Your teacher will open the question(s) when
+                      it's time to answer it.
+                    </p>
+                  </>
                 ) : (
                   questions.questions.map((question) => {
                     return (

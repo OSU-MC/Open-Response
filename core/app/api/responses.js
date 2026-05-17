@@ -55,12 +55,29 @@ router.post("/", requireAuthentication, async function (req, res, next) {
       return res.status(404).send({ error: "Lecture for section not found" });
     }
 
-    // Validate that answers are provided and include at least two options
-    if (!req.body.answers || Object.keys(req.body.answers).length < 2) {
-      return res.status(400).send({
-        error:
-          "Submission must be present and must contain at least two options",
-      });
+    // Get the question type from the course directly. It needs to be up here now that there can be multiple different types that behave differently.
+    const question = await db.Question.findOne({
+      where: { id: questionId },
+    });
+
+    // Validate that answers are provided. This is split into those for multiple choice/answer, and range answer.
+    switch (question.type) {
+      case "multiple choice":
+      case "multiple answer":
+        if (!req.body.answers || Object.keys(req.body.answers).length < 2) {
+          return res.status(400).send({
+            error:
+              "Submission must be present and must contain at least two options",
+          });
+        }
+        break;
+      case "range answer":
+        if (!(req.body.answers || typeof req.body.answers !== Number)) {
+          return res.status(400).send({
+            error: "Submission must be present and must contain a number.",
+          });
+        }
+        break;
     }
 
     // Find the question in lecture by joining LectureForSection filtering on lectureId.
@@ -105,56 +122,65 @@ router.post("/", requireAuthentication, async function (req, res, next) {
       return res.status(400).send({ error: "The question is not published" });
     }
 
-    // Get the question from the course directly
-    const question = await db.Question.findOne({
-      where: { id: questionId },
-    });
-
     if (!question) {
       return res.status(404).send({ error: "Question not found" });
     }
 
-    // Calculate points: totalPoints is the total possible points for the question (question.totalPoints)
-    // points is the amount the user receives for this question (response.score * question.totalPoints)
-    let totalCorrectWeight = 0;
-    let correctPoints = 0;
-    let extraPenalty = 0;
+    let computedScore = 0;
 
-    const weights = question.weights; // e.g., { "0": 1, "1": 1, "2": 1, "3": 1 }
-    const correctAnswers = question.answers; // e.g., { "0": false, "1": true, "2": false, "3": false }
+    if (
+      question.type === "multiple choice" ||
+      question.type === "multiple answer"
+    ) {
+      // Calculate points: totalPoints is the total possible points for the question (question.totalPoints)
+      // points is the amount the user receives for this question (response.score * question.totalPoints)
+      let totalCorrectWeight = 0;
+      let correctPoints = 0;
+      let extraPenalty = 0;
 
-    for (let key in weights) {
-      if (correctAnswers[key] === true) {
-        totalCorrectWeight += weights[key];
-        if (req.body.answers[key] === true) {
-          correctPoints += weights[key];
-        }
-      } else {
-        if (req.body.answers[key] === true) {
-          extraPenalty += weights[key];
+      const weights = question.weights; // e.g., { "0": 1, "1": 1, "2": 1, "3": 1 }
+      const correctAnswers = question.answers; // e.g., { "0": false, "1": true, "2": false, "3": false }
+
+      for (let key in weights) {
+        if (correctAnswers[key] === true) {
+          totalCorrectWeight += weights[key];
+          if (req.body.answers[key] === true) {
+            correctPoints += weights[key];
+          }
+        } else {
+          if (req.body.answers[key] === true) {
+            extraPenalty += weights[key];
+          }
         }
       }
-    }
 
-    // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
-    let computedScore =
-      totalCorrectWeight > 0
-        ? (correctPoints - extraPenalty) / totalCorrectWeight
-        : 0;
-    if (computedScore < 0) computedScore = 0;
+      // Compute the score. You might choose to subtract the penalty, ensuring the score doesn't drop below zero.
+      computedScore =
+        totalCorrectWeight > 0
+          ? (correctPoints - extraPenalty) / totalCorrectWeight
+          : 0;
+      if (computedScore < 0) computedScore = 0;
+
+      //FIXME: Why is the client allowed to decide their score? Students can and will exploit this. Remove this for the final build.
+      // Override the computed values with those from req.query if provided
+      if (req.query.points && req.query.totalPoints) {
+        correctPoints = Number(req.query.points);
+        totalCorrectWeight = Number(req.query.totalPoints);
+        computedScore = totalCorrectWeight
+          ? correctPoints / totalCorrectWeight
+          : 0;
+      }
+    } else if (question.type === "range answer") {
+      computedScore =
+        question.answers.range_min <= req.body.answers &&
+        req.body.answers <= question.answers.range_max
+          ? 1
+          : 0;
+    }
 
     // Points and totalPoints for the grade record
     const pointsForThisQuestion = computedScore * (question.totalPoints || 1);
     const totalPointsForThisQuestion = question.totalPoints || 1;
-
-    // Override the computed values with those from req.query if provided
-    if (req.query.points && req.query.totalPoints) {
-      correctPoints = Number(req.query.points);
-      totalCorrectWeight = Number(req.query.totalPoints);
-      computedScore = totalCorrectWeight
-        ? correctPoints / totalCorrectWeight
-        : 0;
-    }
 
     // Prepare the response record data
     const responseToInsert = {

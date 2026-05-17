@@ -115,11 +115,20 @@ const validateCsrfToken = async (token, userId) => {
  */
 const generateUserSession = async (user) => {
   try {
-    // TODO: expire the most recent one
-    await db.Session.update(
-      { expires: moment().utc() },
-      { where: { userId: user.id } }
-    );
+    // Expire the most recent session for this user
+    const recentSession = await db.Session.findOne({
+      where: { userId: user.id },
+      order: [["createdAt", "DESC"]], // Use createdAt from timestamps: true
+      attributes: ["id"],
+      raw: true, // Return plain object, not instance
+    });
+
+    if (recentSession) {
+      await db.Session.update(
+        { expires: moment().utc() },
+        { where: { id: recentSession.id } }
+      );
+    }
 
     // Create/return a new session for the user
     return await db.Session.create({ userId: user.id });

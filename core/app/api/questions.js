@@ -126,7 +126,7 @@ router.post("/", requireAuthentication, async function (req, res, next) {
   }
 
   // Check if question has the key 'weights' and if it doesn't then create it and assign each weight to 1
-  if (!questionToInsert.weights) {
+  if (!questionToInsert.weights && questionToInsert.type !== "range answer") {
     questionToInsert.weights = {};
     for (let i = 0; i < Object.keys(questionToInsert.answers).length; i++) {
       questionToInsert.weights[i] = 1;

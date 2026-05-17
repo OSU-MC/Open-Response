@@ -19,6 +19,10 @@ function SingleQuestionTeacher(props) {
   const [editing, setEditing] = useState(props.editing || false);
   const [stem, setStem] = useState("");
   const [type, setType] = useState("multiple choice");
+
+  const [minValue, setMinValue] = useState(question?.content?.range_min || 0);
+  const [maxValue, setMaxValue] = useState(question?.content?.range_max || 100);
+
   const [options, setOptions] = useState({
     0: "",
     1: "",
@@ -46,31 +50,40 @@ function SingleQuestionTeacher(props) {
   useEffect(() => {
     setStem(question?.stem || "");
     setType(question?.type || "multiple choice");
-    setOptions(
-      question?.content?.options || {
-        0: "",
-        1: "",
-        2: "",
-        3: "",
-      }
-    );
-    setAnswers(
-      question?.answers || {
-        0: false,
-        1: false,
-        2: false,
-        3: false,
-      }
-    );
+
+    // Only set options/answers if it's NOT a range answer
+    if (question?.type !== "range answer") {
+      setOptions(
+        question?.content?.options || {
+          0: "",
+          1: "",
+          2: "",
+          3: "",
+        }
+      );
+      setAnswers(
+        question?.answers || {
+          0: false,
+          1: false,
+          2: false,
+          3: false,
+        }
+      );
+      setWeights(
+        question?.weights || {
+          0: 1,
+          1: 1,
+          2: 1,
+          3: 1,
+        }
+      );
+    } else {
+      // For range answer, set min/max
+      setMinValue(question?.content?.range_min || 0);
+      setMaxValue(question?.content?.range_max || 100);
+    }
+
     setPoints(question?.points || 1);
-    setWeights(
-      question?.weights || {
-        0: 1,
-        1: 1,
-        2: 1,
-        3: 1,
-      }
-    );
   }, [question]);
 
   const setWeightsHandler = (value, index) => {
@@ -99,17 +112,25 @@ function SingleQuestionTeacher(props) {
   const updateQuestion = async (e) => {
     e.preventDefault();
     setLoading(true);
-    const questionBody = {
+    let questionBody = {
       stem: stem,
       type: type,
-      answers: answers,
       lectureId: lectureId,
       totalPoints: points,
-      weights: weights,
-      content: {
-        options: options,
-      },
     };
+
+    if (type === "range answer") {
+      questionBody.content = {
+        min: minValue,
+        max: maxValue,
+      };
+      questionBody.answers = { range_min: minValue, range_max: maxValue }; // or similar structure
+    } else {
+      questionBody.answers = answers;
+      questionBody.weights = weights;
+      questionBody.content = { options: options };
+    }
+
     if (question != null) {
       // TODO: add update functionality once backend has implmented a put route for questions
       setQuestion(questionBody);
@@ -177,6 +198,8 @@ function SingleQuestionTeacher(props) {
         setAnswers(newAnswers);
         break;
       case "multiple answer":
+        break;
+      case "range answer":
         break;
       default:
         throw Error("type is not understood");
@@ -280,85 +303,108 @@ function SingleQuestionTeacher(props) {
             >
               <option value="multiple choice">Multiple Choice</option>
               <option value="multiple answer">Multiple Answer</option>
+              <option value="range answer">Range Answer</option>
             </select>
           </div>
-          <div className="question-subcontainer">
-            {Object.keys(options).map((index) => {
-              let option = options[index];
-              return (
-                <div className="question-option" key={index}>
-                  <input
-                    className="question-select"
-                    type={type == "multiple choice" ? "radio" : "checkbox"}
-                    name="answers"
-                    checked={answers[index]}
-                    onChange={(e) => updateAnswers(index)}
-                  ></input>
-                  <input
-                    className="question-weight"
-                    type="number"
-                    placeholder="1"
-                    name="weights"
-                    id="weights"
-                    value={weights[index] || 1}
-                    onChange={(e) =>
-                      setWeightsHandler(Number(e.target.value), index)
-                    }
-                  ></input>
-                  <input
-                    className="question-text"
-                    type="text"
-                    value={option}
-                    onChange={(e) => updateOptions(e.target.value, index)}
-                  ></input>
-                  <div className="question-reorder">
-                    <button
-                      className="btn btn-secondary question-arrow"
-                      disabled={index == 0}
-                      type="button"
-                      onClick={(e) => {
-                        moveAnswer(e, index, -1);
-                      }}
-                    >
-                      {"\u2191"}
-                    </button>
-                    <button
-                      className="btn btn-secondary question-arrow"
-                      disabled={index == Object.keys(options).length - 1}
-                      type="button"
-                      onClick={(e) => {
-                        moveAnswer(e, index, 1);
-                      }}
-                    >
-                      {"\u2193"}
-                    </button>
+          {type === "range answer" ? (
+            <div className="question-subcontainer">
+              <label>Minimum Value:</label>
+              <input
+                className="question-number"
+                type="number"
+                placeholder="0"
+                value={minValue}
+                onChange={(e) => setMinValue(Number(e.target.value))}
+              />
+              <label>Maximum Value:</label>
+              <input
+                className="question-number"
+                type="number"
+                placeholder="100"
+                value={maxValue}
+                onChange={(e) => setMaxValue(Number(e.target.value))}
+              />
+            </div>
+          ) : (
+            // EXISTING OPTIONS CODE STARTS HERE (lines 285-360)
+            <div className="question-subcontainer">
+              {Object.keys(options).map((index) => {
+                let option = options[index];
+                return (
+                  <div className="question-option" key={index}>
+                    <input
+                      className="question-select"
+                      type={type == "multiple choice" ? "radio" : "checkbox"}
+                      name="answers"
+                      checked={answers[index]}
+                      onChange={(e) => updateAnswers(index)}
+                    ></input>
+                    <input
+                      className="question-weight"
+                      type="number"
+                      placeholder="1"
+                      name="weights"
+                      id="weights"
+                      value={weights[index] || 1}
+                      onChange={(e) =>
+                        setWeightsHandler(Number(e.target.value), index)
+                      }
+                    ></input>
+                    <input
+                      className="question-text"
+                      type="text"
+                      value={option}
+                      onChange={(e) => updateOptions(e.target.value, index)}
+                    ></input>
+                    <div className="question-reorder">
+                      <button
+                        className="btn btn-secondary question-arrow"
+                        disabled={index == 0}
+                        type="button"
+                        onClick={(e) => {
+                          moveAnswer(e, index, -1);
+                        }}
+                      >
+                        {"\u2191"}
+                      </button>
+                      <button
+                        className="btn btn-secondary question-arrow"
+                        disabled={index == Object.keys(options).length - 1}
+                        type="button"
+                        onClick={(e) => {
+                          moveAnswer(e, index, 1);
+                        }}
+                      >
+                        {"\u2193"}
+                      </button>
+                    </div>
+                    {Object.keys(options).length > 2 && (
+                      <button
+                        type="button"
+                        className="btn negative-btn"
+                        onClick={(e) => {
+                          removeAnswer(e, index);
+                        }}
+                      >
+                        x
+                      </button>
+                    )}
                   </div>
-                  {Object.keys(options).length > 2 && (
-                    <button
-                      type="button"
-                      className="btn negative-btn"
-                      onClick={(e) => {
-                        removeAnswer(e, index);
-                      }}
-                    >
-                      x
-                    </button>
-                  )}
-                </div>
-              );
-            })}
-            {Object.keys(options).length < 10 && (
-              <button
-                className="btn btn-secondary btn-add"
-                type="button"
-                onClick={(e) => {
-                  addAnswer(e);
-                }}
-              >
-                +
-              </button>
-            )}
-          </div>
+                );
+              })}
+              {Object.keys(options).length < 10 && (
+                <button
+                  className="btn btn-secondary btn-add"
+                  type="button"
+                  onClick={(e) => {
+                    addAnswer(e);
+                  }}
+                >
+                  +
+                </button>
+              )}
+            </div>
+          )}
           {loading ? (
             <TailSpin visible={true} />
           ) : (
@@ -379,59 +425,66 @@ function SingleQuestionTeacher(props) {
     return (
       <div className="vertical-container">
         <h1 className="question-stem">{question.stem}</h1>
-        <form className="student-question-response-form">
-          {Object.keys(options).map((index) => {
-            let option = options[index];
-            return (
-              <div key={index} className="student-question-answer-option">
-                {question.type == "multiple choice" ? (
-                  <>
-                    <input
-                      className="student-question-radio"
-                      type="radio"
-                      id={index}
-                      value={option}
-                      checked={answers[index] == true}
-                      readOnly={true}
-                    ></input>
-                    <label
-                      className="student-question-option-label"
-                      htmlFor={index}
-                    >
-                      {option}
-                    </label>
-                  </>
-                ) : question.type == "multiple answer" ? (
-                  <>
-                    <input
-                      className="student-question-radio"
-                      type="checkbox"
-                      id={index}
+        {question.type === "range answer" ? (
+          <>
+            <p>Minimum: {props.question.answers.range_min}</p>
+            <p>Maximum: {props.question.answers.range_max}</p>
+          </>
+        ) : (
+          <form className="student-question-response-form">
+            {Object.keys(options).map((index) => {
+              let option = options[index];
+              return (
+                <div key={index} className="student-question-answer-option">
+                  {question.type == "multiple choice" ? (
+                    <>
+                      <input
+                        className="student-question-radio"
+                        type="radio"
+                        id={index}
+                        value={option}
+                        checked={answers[index] == true}
+                        readOnly={true}
+                      ></input>
+                      <label
+                        className="student-question-option-label"
+                        htmlFor={index}
+                      >
+                        {option}
+                      </label>
+                    </>
+                  ) : question.type == "multiple answer" ? (
+                    <>
+                      <input
+                        className="student-question-radio"
+                        type="checkbox"
+                        id={index}
+                        key={index}
+                        value={option}
+                        checked={answers[index] == true}
+                        readOnly={true}
+                      ></input>
+                      <label
+                        className="student-question-option-label"
+                        htmlFor={index}
+                      >
+                        {option}
+                      </label>
+                    </>
+                  ) : (
+                    <Notice
+                      error={false}
                       key={index}
-                      value={option}
-                      checked={answers[index] == true}
-                      readOnly={true}
-                    ></input>
-                    <label
-                      className="student-question-option-label"
-                      htmlFor={index}
-                    >
-                      {option}
-                    </label>
-                  </>
-                ) : (
-                  <Notice
-                    error={false}
-                    key={index}
-                    message={
-                      "Only multiple choice and multiple answer are supported"
-                    }
-                  />
-                )}
-              </div>
-            );
-          })}
-        </form>
+                      message={
+                        "Only multiple choice and multiple answer are supported"
+                      }
+                    />
+                  )}
+                </div>
+              );
+            })}
+          </form>
+        )}
         {editable ? (
           <button
             className="btn btn-secondary"
