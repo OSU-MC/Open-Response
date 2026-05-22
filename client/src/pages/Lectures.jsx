@@ -117,7 +117,7 @@ function Lectures(props) {
       {/*No Lectures*/}
       {message ? (
         <Notice error={error ? "error" : ""} message={message} />
-      ) : !lectures ? (
+      ) : !lectures[courseId] ? (
         <Notice message={"You Do Not Have Any Lectures Yet"} />
       ) : (
         <></>
