@@ -13,11 +13,10 @@ app.use(express.static("public"));
 app.use(morganMiddleware);
 app.use(cookieParser());
 
-// TODO: research and implement better, more secure options
 app.use(
   cors({
     origin: [process.env.CLIENT_URL || "http://localhost:3000"],
-    methods: ["GET", "PUT", "POST", "DELETE"],
+    methods: ["GET", "HEAD", "PUT", "PATCH", "POST", "DELETE"],
     optionsSuccessStatus: 200,
     credentials: true,
     allowedHeaders: ["Content-Type", "Authorization"],

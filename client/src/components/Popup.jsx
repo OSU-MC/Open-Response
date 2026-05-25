@@ -1,4 +1,5 @@
-import { Outlet } from "react-router-dom";
+import PropTypes from "prop-types";
+// import { Outlet } from "react-router-dom";
 
 function Popup(props) {
   return (
@@ -20,5 +21,13 @@ function Popup(props) {
     </div>
   );
 }
+
+Popup.propTypes = {
+  close: PropTypes.func.isRequired,
+  children: PropTypes.PropTypes.oneOfType([
+    PropTypes.arrayOf(PropTypes.node),
+    PropTypes.node,
+  ]).isRequired,
+};
 
 export default Popup;

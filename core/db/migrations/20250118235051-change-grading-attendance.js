@@ -224,7 +224,6 @@ module.exports = {
         defaultValue: -1, // -1 is used when it is not sorted
         allowNull: false,
       });
-      await queryInterface.removeColumn("QuestionInLectures", "order");
 
       // Add the new unique constraint on `lectureForSectionId` and `questionId`
       await queryInterface.addConstraint("QuestionInLectures", {
@@ -243,6 +242,9 @@ module.exports = {
         "QuestionInLectures",
         "custom_unique_question_in_lectures_order_constraint"
       );
+      // Delete the old QuestionInLectures.order column. This was moved
+      // down because otherwise MariaDB would have a fit.
+      await queryInterface.removeColumn("QuestionInLectures", "order");
 
       // Add missing LectureForSections columns
       await queryInterface.addColumn(

@@ -35,7 +35,21 @@ function useEnrollments() {
     }
   }, []);
 
-  return [enrollments, message, error, loading];
+  async function refreshEnrollments() {
+    setLoading(true); // Show loading state while refreshing
+    const response = await apiUtil("get", `courses/${courseId}/enrollments`, {
+      dispatch: dispatch,
+      navigate: navigate,
+    });
+    setMessage(response.message);
+    setError(response.error);
+    if (response.status === 200) {
+      dispatch(addEnrollments(courseId, response.data.enrollments)); // Update Redux state
+    }
+    setLoading(false); // Hide loading state once done
+  }
+
+  return [enrollments, message, error, loading, refreshEnrollments];
 }
 
 export default useEnrollments;

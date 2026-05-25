@@ -54,13 +54,20 @@ function SingleQuestion(props) {
       {!error &&
         !loading &&
         (role === "student" ? (
-          <SingleQuestionStudent
-            question={question}
-            response={response}
-            courseId={courseId}
-            lectureId={lectureId}
-            questionId={questionId}
-          />
+          <>
+            <Link className="" to={`/${courseId}/lectures/${lectureId}`}>
+              <Button className="back-btn">
+                <div id="back-btn-image" />
+              </Button>
+            </Link>
+            <SingleQuestionStudent
+              question={question}
+              response={response}
+              courseId={courseId}
+              lectureId={lectureId}
+              questionId={questionId}
+            />
+          </>
         ) : (
           <SingleQuestionTeacher question={teacherQuestion[0]} />
         ))}

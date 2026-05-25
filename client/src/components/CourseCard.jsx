@@ -20,18 +20,17 @@ function CourseCard(props) {
       {/* Bottom section of course card, placeholder registered number X*/}
       <p className="registered"> 0 registered </p>
 
-      <a
-        className="viewButton"
-        href={
+      <Link
+        to={
           props.role == "teacher"
             ? `/${props.course.id}/sections`
             : `/${props.course.id}`
         }
       >
         {" "}
-        {/*string template, fills in courseID/sections*/}
-        View
-      </a>
+        {/* relative path allows us to just go to the section id, regardless of the other preceding routing */}
+        <Button className="viewButton">{"View"}</Button>
+      </Link>
     </div>
   );
 }

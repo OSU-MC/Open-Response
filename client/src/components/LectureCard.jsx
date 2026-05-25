@@ -69,7 +69,7 @@ function LectureCard(props) {
               </Button>
             </Link>
             <Link
-              classname="viewPastLectureBtn"
+              className="viewPastLectureBtn"
               to={
                 props.section
                   ? `lectures/past/${props.lecture.id}`

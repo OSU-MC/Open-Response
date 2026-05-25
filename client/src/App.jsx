@@ -31,6 +31,7 @@ import { TailSpin } from "react-loader-spinner";
 import Grades from "./pages/Grades";
 import LiveLecture from "./pages/LiveLecture";
 import PastLectureId from "./pages/PastLectureId";
+import Settings from "./pages/Settings";
 
 function App() {
   const [loggedIn, message, error, loading] = useAuth();
@@ -79,6 +80,7 @@ function App() {
               {/* Course-related routes */}
               <Route path="/:courseId">
                 <Route path="" element={<SingleCoursePage />} />
+                <Route path="settings" element={<Settings />} />
                 <Route path="questions" element={<Outlet />}>
                   <Route path="" element={<Questions />} />
                   <Route path=":questionId" element={<SingleQuestion />} />

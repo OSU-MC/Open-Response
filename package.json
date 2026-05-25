@@ -18,7 +18,7 @@
     "config": "npm run config -w=core && npm run config -w=client && npm run config -w=socket",
     "start": "npm run build:containers && npm run deploy:stack",
     "stop": "npm run remove:stack",
-    "build:containers": "docker build -t openresponse_backend ./core && docker build -t openresponse_frontend ./client",
+    "build:containers": "docker build -t openresponse_backend ./core && docker build -t openresponse_frontend ./client && docker build -t openresponse_socket ./socket",
     "deploy:stack": "docker stack deploy -c docker-stack.yml openresponse",
     "remove:stack": "docker stack rm openresponse",
     "start:dev": "concurrently \"cd client && npm run start\" \"cd core && npm run start\" \"cd socket && npm run start\"",

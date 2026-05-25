@@ -50,12 +50,19 @@ function useLectureQuestions() {
     }
   }, [courseId, lectureId, lectures, getLecture]);
 
+  async function refreshLectureQuestions() {
+    setLoading(true); // Show loading state while refreshing
+    getLecture();
+    setLoading(false); // Hide loading state once done
+  }
+
   return [
     lectures[lectureId] || { staged: {}, questions: [] },
     message,
     error,
     loading,
     getLecture,
+    refreshLectureQuestions,
   ];
 }
 export default useLectureQuestions;
