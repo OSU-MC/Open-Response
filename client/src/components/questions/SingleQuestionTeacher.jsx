@@ -1,15 +1,18 @@
-import { React, useState, useEffect } from "react";
+import { useState, useEffect } from "react";
 import { TailSpin } from "react-loader-spinner";
 import Notice from "../Notice";
 import apiUtil from "../../utils/apiUtil";
 import { useDispatch } from "react-redux";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { addQuestion, stageQuestionInLecture } from "../../redux/actions";
+import useLectureQuestions from "@/hooks/useLectureQuestions";
+import { Button } from "react-bootstrap";
 
 function SingleQuestionTeacher(props) {
   const dispatch = useDispatch();
   const navigate = useNavigate();
   const { courseId, lectureId } = useParams();
+  const [, , , , refreshLectureQuestions] = useLectureQuestions();
 
   const editable = false; // TODO: update to props.editable || false once update API endpoint has been implemented
   const [message, setMessage] = useState("");
@@ -117,7 +120,7 @@ function SingleQuestionTeacher(props) {
     } else {
       const response = await apiUtil(
         "post",
-        `courses/${courseId}/questions`,
+        `courses/${courseId}/questions?checklectureinsection=true`,
         { dispatch: dispatch, navigate: navigate },
         questionBody
       );
@@ -131,6 +134,8 @@ function SingleQuestionTeacher(props) {
         if (lectureId) {
           dispatch(stageQuestionInLecture(lectureId, response.data.question));
         }
+        refreshLectureQuestions();
+        navigate(-1);
       }
     }
   };
@@ -243,6 +248,11 @@ function SingleQuestionTeacher(props) {
   if (editing) {
     return (
       <div className="vertical-container">
+        <Link className="" to={`/${courseId}/lectures/${lectureId}`}>
+          <Button className="back-btn">
+            <div id="back-btn-image" />
+          </Button>
+        </Link>
         {message != "" && error && (
           <Notice status={"error"} message={message} />
         )}
@@ -378,6 +388,11 @@ function SingleQuestionTeacher(props) {
   } else {
     return (
       <div className="vertical-container">
+        <Link className="" to={`/${courseId}/lectures/${lectureId}`}>
+          <Button className="back-btn">
+            <div id="back-btn-image" />
+          </Button>
+        </Link>
         <h1 className="question-stem">{question.stem}</h1>
         <form className="student-question-response-form">
           {Object.keys(options).map((index) => {
