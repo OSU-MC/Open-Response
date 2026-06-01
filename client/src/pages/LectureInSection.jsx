@@ -154,12 +154,6 @@ function LectureInSection() {
       next.delete(questionId);
       return next;
     });
-    // Clear stats for this question locally
-    setStats((prev) => {
-      const next = { ...prev };
-      delete next[questionId];
-      return next;
-    });
   };
 
   return (
@@ -231,7 +225,7 @@ function LectureInSection() {
                       onQuestionClose={handleQuestionClose}
                     />
                     {/* Live response stats — only show when question is live and stats exist */}
-                    {liveQuestionIds.has(question.id) && questionStats && (
+                    {questionStats && (
                       <div
                         className="question-stats"
                         style={{
