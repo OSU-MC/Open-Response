@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import { useParams, Link, useNavigate } from "react-router-dom";
 import { Button } from "react-bootstrap";
+import { useDispatch } from "react-redux"; // added
 import Notice from "../components/Notice";
 import useLectures from "../hooks/useLectures";
 import useCourse from "../hooks/useCourse";
@@ -15,28 +16,62 @@ const socket = io(url);
 
 function LiveLecture() {
   const navigate = useNavigate();
+  const dispatch = useDispatch();
   const { courseId, lectureId } = useParams();
   const [lectures, message, error, loading] = useLectures();
   const [course, role, Cmessage, Cerror, Cloading] = useCourse();
   const [lecture, lMessage, lError, lectureLoading, getLecture] =
     useLectureQuestions();
 
+  // The current live question pushed from the socket — null means no active question
+  const [socketQuestion, setSocketQuestion] = useState(null);
+
+  // Track which questions the student has already answered: { [questionId]: true }
+  const [answered, setAnswered] = useState({});
+
   useEffect(() => {
+    // Join the lecture room as a student
     socket.emit("joinLecture", { lectureId });
+
+    // Receive a live question pushed directly from the teacher
+    socket.on("liveQuestion", ({ question }) => {
+      console.log("liveQuestion received:", question); // student recieve logged
+      setSocketQuestion(question || null);
+      if (!question) {
+        getLecture(); // re-fetch to get updated isLive state
+      }
+    });
+
+    // Legacy: teacher toggled something, re-fetch to stay in sync
     socket.on("questionUpdated", () => {
       getLecture();
     });
 
     return () => {
+      socket.off("liveQuestion");
       socket.off("questionUpdated");
     };
   }, [lectureId, getLecture]);
-  const liveQuestions = lecture?.questions?.filter(
-    (question) => question.isLive
-  );
-  const closedQuestions = lecture?.questions?.filter(
-    (question) => !question.isLive
-  );
+
+  // Called after student successfully submits an answer
+  const handleAnswerSubmitted = (question, isCorrect) => {
+    // Mark this question as answered locally so the UI updates
+    setAnswered((prev) => ({ ...prev, [question.id]: true }));
+
+    // Notify the socket server so the teacher sees updated stats
+    socket.emit("submitAnswer", {
+      lectureId,
+      questionId: question.id,
+      isCorrect,
+    });
+  };
+
+  // Fall back to questions fetched from the DB if no socket question is active
+  const liveQuestions = socketQuestion
+    ? [socketQuestion]
+    : lecture?.questions?.filter((q) => q.isLive) || [];
+
+  const closedQuestions = lecture?.questions?.filter((q) => !q.isLive) || [];
 
   const breadcrumbs_object = [
     ["Courses", "/"],
@@ -137,10 +172,11 @@ function LiveLecture() {
                 courseId={courseId}
                 lectureId={lectureId}
                 questionId={question.id}
+                onAnswerSubmitted={handleAnswerSubmitted}
               />
             ))
           ) : (
-            <Notice message="No live questions available for this lecture." />
+            <Notice message="Waiting for the teacher to post a question..." />
           )}
         </div>
         <div style={{ width: "calc(150px + 10vw)" }} />

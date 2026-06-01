@@ -34,8 +34,31 @@ function LectureInSection() {
   const [errorPublish, setErrorPublish] = useState(false);
   const [messagePublish, setMessagePublish] = useState("");
 
+  // Tracks response stats per question: { [questionId]: { total, correct, percentCorrect } }
+  const [stats, setStats] = useState({});
+
   useEffect(() => {
-    if (lecturesInSection != null) {
+    // Join the lecture room as teacher
+    socket.emit("joinLecture", { lectureId });
+
+    // Listen for response stats from students answering
+    socket.on(
+      "responseStats",
+      ({ questionId, total, correct, percentCorrect }) => {
+        setStats((prev) => ({
+          ...prev,
+          [questionId]: { total, correct, percentCorrect },
+        }));
+      }
+    );
+
+    return () => {
+      socket.off("responseStats");
+    };
+  }, [lectureId]);
+
+  useEffect(() => {
+    if (lecturesInSection != null && lecture.id == null) {
       lecturesInSection.forEach((lecture) => {
         if (lecture.id == lectureId) {
           setPublished(lecture.published);
@@ -68,30 +91,12 @@ function LectureInSection() {
       for (const question of questions) {
         const updateResponse = await apiUtil(
           "put",
-          `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/0`,
-          {
-            dispatch,
-            navigate,
-          }
+          `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${question.id}/live/0`,
+          { dispatch, navigate }
         );
         if (updateResponse.status === 200) {
           // update students screens
-          socket.emit("setLiveQuestion", { lectureId });
-        }
-      }
-      //remove all questions from being published
-      for (const question of questions) {
-        const updateResponse = await apiUtil(
-          "put",
-          `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/sections/${sectionId}/0`,
-          {
-            dispatch,
-            navigate,
-          }
-        );
-        if (updateResponse.status === 200) {
-          // update students screens
-          socket.emit("setLiveQuestion", { lectureId });
+          socket.emit("setLiveQuestion", { lectureId, question: null });
         }
       }
     }
@@ -101,47 +106,53 @@ function LectureInSection() {
   const changeLiveState = async () => {
     setLoadingPublish(true);
     const isLiveNew = !isLive;
-    const requestData = { isLive: isLiveNew, published: true };
+    // const requestData = { isLive: isLiveNew, published: true };
     const liveStatus = isLiveNew ? "1" : "0";
     const response = await apiUtil(
       "put",
       `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/live/${liveStatus}`,
-      {
-        dispatch,
-        navigate,
-      }
+      { dispatch, navigate }
     );
     setErrorPublish(response.error);
     setMessagePublish(response.message);
     setLoadingPublish(false);
 
     if (response.status === 200) {
-      setIsLive(!isLive);
+      setIsLive(isLiveNew);
       setLecture((prevLecture) => ({
         ...prevLecture,
-        isLive: !prevLecture.isLive,
+        isLive: isLiveNew,
       }));
-      setPublished(true);
 
-      //remove all live questions from students screens if turned off
-      if (questions.length > 0) {
+      // Only clear live questions when turning OFF
+      if (!isLiveNew && questions.length > 0) {
         for (const question of questions) {
-          const updateResponse = await apiUtil(
+          await apiUtil(
             "put",
-            `/courses/${courseId}/lectures/${lectureId}/questions/${question.id}/live/${false}`,
-            {
-              dispatch,
-              navigate,
-            }
+            `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${question.id}/live/0`,
+            { dispatch, navigate }
           );
-          if (updateResponse.status === 200) {
-            // update students screens
-            socket.emit("setLiveQuestion", { lectureId });
-          }
+          socket.emit("setLiveQuestion", { lectureId, question: null });
         }
       }
       reloadQuestions();
     }
+  };
+
+  // Called from QuestionCard when teacher makes a single question live
+  const handleQuestionLive = (question) => {
+    socket.emit("setLiveQuestion", { lectureId, question });
+  };
+
+  // Called from QuestionCard when teacher closes a single question
+  const handleQuestionClose = (questionId) => {
+    socket.emit("closeQuestion", { lectureId, questionId });
+    // Clear stats for this question locally
+    setStats((prev) => {
+      const next = { ...prev };
+      delete next[questionId];
+      return next;
+    });
   };
 
   return (
@@ -200,15 +211,40 @@ function LectureInSection() {
               <TailSpin visible={true} />
             ) : (
               questions.map((question) => {
+                const questionStats = stats[question.id];
                 return (
-                  <QuestionCard
-                    key={question.id}
-                    question={question}
-                    view={"teacher"}
-                    lecturePublished={published}
-                    isLectureLive={isLive}
-                    sectionId={sectionId}
-                  />
+                  <div key={question.id}>
+                    <QuestionCard
+                      question={question}
+                      view={"teacher"}
+                      lecturePublished={published}
+                      isLectureLive={isLive}
+                      sectionId={sectionId}
+                      onQuestionLive={handleQuestionLive}
+                      onQuestionClose={handleQuestionClose}
+                    />
+                    {/* Live response stats — only show when question is live and stats exist */}
+                    {question.isLive && questionStats && (
+                      <div
+                        className="question-stats"
+                        style={{
+                          padding: "8px 16px",
+                          backgroundColor: "var(--accent2)",
+                          borderRadius: "8px",
+                          marginBottom: "12px",
+                          fontSize: "14px",
+                        }}
+                      >
+                        <span>
+                          📊 Responses: <strong>{questionStats.total}</strong>
+                        </span>
+                        <span style={{ marginLeft: "16px" }}>
+                          ✅ Correct: <strong>{questionStats.correct}</strong> (
+                          {questionStats.percentCorrect}%)
+                        </span>
+                      </div>
+                    )}
+                  </div>
                 );
               })
             )}

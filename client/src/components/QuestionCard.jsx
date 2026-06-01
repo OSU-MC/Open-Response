@@ -33,10 +33,7 @@ function QuestionCard(props) {
         const response = await apiUtil(
           "get",
           `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${props.question.id}`,
-          {
-            dispatch,
-            navigate,
-          }
+          { dispatch, navigate }
         );
         setLoading(false);
         console.log("response: ", response.data);
@@ -60,7 +57,7 @@ function QuestionCard(props) {
     const response = await apiUtil(
       "put",
       `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${props.question.id}/`,
-      { dispatch: dispatch, navigate: navigate }
+      { dispatch, navigate }
     );
     setLoading(false);
     setError(response.error);
@@ -72,31 +69,56 @@ function QuestionCard(props) {
       dispatch(
         togglePublishedForQuestionInLecture(lectureId, response.data.id)
       );
-      socket.emit("setLiveQuestion", { lectureId });
+      // Notify students a question's publish state changed (legacy signal)
+      socket.emit("setLiveQuestion", { lectureId, question: null });
     }
   }
 
   async function goLive() {
     setLoading(true);
-    const liveStatus = isLive ? "0" : "1";
+    const goingLive = !isLive;
+    const liveStatus = goingLive ? "1" : "0";
     const response = await apiUtil(
       "put",
-      `/courses/${courseId}/lectures/${lectureId}/questions/${props.question.id}/live/${liveStatus}`,
-      {
-        dispatch: dispatch,
-        navigate: navigate,
-      }
+      `/courses/${courseId}/sections/${sectionId}/lectures/${lectureId}/questions/${props.question.id}/live/${liveStatus}`,
+      { dispatch, navigate }
     );
+
+    console.log(
+      "goLive response:",
+      response.status,
+      response.message,
+      response.data
+    );
+    console.log("Full response:", response); // ADD
+    console.log("response.data:", response.data); // ADD
+    console.log("isLive state:", isLive, "goingLive:", goingLive); // ADD
 
     setLoading(false);
     setError(response.error);
     setMessage(response.message);
 
     if (response.status === 200 && response.data?.isLive !== undefined) {
-      setIsLive(!isLive);
-      socket.emit("setLiveQuestion", { lectureId });
+      const actuallyLive = response.data.isLive; // trust the API, not local state
+      setIsLive(actuallyLive);
+
+      if (actuallyLive) {
+        // Broadcast full question to students
+        socket.emit("setLiveQuestion", { lectureId, question: props.question });
+        // Notify parent so it can track stats for this question
+        props.onQuestionLive && props.onQuestionLive(props.question);
+      } else {
+        // Tell students the question is closed
+        socket.emit("closeQuestion", {
+          lectureId,
+          questionId: props.question.id,
+        });
+        // Notify parent to clear stats
+        props.onQuestionClose && props.onQuestionClose(props.question.id);
+      }
     }
-    console.log("setting it to:", isLive);
+
+    console.log("setting it to:", goingLive);
   }
 
   return (

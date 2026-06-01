@@ -48,7 +48,10 @@ function LectureCard(props) {
 
         {props.view === "student" && (
           <>
-            <Link className="viewLectureBtn" to={`${props.lecture.id}`}>
+            <Link
+              className="viewLectureBtn"
+              to={`/${props.course}/live/${props.lecture.Lecture?.id || props.lecture.id}`}
+            >
               <Button>Join Lecture</Button>
             </Link>
           </>
@@ -68,6 +71,7 @@ function LectureCard(props) {
                 {props.section ? `View Lecture` : `Edit Lecture`}
               </Button>
             </Link>
+
             <Link
               className="viewPastLectureBtn"
               to={
@@ -76,10 +80,12 @@ function LectureCard(props) {
                   : `${props.lecture.id}`
               }
             >
+              {/* this <Link> is the second  Edit Lecture  button */}
               <Button className="viewPastLectureBtn">
                 {props.section ? `View Past Lecture` : `Edit Lecture`}
               </Button>
             </Link>
+
             <Button
               variant="danger"
               onClick={handleDelete}

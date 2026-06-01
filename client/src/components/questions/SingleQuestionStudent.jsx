@@ -28,29 +28,54 @@ function SingleQuestionStudent(props) {
 
   const [radioChecked, setRadioChecked] = useState();
   const [submissionError, setSubmissionError] = useState();
+  const [submitted, setSubmitted] = useState(false);
+
+  // Reset state when the question changes (teacher posts a new question)
+  useEffect(() => {
+    setRadioOptionSelected(Array(content.length).fill(false));
+    setCheckboxOptionsSelected(Array(content.length).fill(false));
+    setRadioChecked(undefined);
+    setSubmissionError(undefined);
+    setSubmitted(false);
+  }, [props.question.id]);
 
   // Handle the submission of a question
   const createResponse = async (e) => {
     e.preventDefault();
+
     if (props.question.type === "multiple choice" && radioChecked == null) {
       alert("Please select an answer to the question before submitting");
-    } else {
-      let response = await apiUtil(
-        "post",
-        `courses/${props.courseId}/lectures/${props.lectureId}/questions/${props.question.id}/responses`,
-        { dispatch: dispatch, navigate: navigate },
-        {
-          answers:
-            props.question.type === "multiple choice"
-              ? radioOptionSelected
-              : checkboxOptionsSelected,
-        }
-      );
-      if (response.status != 201) {
-        setSubmissionError(response.message);
-      }
-      window.location.reload(false);
+      return;
     }
+
+    const selectedAnswers =
+      props.question.type === "multiple choice"
+        ? radioOptionSelected
+        : checkboxOptionsSelected;
+
+    const response = await apiUtil(
+      "post",
+      `courses/${props.courseId}/lectures/${props.lectureId}/questions/${props.question.id}/responses`,
+      { dispatch, navigate },
+      { answers: selectedAnswers }
+    );
+
+    if (response.status !== 201) {
+      setSubmissionError(response.message);
+      return;
+    }
+
+    setSubmitted(true);
+
+    // Determine if the student's answer was correct
+    // A response is fully correct if every selected answer matches the correct answers
+    const isCorrect = answers.every(
+      (correct, index) => correct === selectedAnswers[index]
+    );
+
+    // Notify parent (LiveLecture) so it can update stats via socket
+    props.onAnswerSubmitted &&
+      props.onAnswerSubmitted(props.question, isCorrect);
   };
 
   const onValueChangeRadio = (e) => {
@@ -71,9 +96,10 @@ function SingleQuestionStudent(props) {
 
   return (
     <div className="student-question-wrapper">
-      {!props.response ? (
+      {!props.response && !submitted ? (
         <>
           <h1 className="question-stem">{props.question.stem}</h1>
+          {submissionError && <Notice error={true} message={submissionError} />}
           <form className="student-question-response-form">
             {content.map((option, index) => (
               <div key={index} className="student-question-answer-option">
@@ -86,7 +112,7 @@ function SingleQuestionStudent(props) {
                       value={option}
                       checked={radioChecked == option.toString()}
                       onChange={onValueChangeRadio}
-                    ></input>
+                    />
                     <label
                       className="student-question-option-label"
                       htmlFor={index}
@@ -100,10 +126,10 @@ function SingleQuestionStudent(props) {
                       className="student-question-radio"
                       type="checkbox"
                       id={index}
-                      key={index}
+                      // key={index}
                       value={option}
                       onChange={onValueChangeCheckbox}
-                    ></input>
+                    />
                     <label
                       className="student-question-option-label"
                       htmlFor={index}
@@ -123,48 +149,54 @@ function SingleQuestionStudent(props) {
               </div>
             ))}
           </form>
-          <Link
-            to={`/${props.courseId}/lectures/${props.lectureId}/questions/${props.questionId}`}
+
+          <button
+            className="btn btn-primary student-question-response-submit-button"
+            onClick={(e) => createResponse(e)}
           >
-            <button
-              className="btn btn-primary student-question-response-submit-button"
-              onClick={(e) => createResponse(e)}
-            >
-              Submit
-            </button>
-          </Link>
+            Submit
+          </button>
         </>
       ) : (
         <>
           <h1 className="question-stem">{props.question.stem}</h1>
-          <ul className="student-question-response-form">
-            {content.map((option, index) =>
-              answers[index] === true &&
-              props.response.submission[index] === true ? (
-                <li className="right-answer student-question-li" key={index}>
-                  {option} Correct!
-                </li>
-              ) : answers[index] === true ? (
-                <li
-                  className="unselected-right-answer student-question-li"
-                  key={index}
-                >
-                  {option} Unselected Correct Answer
-                </li>
-              ) : props.response.submission[index] === true ? (
-                <li className="wrong-answer student-question-li" key={index}>
-                  {option} Incorrect
-                </li>
-              ) : (
-                <li className="student-question-li" key={index}>
-                  {option}
-                </li>
-              )
-            )}
-          </ul>
-          <h2 className="student-question-score">
-            Score: {props.response.score}
-          </h2>
+
+          {submitted && !props.response ? (
+            // Show a simple confirmation if we don't have the full response object yet
+            <Notice error={false} message="Your answer has been submitted!" />
+          ) : (
+            // Show full results if response object is available
+            <ul className="student-question-response-form">
+              {content.map((option, index) =>
+                answers[index] === true &&
+                props.response.submission[index] === true ? (
+                  <li className="right-answer student-question-li" key={index}>
+                    {option} Correct!
+                  </li>
+                ) : answers[index] === true ? (
+                  <li
+                    className="unselected-right-answer student-question-li"
+                    key={index}
+                  >
+                    {option} Unselected Correct Answer
+                  </li>
+                ) : props.response.submission[index] === true ? (
+                  <li className="wrong-answer student-question-li" key={index}>
+                    {option} Incorrect
+                  </li>
+                ) : (
+                  <li className="student-question-li" key={index}>
+                    {option}
+                  </li>
+                )
+              )}
+            </ul>
+          )}
+          {props.response && (
+            <h2 className="student-question-score">
+              Score: {props.response.score}
+            </h2>
+          )}
         </>
       )}
     </div>

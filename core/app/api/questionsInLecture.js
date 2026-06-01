@@ -165,6 +165,7 @@ router.put(
     const user = await db.User.findByPk(req.payload.sub);
     const courseId = parseInt(req.params["course_id"]);
     const lectureId = parseInt(req.params["lecture_id"]);
+    const sectionId = parseInt(req.params["section_id"]);
     const questionId = parseInt(req.params["question_id"]);
     const isLive = req.params["live_status"] === "1";
 
@@ -187,9 +188,20 @@ router.put(
           .send({ error: "Lecture ID does not belong to this course" });
       }
 
+      // FIX: look up lectureForSection first, just like every other route
+      const lectureForSection = await lectureService.getLectureForSection(
+        sectionId,
+        lectureId
+      );
+      if (!lectureForSection) {
+        return res
+          .status(400)
+          .send({ error: "Lecture ID does not belong to this section" });
+      }
+
       const questionInLecture = await questionService.getQuestionInLecture(
         questionId,
-        lectureId
+        lectureForSection.id // FIX: use lectureForSection.id, not lectureId
       );
       if (!questionInLecture) {
         return res
@@ -199,7 +211,7 @@ router.put(
 
       const question = await questionService.getQuestionFromLecture(
         questionId,
-        courseId
+        lectureId
       );
       if (!question) {
         return res
