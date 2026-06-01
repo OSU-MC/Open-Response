@@ -28,8 +28,10 @@ function SingleQuestionStudent(props) {
 
   const [radioChecked, setRadioChecked] = useState();
   const [submissionError, setSubmissionError] = useState();
-  const [submitted, setSubmitted] = useState(false);
-  const [submissionResponse, setSubmissionResponse] = useState(null); // students response
+  const [submitted, setSubmitted] = useState(!!props.savedResponse);
+  const [submissionResponse, setSubmissionResponse] = useState(
+    props.savedResponse || null
+  ); // students response
 
   // Reset state when the question changes (teacher posts a new question)
   useEffect(() => {
@@ -37,7 +39,8 @@ function SingleQuestionStudent(props) {
     setCheckboxOptionsSelected(Array(content.length).fill(false));
     setRadioChecked(undefined);
     setSubmissionError(undefined);
-    setSubmitted(false);
+    setSubmitted(!!props.savedResponse);
+    setSubmissionResponse(props.savedResponse || null);
   }, [props.question.id]);
 
   // Handle the submission of a question
@@ -78,7 +81,11 @@ function SingleQuestionStudent(props) {
 
     // Notify parent (LiveLecture) so it can update stats via socket
     props.onAnswerSubmitted &&
-      props.onAnswerSubmitted(props.question, isCorrect);
+      props.onAnswerSubmitted(
+        props.question,
+        isCorrect,
+        response.data.response
+      );
   };
 
   const onValueChangeRadio = (e) => {
@@ -164,10 +171,10 @@ function SingleQuestionStudent(props) {
         <>
           <h1 className="question-stem">{props.question.stem}</h1>
 
-          {submitted && !submissionResponse ? (
+          {submitted && !props.isClosed ? (
             // Show a simple confirmation if we don't have the full response object yet
             <Notice error={false} message="Your answer has been submitted!" />
-          ) : submitted && submissionResponse ? (
+          ) : submitted && props.isClosed && submissionResponse ? (
             // Show full results if response object is available
             <ul className="student-question-response-form">
               {content.map((option, index) =>
@@ -199,6 +206,8 @@ function SingleQuestionStudent(props) {
                 </h2>
               )}
             </ul>
+          ) : submitted && props.isClosed && !submissionResponse ? (
+            <Notice error={false} message="Question closed." />
           ) : null}
         </>
       )}

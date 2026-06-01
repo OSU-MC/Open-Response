@@ -26,6 +26,15 @@ function LiveLecture() {
   // The current live question pushed from the socket — null means no active question
   const [socketQuestion, setSocketQuestion] = useState(null);
 
+  // Track which questions have been closed: Set of questionIds
+  const [closedQuestionIds, setClosedQuestionIds] = useState(new Set());
+
+  // Keep closed questions visible on screen so students can review results
+  const [closedQuestionsList, setClosedQuestionsList] = useState([]);
+
+  // track responses by question ID
+  const [questionResponses, setQuestionResponses] = useState({});
+
   // Track which questions the student has already answered: { [questionId]: true }
   const [answered, setAnswered] = useState({});
 
@@ -42,6 +51,22 @@ function LiveLecture() {
       }
     });
 
+    // Teacher closed a question — reveal results to student
+    socket.on("questionClosed", ({ questionId }) => {
+      setClosedQuestionIds((prev) => new Set([...prev, questionId]));
+      // Move the current socket question to the closed list so it stays visible
+      setSocketQuestion((prev) => {
+        if (prev?.id === questionId) {
+          setClosedQuestionsList((list) => {
+            // Avoid duplicates
+            if (list.find((q) => q.id === questionId)) return list;
+            return [...list, prev];
+          });
+        }
+        return null; // clear active question
+      });
+    });
+
     // Legacy: teacher toggled something, re-fetch to stay in sync
     socket.on("questionUpdated", () => {
       getLecture();
@@ -49,15 +74,19 @@ function LiveLecture() {
 
     return () => {
       socket.off("liveQuestion");
+      socket.off("questionClosed");
       socket.off("questionUpdated");
     };
   }, [lectureId, getLecture]);
 
   // Called after student successfully submits an answer
-  const handleAnswerSubmitted = (question, isCorrect) => {
+  const handleAnswerSubmitted = (question, isCorrect, response) => {
+    console.log("closedQuestionIds at submit time:", [...closedQuestionIds]);
+    console.log("question.id:", question.id);
     // Mark this question as answered locally so the UI updates
     setAnswered((prev) => ({ ...prev, [question.id]: true }));
-
+    // store the response
+    setQuestionResponses((prev) => ({ ...prev, [question.id]: response }));
     // Notify the socket server so the teacher sees updated stats
     socket.emit("submitAnswer", {
       lectureId,
@@ -123,7 +152,7 @@ function LiveLecture() {
         className="live-lecture-content"
         style={{
           display: "flex",
-          alignItems: "center",
+          alignItems: "flex-start",
         }}
       >
         {/* Closed question sidebar */}
@@ -163,7 +192,29 @@ function LiveLecture() {
             )}
           </ul>
         </div>
-        <div style={{ flexGrow: 1 }}>
+
+        {/* Main content area */}
+        <div style={{ flexGrow: 1, padding: "0 20px" }}>
+          {/* Closed questions — shown with results revealed */}
+          {closedQuestionsList.map((question) => (
+            <div
+              key={question.id}
+              id={`question-${question.id}`}
+              style={{ marginBottom: "24px", opacity: 0.85 }}
+            >
+              <SingleQuestionStudent
+                question={question}
+                courseId={courseId}
+                lectureId={lectureId}
+                questionId={question.id}
+                onAnswerSubmitted={handleAnswerSubmitted}
+                isClosed={true}
+                savedResponse={questionResponses[question.id]}
+              />
+            </div>
+          ))}
+
+          {/* Active live question */}
           {liveQuestions?.length > 0 ? (
             liveQuestions.map((question) => (
               <SingleQuestionStudent
@@ -173,10 +224,13 @@ function LiveLecture() {
                 lectureId={lectureId}
                 questionId={question.id}
                 onAnswerSubmitted={handleAnswerSubmitted}
+                isClosed={closedQuestionIds.has(question.id)}
               />
             ))
-          ) : (
+          ) : closedQuestionsList.length === 0 ? (
             <Notice message="Waiting for the teacher to post a question..." />
+          ) : (
+            <Notice message="Waiting for the next question..." />
           )}
         </div>
         <div style={{ width: "calc(150px + 10vw)" }} />

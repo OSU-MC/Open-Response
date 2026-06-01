@@ -115,7 +115,8 @@ io.on("connection", (socket) => {
     if (responseStats[lectureId]) {
       delete responseStats[lectureId][questionId];
     }
-    socket.to(`lecture-${lectureId}`).emit("liveQuestion", { question: null });
+    io.to(`lecture-${lectureId}`).emit("questionClosed", { questionId });
+    io.to(`lecture-${lectureId}`).emit("liveQuestion", { question: null });
   });
 });
 
