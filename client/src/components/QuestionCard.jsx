@@ -18,6 +18,7 @@ function QuestionCard(props) {
   const dispatch = useDispatch();
   const [published, setPublished] = useState(false);
   const [isLive, setIsLive] = useState(false);
+  const [responsesEnded, setResponsesEnded] = useState(false);
   const { courseId, lectureId, sectionId } = useParams();
   const [error, setError] = useState(false);
   const [message, setMessage] = useState("");
@@ -26,6 +27,7 @@ function QuestionCard(props) {
   useEffect(() => {
     console.log("props.question:", props.question);
     setIsLive(!!props.question.isLive);
+    setResponsesEnded(false); // reset when question changes
 
     async function fetchQuestionState() {
       if (props.view === "teacher" && sectionId) {
@@ -90,9 +92,9 @@ function QuestionCard(props) {
       response.message,
       response.data
     );
-    console.log("Full response:", response); // ADD
-    console.log("response.data:", response.data); // ADD
-    console.log("isLive state:", isLive, "goingLive:", goingLive); // ADD
+    console.log("Full response:", response);
+    console.log("response.data:", response.data);
+    console.log("isLive state:", isLive, "goingLive:", goingLive);
 
     setLoading(false);
     setError(response.error);
@@ -108,17 +110,21 @@ function QuestionCard(props) {
         // Notify parent so it can track stats for this question
         props.onQuestionLive && props.onQuestionLive(props.question);
       } else {
-        // Tell students the question is closed
-        socket.emit("closeQuestion", {
-          lectureId,
-          questionId: props.question.id,
-        });
-        // Notify parent to clear stats
+        // End Live — remove question from student screen entirely
+        socket.emit("endLive", { lectureId, questionId: props.question.id });
         props.onQuestionClose && props.onQuestionClose(props.question.id);
+        setResponsesEnded(false);
       }
     }
 
     console.log("setting it to:", goingLive);
+  }
+
+  function endResponses() {
+    // Close responses and reveal results to students — question stays on screen
+    setResponsesEnded(true);
+    socket.emit("closeQuestion", { lectureId, questionId: props.question.id });
+    props.onEndResponses && props.onEndResponses(props.question.id);
   }
 
   return (
@@ -173,13 +179,35 @@ function QuestionCard(props) {
                 )}
 
                 {props.isLectureLive && (
-                  <Button
-                    className="btn-live"
-                    onClick={goLive}
-                    disabled={loading}
+                  <div
+                    style={{ display: "flex", gap: "8px", marginTop: "8px" }}
                   >
-                    {isLive ? "End Live" : "Go Live"}
-                  </Button>
+                    {/* Go Live / End Live button */}
+                    <Button
+                      className="btn-live"
+                      onClick={goLive}
+                      disabled={loading || (props.hasLiveQuestion && !isLive)}
+                    >
+                      {isLive ? "End Live" : "Go Live"}
+                    </Button>
+
+                    {/* End Responses / Show Results — only shown when question is live and responses not yet ended */}
+                    {isLive && !responsesEnded && (
+                      <Button
+                        variant="warning"
+                        onClick={endResponses}
+                        disabled={loading}
+                      >
+                        End Responses
+                      </Button>
+                    )}
+                    {/* Show when responses already ended */}
+                    {isLive && responsesEnded && (
+                      <Button variant="warning" disabled>
+                        Results Shown
+                      </Button>
+                    )}
+                  </div>
                 )}
               </Card.Body>
             </Card>

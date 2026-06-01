@@ -104,6 +104,15 @@ function SingleQuestionStudent(props) {
     setCheckboxOptionsSelected(nextCheckboxOptionsSelected);
   };
 
+  console.log(
+    "isClosed:",
+    props.isClosed,
+    "submitted:",
+    submitted,
+    "question:",
+    props.question.id
+  );
+
   return (
     <div className="student-question-wrapper">
       {!props.response && !submitted ? (

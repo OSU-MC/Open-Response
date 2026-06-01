@@ -67,6 +67,26 @@ function LiveLecture() {
       });
     });
 
+    socket.on("questionRemoved", ({ questionId }) => {
+      const qId = Number(questionId);
+      setClosedQuestionsList((prev) =>
+        prev.filter((q) => Number(q.id) !== qId)
+      );
+      setClosedQuestionIds((prev) => {
+        const next = new Set(prev);
+        next.delete(qId);
+        next.delete(String(qId));
+        return next;
+      });
+      setQuestionResponses((prev) => {
+        const next = { ...prev };
+        delete next[qId];
+        delete next[String(qId)];
+        return next;
+      });
+      setSocketQuestion(null);
+    });
+
     // Legacy: teacher toggled something, re-fetch to stay in sync
     socket.on("questionUpdated", () => {
       getLecture();
@@ -76,6 +96,7 @@ function LiveLecture() {
       socket.off("liveQuestion");
       socket.off("questionClosed");
       socket.off("questionUpdated");
+      socket.off("endLive");
     };
   }, [lectureId, getLecture]);
 
@@ -95,10 +116,7 @@ function LiveLecture() {
     });
   };
 
-  // Fall back to questions fetched from the DB if no socket question is active
-  const liveQuestions = socketQuestion
-    ? [socketQuestion]
-    : lecture?.questions?.filter((q) => q.isLive) || [];
+  const liveQuestions = socketQuestion ? [socketQuestion] : [];
 
   const closedQuestions = lecture?.questions?.filter((q) => !q.isLive) || [];
 

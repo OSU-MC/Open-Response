@@ -109,14 +109,26 @@ io.on("connection", (socket) => {
     });
   });
 
-  // Teacher closes a question — clear its stats
+  // Teacher ends responses and shows results — question stays on student screen
   socket.on("closeQuestion", ({ lectureId, questionId }) => {
-    console.log(`Closing question-${questionId} for lecture-${lectureId}`);
+    console.log(
+      `Closing responses for question-${questionId} in lecture-${lectureId}`
+    );
     if (responseStats[lectureId]) {
       delete responseStats[lectureId][questionId];
     }
+    // Tell students to lock the form and reveal results
     io.to(`lecture-${lectureId}`).emit("questionClosed", { questionId });
-    io.to(`lecture-${lectureId}`).emit("liveQuestion", { question: null });
+    io.to(`lecture-${lectureId}`).emit("liveQuestion", { question: null }); // ADD THIS BACK
+  });
+
+  // Teacher ends live — remove the question from student screen entirely
+  socket.on("endLive", ({ lectureId, questionId }) => {
+    console.log(
+      `Ending live for question-${questionId} in lecture-${lectureId}`
+    );
+    // Tell students to remove the question from view
+    io.to(`lecture-${lectureId}`).emit("questionRemoved", { questionId });
   });
 });
 

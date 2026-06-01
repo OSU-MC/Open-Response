@@ -146,9 +146,19 @@ function LectureInSection() {
     setLiveQuestionIds((prev) => new Set([...prev, question.id]));
   };
 
-  // Called from QuestionCard when teacher closes a single question
+  // Called from QuestionCard when teacher ends responses (shows results to students)
+  // Socket emit happens in QuestionCard — this just updates local state
+  const handleEndResponses = (questionId) => {
+    setLiveQuestionIds((prev) => {
+      const next = new Set(prev);
+      next.delete(questionId);
+      return next;
+    });
+  };
+
+  // Called from QuestionCard when teacher ends live (removes question from student screen)
+  // Socket emit happens in QuestionCard — this just updates local state
   const handleQuestionClose = (questionId) => {
-    socket.emit("closeQuestion", { lectureId, questionId });
     setLiveQuestionIds((prev) => {
       const next = new Set(prev);
       next.delete(questionId);
@@ -223,6 +233,8 @@ function LectureInSection() {
                       sectionId={sectionId}
                       onQuestionLive={handleQuestionLive}
                       onQuestionClose={handleQuestionClose}
+                      onEndResponses={handleEndResponses}
+                      hasLiveQuestion={liveQuestionIds.size > 0}
                     />
                     {/* Live response stats — only show when question is live and stats exist */}
                     {questionStats && (
