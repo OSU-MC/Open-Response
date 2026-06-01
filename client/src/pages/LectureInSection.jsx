@@ -36,6 +36,7 @@ function LectureInSection() {
 
   // Tracks response stats per question: { [questionId]: { total, correct, percentCorrect } }
   const [stats, setStats] = useState({});
+  const [liveQuestionIds, setLiveQuestionIds] = useState(new Set());
 
   useEffect(() => {
     // Join the lecture room as teacher
@@ -142,11 +143,17 @@ function LectureInSection() {
   // Called from QuestionCard when teacher makes a single question live
   const handleQuestionLive = (question) => {
     socket.emit("setLiveQuestion", { lectureId, question });
+    setLiveQuestionIds((prev) => new Set([...prev, question.id]));
   };
 
   // Called from QuestionCard when teacher closes a single question
   const handleQuestionClose = (questionId) => {
     socket.emit("closeQuestion", { lectureId, questionId });
+    setLiveQuestionIds((prev) => {
+      const next = new Set(prev);
+      next.delete(questionId);
+      return next;
+    });
     // Clear stats for this question locally
     setStats((prev) => {
       const next = { ...prev };
@@ -224,7 +231,7 @@ function LectureInSection() {
                       onQuestionClose={handleQuestionClose}
                     />
                     {/* Live response stats — only show when question is live and stats exist */}
-                    {question.isLive && questionStats && (
+                    {liveQuestionIds.has(question.id) && questionStats && (
                       <div
                         className="question-stats"
                         style={{

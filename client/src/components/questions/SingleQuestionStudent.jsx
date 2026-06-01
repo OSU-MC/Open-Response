@@ -29,6 +29,7 @@ function SingleQuestionStudent(props) {
   const [radioChecked, setRadioChecked] = useState();
   const [submissionError, setSubmissionError] = useState();
   const [submitted, setSubmitted] = useState(false);
+  const [submissionResponse, setSubmissionResponse] = useState(null); // students response
 
   // Reset state when the question changes (teacher posts a new question)
   useEffect(() => {
@@ -66,6 +67,8 @@ function SingleQuestionStudent(props) {
     }
 
     setSubmitted(true);
+    setSubmissionResponse(response.data.response); // store the full response
+    console.log("submission response data:", response.data);
 
     // Determine if the student's answer was correct
     // A response is fully correct if every selected answer matches the correct answers
@@ -161,15 +164,15 @@ function SingleQuestionStudent(props) {
         <>
           <h1 className="question-stem">{props.question.stem}</h1>
 
-          {submitted && !props.response ? (
+          {submitted && !submissionResponse ? (
             // Show a simple confirmation if we don't have the full response object yet
             <Notice error={false} message="Your answer has been submitted!" />
-          ) : (
+          ) : submitted && submissionResponse ? (
             // Show full results if response object is available
             <ul className="student-question-response-form">
               {content.map((option, index) =>
                 answers[index] === true &&
-                props.response.submission[index] === true ? (
+                submissionResponse.submission[index] === true ? (
                   <li className="right-answer student-question-li" key={index}>
                     {option} Correct!
                   </li>
@@ -180,7 +183,7 @@ function SingleQuestionStudent(props) {
                   >
                     {option} Unselected Correct Answer
                   </li>
-                ) : props.response.submission[index] === true ? (
+                ) : submissionResponse.submission[index] === true ? (
                   <li className="wrong-answer student-question-li" key={index}>
                     {option} Incorrect
                   </li>
@@ -190,13 +193,13 @@ function SingleQuestionStudent(props) {
                   </li>
                 )
               )}
+              {submissionResponse && (
+                <h2 className="student-question-score">
+                  Score: {submissionResponse.score}
+                </h2>
+              )}
             </ul>
-          )}
-          {props.response && (
-            <h2 className="student-question-score">
-              Score: {props.response.score}
-            </h2>
-          )}
+          ) : null}
         </>
       )}
     </div>
