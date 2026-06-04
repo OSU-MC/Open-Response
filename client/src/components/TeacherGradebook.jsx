@@ -17,6 +17,7 @@
 //   <TeacherGradebook grades={grades} />
 
 import { Table } from "react-bootstrap";
+import Notice from "../components/Notice";
 
 function TeacherGradebook({ grades, showPublishedLectures }) {
   // Use grades.lectures as the array of student grade objects
@@ -32,78 +33,85 @@ function TeacherGradebook({ grades, showPublishedLectures }) {
       className="grades-container"
       style={{ overflowX: "auto", width: "100%" }}
     >
-      <Table
-        striped
-        bordered
-        hover
-        className="grades-table"
-        style={{ minWidth: 600 }}
-      >
-        <thead>
-          <tr>
-            <th
-              className="grades-student-column sticky-col"
-              style={{
-                left: 0,
-                position: "sticky",
-                background: "#fff",
-                zIndex: 2,
-              }}
-            >
-              Student
-            </th>
-            {students[0]?.lectures.map((lecture) =>
-              showPublishedLectures ? (
-                <th key={lecture.lectureId} className="grades-lecture-column">
-                  {lecture.lectureTitle}
-                </th>
-              ) : (
-                lecture.published && (
-                  <th key={lecture.lectureId} className="grades-lecture-column">
-                    {lecture.lectureTitle}
-                  </th>
-                )
-              )
-            )}
-            <th className="grades-course-column">Course Grade</th>
-          </tr>
-        </thead>
-        <tbody>
-          {students.map((grade) => (
-            <tr key={grade.studentId}>
-              <td
-                className="grades-student sticky-col"
+      {students.length === 0 ? (
+        <Notice message={"There are no students in this section"} />
+      ) : (
+        <Table
+          striped
+          bordered
+          hover
+          className="grades-table"
+          style={{ minWidth: 600 }}
+        >
+          <thead>
+            <tr>
+              <th
+                className="grades-student-column sticky-col"
                 style={{
                   left: 0,
                   position: "sticky",
                   background: "#fff",
-                  zIndex: 1,
+                  zIndex: 2,
                 }}
               >
-                {grade.studentName}
-              </td>
-              {grade.lectures.map((lecture) =>
+                Student
+              </th>
+              {students[0]?.lectures.map((lecture) =>
                 showPublishedLectures ? (
-                  <td key={lecture.lectureId} className="grades-grade">
-                    {lecture.lectureGrade} / {lecture.totalPoints}
-                  </td>
+                  <th key={lecture.lectureId} className="grades-lecture-column">
+                    {lecture.lectureTitle}
+                  </th>
                 ) : (
                   lecture.published && (
-                    <td key={lecture.lectureId} className="grades-grade">
-                      {lecture.lectureGrade} / {lecture.totalPoints}
-                    </td>
+                    <th
+                      key={lecture.lectureId}
+                      className="grades-lecture-column"
+                    >
+                      {lecture.lectureTitle}
+                    </th>
                   )
                 )
               )}
-              <td className="grades-course-grade">
-                {courseGradesMap[grade.studentId] !== undefined
-                  ? `${courseGradesMap[grade.studentId]}%`
-                  : "-"}
-              </td>
+              <th className="grades-course-column">Course Grade</th>
             </tr>
-          ))}
-        </tbody>
-      </Table>
+          </thead>
+          <tbody>
+            {students.map((grade) => (
+              <tr key={grade.studentId}>
+                <td
+                  className="grades-student sticky-col"
+                  style={{
+                    left: 0,
+                    position: "sticky",
+                    background: "#fff",
+                    zIndex: 1,
+                  }}
+                >
+                  {grade.studentName}
+                </td>
+                {grade.lectures.map((lecture) =>
+                  showPublishedLectures ? (
+                    <td key={lecture.lectureId} className="grades-grade">
+                      {lecture.lectureGrade} / {lecture.totalPoints}
+                    </td>
+                  ) : (
+                    lecture.published && (
+                      <td key={lecture.lectureId} className="grades-grade">
+                        {lecture.lectureGrade} / {lecture.totalPoints}
+                      </td>
+                    )
+                  )
+                )}
+                <td className="grades-course-grade">
+                  {courseGradesMap[grade.studentId] !== undefined
+                    ? `${courseGradesMap[grade.studentId]}%`
+                    : "-"}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </Table>
+      )}
     </div>
   );
 }
