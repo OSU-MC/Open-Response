@@ -24,6 +24,15 @@ function SingleQuestion(props) {
   const error = Cmessage || rMessage || lMessage;
   const loading = Cloading || rLoading || lLoading;
 
+  console.log("Debug Info:", {
+    courseId,
+    lectureId,
+    questionId,
+    questionsArray: questions.questions,
+    teacherQuestion,
+    role,
+  });
+
   return (
     <>
       {Cmessage ? (

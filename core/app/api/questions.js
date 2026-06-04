@@ -176,4 +176,68 @@ router.post("/", requireAuthentication, async function (req, res, next) {
   }
 });
 
+// PUT /courses/course_id/questions/question_id
+// update an existing question
+router.put(
+  "/:question_id",
+  requireAuthentication,
+  async function (req, res, next) {
+    const user = await db.User.findByPk(req.payload.sub);
+    const courseId = parseInt(req.params["course_id"]);
+    const questionId = parseInt(req.params["question_id"]);
+
+    // check to ensure the user is a teacher for the specified course
+    const enrollmentTeacher = await db.Enrollment.findOne({
+      where: {
+        userId: user.id,
+        courseId: courseId,
+        role: "teacher",
+      },
+    });
+
+    if (!enrollmentTeacher) {
+      return res
+        .status(403)
+        .send({ error: `Only the teacher for a course can update a question` });
+    }
+
+    // validate request body and extract update fields
+    const updateData = questionService.extractQuestionUpdateFields(req.body);
+
+    if (Object.keys(updateData).length === 0) {
+      return res.status(400).send({
+        error: `Request body must contain fields to update.`,
+      });
+    }
+
+    try {
+      // call the service to perform the update
+      const [rowsUpdated] = await db.Question.update(updateData, {
+        where: { id: questionId },
+        individualHooks: true,
+      });
+
+      if (rowsUpdated > 0) {
+        const updatedQuestion = await db.Question.findByPk(questionId);
+
+        return res.status(200).send({
+          question: questionService.extractQuestionFields(updatedQuestion),
+        });
+      } else {
+        return res
+          .status(404)
+          .send({ error: `Question with ID ${questionId} not found` });
+      }
+    } catch (e) {
+      if (e instanceof ValidationError) {
+        return res.status(400).send({
+          error: string_helpers.serializeSequelizeErrors(e),
+        });
+      } else {
+        next(e);
+      }
+    }
+  }
+);
+
 module.exports = router;

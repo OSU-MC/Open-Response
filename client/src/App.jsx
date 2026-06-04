@@ -103,11 +103,15 @@ function App() {
                   <Route path=":sectionId" element={<Outlet />}>
                     <Route path="" element={<Section />} />
                     <Route path="grades" element={<Grades />} />{" "}
-                    {/* Updated route */}
-                    <Route
-                      path="lectures/:lectureId"
-                      element={<LectureInSection />}
-                    />
+                    <Route path="lectures/:lectureId" element={<Outlet />}>
+                      <Route path="" element={<LectureInSection />} />
+                      <Route path="questions" element={<Outlet />}>
+                        <Route
+                          path=":questionId"
+                          element={<SingleQuestion />}
+                        />
+                      </Route>
+                    </Route>
                     <Route
                       path="lectures/past/:lectureId"
                       element={<PastLectureId />}

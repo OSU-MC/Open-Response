@@ -129,14 +129,12 @@ function QuestionCard(props) {
               <Card.Body>
                 <p>{props.question.type}</p>
 
-                {!sectionId && (
-                  <Button
-                    onClick={() => navigate(`questions/${props.question.id}`)}
-                    className="editQuestionBtn"
-                  >
-                    Edit Question
-                  </Button>
-                )}
+                <Button
+                  onClick={() => navigate(`questions/${props.question.id}`)}
+                  className="editQuestionBtn"
+                >
+                  View/Edit Question
+                </Button>
 
                 {sectionId && props.lecturePublished && (
                   <div className="switch">
