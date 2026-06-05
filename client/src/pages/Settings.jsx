@@ -16,8 +16,8 @@ function Settings() {
     [`Section ${sectionId}`, null],
   ];
   const tabs_o_teacher = [
-    ["Lectures", `sections/${sectionId}`],
-    ["Gradebook", `sections/${sectionId}/grades`],
+    ["Lectures", sectionId ? `sections/${sectionId}` : "sections"], // added guard against sectionId being undefined in the tabs, prevents error.
+    ["Gradebook", sectionId ? `sections/${sectionId}/grades` : "sections"], // added guard against sectionId being undefined in the tabs: this stops server from crashing when navigating to course settings, and then gradebook.
     ["Settings", "settings"],
   ];
   const tabs_o_student = [
