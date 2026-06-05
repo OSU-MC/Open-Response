@@ -51,6 +51,7 @@ function Lectures(props) {
         setLoading(false);
         setError(response.error);
         setMessage(response.message);
+
         if (response.status === 200) {
           setLiveLecture(response.data.filteredLecture);
         }

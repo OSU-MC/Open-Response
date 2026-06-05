@@ -30,11 +30,14 @@ function useLectureQuestions() {
       setMessage(response.message);
       setError(response.error);
 
+      if (response.error) {
+        console.log("Failed to fetch lecture questions");
+        console.error("Error:", response.message);
+      }
+
       if (response.status === 200) {
         console.log("Questions received:", response.data.questions);
         dispatch(addLectureQuestions(lectureId, response.data.questions));
-      } else {
-        console.log("Failed to fetch lecture questions");
       }
     } catch (err) {
       console.error("API call failed:", err);
