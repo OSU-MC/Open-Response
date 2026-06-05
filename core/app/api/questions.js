@@ -153,11 +153,14 @@ router.post("/", requireAuthentication, async function (req, res, next) {
         where: { lectureId: lecture.id },
       });
 
-      questionInLecture = await db.QuestionInLecture.create({
-        lectureForSectionId: existingLectureForSection.id,
-        questionId: question.id,
-        published: false,
-      });
+      if (existingLectureForSection) {
+        // added this if check here
+        questionInLecture = await db.QuestionInLecture.create({
+          lectureForSectionId: existingLectureForSection.id,
+          questionId: question.id,
+          published: false,
+        });
+      }
     }
 
     return res.status(201).send({
