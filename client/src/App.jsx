@@ -34,7 +34,7 @@ import PastLectureId from "./pages/PastLectureId";
 import Settings from "./pages/Settings";
 
 function App() {
-  const [loggedIn, message, error, loading] = useAuth();
+  const { loggedIn, loading } = useAuth();
 
   return (
     <>
